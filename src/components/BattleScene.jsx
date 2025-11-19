@@ -219,7 +219,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                 <span className="text-[10px] text-[#C8AA6E] block">MANA</span>
                 <div className="text-[8px] text-gray-400 mt-1">{currentDrawPile.length}/{currentDiscardPile.length}</div>
             </div>
-            <div className="flex items-end justify-center" style={{ width: '600px', height: '240px', position: 'relative' }}>
+            <div className="flex items-end justify-center pointer-events-auto" style={{ width: '600px', height: '240px', position: 'relative' }}>
                 <AnimatePresence>
                     {hand.map((cid, i) => {
                         const canPlay = playerMana >= CARD_DATABASE[cid].cost && gameState === 'PLAYER_TURN';
