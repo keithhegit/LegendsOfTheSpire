@@ -6,7 +6,7 @@ import { RELIC_DATABASE } from '../data/relics';
 import { ENEMY_POOL } from '../data/enemies';
 import { scaleEnemyStats, shuffle } from '../utils/gameLogic';
 import { SPLASH_URL } from '../data/constants';
-import { playSfx } from '../utils/audioManager';
+import { playSfx, playChampionVoice } from '../utils/audioManager';
 import Card from './shared/Card';
 
 const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex }) => { 
@@ -35,6 +35,11 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   const [enemyStatus, setEnemyStatus] = useState({ strength: 0, weak: 0, vulnerable: 0 });
 
   useEffect(() => {
+    // 战斗开始时播放英雄语音
+    if (heroData.id) {
+      playChampionVoice(heroData.id);
+    }
+    
     const initialDrawPile = shuffle([...initialDeck]);
     deckRef.current = { drawPile: initialDrawPile, hand: [], discardPile: [] };
     let block = 0; let str = heroData.baseStr || 0;

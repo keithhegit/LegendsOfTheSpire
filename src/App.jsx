@@ -30,7 +30,7 @@ export default function App() {
   const [baseStr, setBaseStr] = useState(0);
   const [activeNode, setActiveNode] = useState(null);
   const [usedEnemies, setUsedEnemies] = useState([]); 
-  
+
   // 解锁系统
   const [unlockedChamps, setUnlockedChamps] = useState(() => getUnlockedChampions(CHAMPION_POOL));
   const [hasSave, setHasSave] = useState(false);
@@ -228,3 +228,4 @@ export default function App() {
       </div>
   );
 }
+

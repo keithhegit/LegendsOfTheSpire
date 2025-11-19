@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Heart, Lock } from 'lucide-react';
 import { CHAMPION_POOL } from '../data/champions';
 import { shuffle } from '../utils/gameLogic';
+import { playChampionVoice } from '../utils/audioManager';
 
 const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
     const allChamps = Object.values(CHAMPION_POOL);
@@ -23,7 +24,13 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
                     return (
                         <button 
                             key={champ.name} 
-                            onClick={() => isUnlocked && onChampionSelect(champ)} 
+                            onClick={() => {
+                                if (isUnlocked) {
+                                    // 播放英雄语音
+                                    playChampionVoice(champ.id);
+                                    onChampionSelect(champ);
+                                }
+                            }} 
                             disabled={!isUnlocked}
                             className={`
                                 w-72 h-96 bg-[#1E2328] border-2 rounded-xl overflow-hidden transition-all relative group text-left
