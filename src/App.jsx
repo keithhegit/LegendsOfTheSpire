@@ -32,7 +32,7 @@ export default function App() {
   const [usedEnemies, setUsedEnemies] = useState([]);
   
   // 解锁系统
-  const [unlockedChamps, setUnlockedChamps] = useState(() => getUnlockedChampions());
+  const [unlockedChamps, setUnlockedChamps] = useState(() => getUnlockedChampions(CHAMPION_POOL));
   const [hasSave, setHasSave] = useState(false);
   
   // 检查是否有存档
@@ -93,9 +93,9 @@ export default function App() {
       } else {
         // 通关解锁逻辑
         const allIds = Object.keys(CHAMPION_POOL);
-        const newUnlock = unlockRandomChampion(allIds);
+        const newUnlock = unlockRandomChampion(allIds, CHAMPION_POOL);
         if (newUnlock) {
-          setUnlockedChamps(getUnlockedChampions());
+          setUnlockedChamps(getUnlockedChampions(CHAMPION_POOL));
           alert(`恭喜通关！新英雄解锁: ${CHAMPION_POOL[newUnlock].name}`);
         }
         clearSave();

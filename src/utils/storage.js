@@ -2,9 +2,6 @@
 const SAVE_KEY = 'lots_save_v1';
 const UNLOCK_KEY = 'lots_unlocks_v1';
 
-// 默认解锁英雄
-const DEFAULT_UNLOCKS = ['Garen'];
-
 // --- 存档管理 ---
 export const saveGame = (state) => {
   try {
@@ -29,17 +26,29 @@ export const clearSave = () => {
 };
 
 // --- 解锁系统 ---
-export const getUnlockedChampions = () => {
+// 获取所有英雄ID（需要在调用时传入，避免循环依赖）
+export const getAllChampionIds = (championPool) => {
+  return Object.keys(championPool || {});
+};
+
+// 获取已解锁的英雄列表
+// 如果首次游戏（没有存储数据），返回所有英雄（全部解锁）
+export const getUnlockedChampions = (championPool) => {
   try {
     const data = localStorage.getItem(UNLOCK_KEY);
-    return data ? JSON.parse(data) : DEFAULT_UNLOCKS;
+    if (data) {
+      return JSON.parse(data);
+    }
+    // 首次游戏：返回所有英雄ID（全部解锁）
+    return getAllChampionIds(championPool);
   } catch (e) {
-    return DEFAULT_UNLOCKS;
+    // 出错时也返回所有英雄（全部解锁）
+    return getAllChampionIds(championPool);
   }
 };
 
-export const unlockRandomChampion = (allChampionIds) => {
-  const current = getUnlockedChampions();
+export const unlockRandomChampion = (allChampionIds, championPool) => {
+  const current = getUnlockedChampions(championPool);
   const locked = allChampionIds.filter(id => !current.includes(id));
   
   if (locked.length > 0) {
