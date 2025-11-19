@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { Heart, Coins } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { Heart, Coins, Play, RotateCcw } from 'lucide-react';
 import ChampionSelect from './components/ChampionSelect';
 import MapView from './components/MapView';
 import ShopView from './components/ShopView';
@@ -12,11 +12,13 @@ import AudioPlayer from './components/shared/AudioPlayer';
 import RelicTooltip from './components/shared/RelicTooltip';
 import { STARTING_DECK_BASIC, BGM_MAP_URL, BGM_BATTLE_URL } from './data/constants';
 import { RELIC_DATABASE } from './data/relics';
+import { CHAMPION_POOL } from './data/champions';
 import { generateMap } from './utils/mapGenerator';
 import { shuffle } from './utils/gameLogic';
+import { saveGame, loadGame, clearSave, getUnlockedChampions, unlockRandomChampion } from './utils/storage';
 
 export default function App() {
-  const [view, setView] = useState('CHAMPION_SELECT'); 
+  const [view, setView] = useState('MENU'); 
   const [mapData, setMapData] = useState([]);
   const [currentFloor, setCurrentFloor] = useState(0);
   const [masterDeck, setMasterDeck] = useState([]);
@@ -27,7 +29,50 @@ export default function App() {
   const [relics, setRelics] = useState([]);
   const [baseStr, setBaseStr] = useState(0);
   const [activeNode, setActiveNode] = useState(null);
-  const [usedEnemies, setUsedEnemies] = useState([]); 
+  const [usedEnemies, setUsedEnemies] = useState([]);
+  
+  // 解锁系统
+  const [unlockedChamps, setUnlockedChamps] = useState(() => getUnlockedChampions());
+  const [hasSave, setHasSave] = useState(false);
+  
+  // 检查是否有存档
+  useEffect(() => {
+    const savedData = loadGame();
+    if (savedData) setHasSave(true);
+  }, []);
+  
+  // 自动保存
+  useEffect(() => {
+    if (view !== 'MENU' && view !== 'CHAMPION_SELECT' && view !== 'GAMEOVER' && view !== 'VICTORY_ALL') {
+      saveGame({
+        view, mapData, currentFloor, masterDeck, champion, currentHp, maxHp, gold, relics, baseStr, activeNode, usedEnemies
+      });
+    }
+  }, [view, currentHp, gold, currentFloor, masterDeck, relics]);
+  
+  const handleContinue = () => {
+    const savedData = loadGame();
+    if (savedData) {
+      setMapData(savedData.mapData);
+      setCurrentFloor(savedData.currentFloor);
+      setMasterDeck(savedData.masterDeck);
+      setChampion(savedData.champion);
+      setCurrentHp(savedData.currentHp);
+      setMaxHp(savedData.maxHp);
+      setGold(savedData.gold);
+      setRelics(savedData.relics);
+      setBaseStr(savedData.baseStr);
+      setActiveNode(savedData.activeNode);
+      setUsedEnemies(savedData.usedEnemies);
+      setView(savedData.view);
+    }
+  };
+  
+  const handleNewGame = () => {
+    clearSave();
+    setHasSave(false);
+    setView('CHAMPION_SELECT');
+  }; 
 
   const handleChampionSelect = (selectedChamp) => {
     setChampion(selectedChamp); setMaxHp(selectedChamp.maxHp); setCurrentHp(selectedChamp.maxHp);
@@ -45,7 +90,17 @@ export default function App() {
       if (nextFloorIdx < newMap.length) {
           activeNode.next.forEach(nextId => { const nextNode = newMap[nextFloorIdx].find(n => n.id === nextId); if(nextNode) nextNode.status = 'AVAILABLE'; });
           setCurrentFloor(nextFloorIdx); setView('MAP');
-      } else { setView('VICTORY_ALL'); }
+      } else {
+        // 通关解锁逻辑
+        const allIds = Object.keys(CHAMPION_POOL);
+        const newUnlock = unlockRandomChampion(allIds);
+        if (newUnlock) {
+          setUnlockedChamps(getUnlockedChampions());
+          alert(`恭喜通关！新英雄解锁: ${CHAMPION_POOL[newUnlock].name}`);
+        }
+        clearSave();
+        setView('VICTORY_ALL');
+      }
   };
   
   const handleNodeSelect = (node) => {
@@ -74,16 +129,47 @@ export default function App() {
   const handleSkipReward = () => { setGold(gold + 50); completeNode(); };
   const handleRest = () => { setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.3))); completeNode(); };
   
-  const restartGame = () => { setView('CHAMPION_SELECT'); setMasterDeck([]); setCurrentHp(80); setMaxHp(80); setGold(100); setRelics([]); setBaseStr(0); setChampion(null); setUsedEnemies([]); };
+  const restartGame = () => {
+    clearSave();
+    setHasSave(false);
+    setView('CHAMPION_SELECT');
+    setMasterDeck([]);
+    setCurrentHp(80);
+    setMaxHp(80);
+    setGold(100);
+    setRelics([]);
+    setBaseStr(0);
+    setChampion(null);
+    setUsedEnemies([]);
+  };
 
   const renderView = () => {
       switch(view) {
-          case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} />;
+          case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
+          case 'MENU': return (
+            <div className="h-screen w-full bg-slate-900 flex flex-col items-center justify-center text-white bg-[url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ryze_0.jpg')] bg-cover bg-center">
+              <div className="absolute inset-0 bg-black/60"></div>
+              <div className="z-10 text-center">
+                <h1 className="text-8xl font-black text-[#C8AA6E] mb-8 drop-shadow-lg tracking-widest">峡谷尖塔</h1>
+                <div className="flex flex-col gap-4 w-64 mx-auto">
+                  {hasSave && (
+                    <button onClick={handleContinue} className="px-8 py-4 bg-[#0AC8B9] hover:bg-white hover:text-[#0AC8B9] text-black font-bold rounded flex items-center justify-center gap-2 transition-all">
+                      <Play fill="currentColor" /> 继续征程
+                    </button>
+                  )}
+                  <button onClick={handleNewGame} className="px-8 py-4 border-2 border-[#C8AA6E] hover:bg-[#C8AA6E] hover:text-black text-[#C8AA6E] font-bold rounded flex items-center justify-center gap-2 transition-all">
+                    <RotateCcw /> 新游戏
+                  </button>
+                </div>
+                <p className="mt-8 text-slate-400 text-sm">v2.0 Beta</p>
+              </div>
+            </div>
+          );
           case 'MAP': return <MapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} />;
           case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
           case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} />;
-          case 'COMBAT': return <BattleScene heroData={{...champion, maxHp, currentHp, relics, baseStr}} enemyId={activeNode.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => setView('GAMEOVER')} floorIndex={currentFloor} />;
+          case 'COMBAT': return <BattleScene heroData={{...champion, maxHp, currentHp, relics, baseStr}} enemyId={activeNode.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => { clearSave(); setView('GAMEOVER'); }} floorIndex={currentFloor} />;
           case 'REWARD': return <RewardView goldReward={50} onCardSelect={handleCardReward} onSkip={handleSkipReward} championName={champion.name} />;
           case 'REST': return <RestView onRest={handleRest} />;
           case 'VICTORY_ALL': return <div className="h-screen w-full bg-[#0AC8B9]/20 flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-[#0AC8B9]">德玛西亚万岁！</h1><button onClick={restartGame} className="mt-8 px-8 py-3 bg-[#0AC8B9] text-black font-bold rounded">再来一局</button></div>;

@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sword, Shield, Zap, Skull, Activity, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CARD_DATABASE } from '../data/cards';
 import { RELIC_DATABASE } from '../data/relics';
 import { ENEMY_POOL } from '../data/enemies';
 import { scaleEnemyStats, shuffle } from '../utils/gameLogic';
 import { SPLASH_URL } from '../data/constants';
+import { playSfx } from '../utils/audioManager';
+import Card from './shared/Card';
 
 const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex }) => { 
   const getScaledEnemy = (enemyId, floor) => {
@@ -58,6 +61,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       }
       deckRef.current = { drawPile, hand, discardPile };
       forceUpdate();
+      playSfx('DRAW');
   };
 
   const startTurnLogic = () => {
@@ -97,6 +101,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       if(card.effect === 'CLEANSE') setPlayerStatus(s => ({ ...s, weak: 0, vulnerable: 0 }));
       if(card.effect === 'HEAL') setPlayerHp(h => Math.min(heroData.maxHp, h + card.effectValue));
       if(card.type === 'ATTACK') {
+          playSfx('ATTACK');
           triggerAnim('HERO', 'attack'); setTimeout(() => triggerAnim('ENEMY', 'hit'), 200);
           let dmg = card.value + playerStatus.strength;
           if (playerStatus.weak > 0) dmg = Math.floor(dmg * 0.75);
@@ -108,17 +113,29 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
               if (heroData.relicId === "YasuoPassive" && Math.random() < 0.1) finalDmg = Math.floor(finalDmg * 2);
               if (heroData.relics.includes("InfinityEdge")) finalDmg = Math.floor(finalDmg * 1.5);
               let dmgToHp = finalDmg;
-              if (enemyBlock > 0) { if (enemyBlock >= finalDmg) { setEnemyBlock(b => b - finalDmg); dmgToHp = 0; } else { dmgToHp = finalDmg - enemyBlock; setEnemyBlock(0); } }
+              if (enemyBlock > 0) { 
+                  playSfx('BLOCK');
+                  if (enemyBlock >= finalDmg) { setEnemyBlock(b => b - finalDmg); dmgToHp = 0; } 
+                  else { dmgToHp = finalDmg - enemyBlock; setEnemyBlock(0); } 
+              }
               setEnemyHp(h => Math.max(0, h - dmgToHp)); total += dmgToHp;
               if(heroData.relics.includes("VampiricScepter")) setPlayerHp(h => Math.min(heroData.maxHp, h + 1));
               if(heroData.relicId === "DariusPassive") setEnemyStatus(s => ({ ...s, weak: s.weak + 1 }));
           }
           setDmgOverlay({val: total, target: 'ENEMY'}); setTimeout(()=>setDmgOverlay(null), 800);
       }
-      if(card.block) setPlayerBlock(b => b + card.block);
+      if(card.block) {
+          playSfx('BLOCK');
+          setPlayerBlock(b => b + card.block);
+      }
   };
 
-  useEffect(() => { if(enemyHp<=0) setTimeout(()=>onWin(playerHp), 1000); }, [enemyHp]);
+  useEffect(() => { 
+      if(enemyHp<=0) {
+          playSfx('WIN');
+          setTimeout(()=>onWin(playerHp), 1000); 
+      }
+  }, [enemyHp]);
   useEffect(() => { if(playerHp<=0) setTimeout(onLose, 1000); }, [playerHp]);
   
   const endTurn = () => { 
@@ -137,6 +154,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       const act = nextEnemyAction;
       if(act.type === 'ATTACK' || act.actionType === 'Attack') {
           setTimeout(() => triggerAnim('HERO', 'hit'), 200);
+          playSfx('ATTACK');
           const baseDmg = act.type === 'ATTACK' ? act.value : act.dmgValue;
           let dmg = baseDmg + enemyStatus.strength;
           if(enemyStatus.weak > 0) dmg = Math.floor(dmg * 0.75);
@@ -145,12 +163,23 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           for(let i=0; i<count; i++) {
              let finalDmg = dmg;
              if(playerStatus.vulnerable > 0) finalDmg = Math.floor(finalDmg * 1.5);
-             if(remBlock >= finalDmg) remBlock -= finalDmg; else { let pierce = finalDmg - remBlock; remBlock = 0; currHp -= pierce; if(heroData.relics.includes("BrambleVest")) setEnemyHp(h => Math.max(0, h - 3)); }
+             if(remBlock >= finalDmg) {
+                 playSfx('BLOCK');
+                 remBlock -= finalDmg;
+             } else { 
+                 let pierce = finalDmg - remBlock; 
+                 remBlock = 0; 
+                 currHp -= pierce; 
+                 if(heroData.relics.includes("BrambleVest")) setEnemyHp(h => Math.max(0, h - 3)); 
+             }
              total += finalDmg;
           }
           setPlayerBlock(remBlock); setPlayerHp(currHp); setDmgOverlay({val: total, target: 'PLAYER'}); setTimeout(()=>setDmgOverlay(null), 800);
       }
-      if(act.type === 'BUFF') setEnemyBlock(b => b + act.effectValue);
+      if(act.type === 'BUFF') {
+          playSfx('BLOCK');
+          setEnemyBlock(b => b + act.effectValue);
+      }
       if(act.type === 'DEBUFF') { if(act.effect === 'WEAK') setPlayerStatus(s => ({...s, weak: s.weak + act.effectValue})); if(act.effect === 'VULNERABLE') setPlayerStatus(s => ({...s, vulnerable: s.vulnerable + act.effectValue})); }
       setEnemyBlock(0); 
       setTimeout(startTurnLogic, 1000); 
@@ -190,17 +219,22 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                 <span className="text-[10px] text-[#C8AA6E] block">MANA</span>
                 <div className="text-[8px] text-gray-400 mt-1">{currentDrawPile.length}/{currentDiscardPile.length}</div>
             </div>
-            <div className="flex items-end justify-center" style={{ width: '600px' }}>
-                {hand.map((cid, i) => {
-                    const c = CARD_DATABASE[cid]; const canPlay = playerMana >= c.cost && gameState === 'PLAYER_TURN';
-                    const overlap = i === 0 ? 0 : (hand.length > 5 ? -40 : 10);
-                    return (
-                        <div key={i} onClick={()=>playCard(i)} style={{ marginLeft: `${overlap}px`, zIndex: i }} className={`w-40 h-60 bg-[#1E2328] border-2 rounded-lg relative flex flex-col items-center overflow-hidden shadow-2xl transition-all duration-200 group ${canPlay ? 'border-[#C8AA6E] hover:-translate-y-12 hover:scale-110 cursor-pointer hover:z-50 pointer-events-auto' : 'border-slate-700 opacity-60 pointer-events-auto'}`}>
-                            <div className="w-full h-40 bg-black overflow-hidden relative"><img src={c.img} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" /><div className="absolute top-2 left-2 w-8 h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-lg shadow-md">{c.cost}</div></div>
-                            <div className="flex-1 p-2 text-center flex flex-col w-full"><div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{c.name}</div><div className="text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2">{c.description}</div><div className="mt-auto text-[9px] text-slate-500 uppercase font-bold tracking-wider">{c.type}</div></div>
-                        </div>
-                    )
-                })}
+            <div className="flex items-end justify-center" style={{ width: '600px', height: '240px', position: 'relative' }}>
+                <AnimatePresence>
+                    {hand.map((cid, i) => {
+                        const canPlay = playerMana >= CARD_DATABASE[cid].cost && gameState === 'PLAYER_TURN';
+                        return (
+                            <Card 
+                                key={`${cid}-${i}`} 
+                                cardId={cid} 
+                                index={i} 
+                                totalCards={hand.length} 
+                                canPlay={canPlay} 
+                                onPlay={playCard} 
+                            />
+                        )
+                    })}
+                </AnimatePresence>
             </div>
             <button onClick={endTurn} disabled={gameState!=='PLAYER_TURN'} className="absolute right-8 bottom-8 w-24 h-24 rounded-full bg-[#C8AA6E] border-4 border-[#F0E6D2] flex items-center justify-center font-bold text-[#091428] shadow-lg hover:scale-105 hover:bg-white active:scale-95 transition-all pointer-events-auto">结束<br/>回合</button>
         </div>
