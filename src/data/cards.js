@@ -11,7 +11,7 @@ export const CARD_DATABASE = {
   "GarenW": { id: "GarenW", hero: "Garen", name: "勇气", price: 50, type: "SKILL", cost: 1, block: 12, effect: "CLEANSE", description: "获得 12 点护甲。净化。", img: `${SPELL_URL}/GarenW.png`, rarity: "UNCOMMON" },
   // 德莱厄斯
   "DariusW": { id: "DariusW", hero: "Darius", name: "致残打击", price: 60, type: "ATTACK", cost: 1, value: 10, effect: "WEAK", effectValue: 1, description: "造成 10 点伤害。给予 1 层虚弱。", img: `${SPELL_URL}/DariusNoxianTacticsONH.png`, rarity: "COMMON" },
-  "DariusE": { id: "DariusE", hero: "Darius", name: "无情铁手", price: 80, type: "SKILL", cost: 2, effect: "DRAW", effectValue: 1, description: "抓取 1 张牌。给予 3 层易伤。", img: `${SPELL_URL}/DariusE.png`, rarity: "UNCOMMON" },
+  "DariusE": { id: "DariusE", hero: "Darius", name: "无情铁手", price: 80, type: "SKILL", cost: 2, effect: "DRAW", effectValue: 1, description: "抓取 1 张牌。给予 3 层易伤。", img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "UNCOMMON" },
   // 拉克丝
   "LuxQ": { id: "LuxQ", hero: "Lux", name: "光之束缚", price: 70, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 3, description: "给予 3 层易伤。", img: `${SPELL_URL}/LuxLightBinding.png`, rarity: "COMMON" },
   "LuxE": { id: "LuxE", hero: "Lux", name: "透光奇点", price: 120, type: "ATTACK", cost: 2, value: 15, exhaust: true, description: "造成 15 点伤害。消耗。", img: `${SPELL_URL}/LuxLightStrikeKage.png`, rarity: "UNCOMMON" },
