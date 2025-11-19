@@ -6,28 +6,23 @@ const AudioPlayer = ({ src }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(0.3);
     const prevSrcRef = useRef(null);
-    const hasAutoPlayedRef = useRef(false);
+    const shouldAutoPlayRef = useRef(true); // 默认应该自动播放
     
     // 当 src 变化时，切换音乐源
     useEffect(() => {
         if (audioRef.current && src) {
             const wasPlaying = prevSrcRef.current !== null && !audioRef.current.paused;
+            const isNewSrc = prevSrcRef.current !== src;
             prevSrcRef.current = src;
             
-            audioRef.current.src = src;
+            if (isNewSrc) {
+                audioRef.current.src = src;
+            }
             audioRef.current.volume = volume;
             
-            // 如果之前正在播放，则继续播放新音乐
-            if (wasPlaying) {
-                const playPromise = audioRef.current.play();
-                if (playPromise !== undefined) {
-                    playPromise
-                        .then(() => setIsPlaying(true))
-                        .catch(() => setIsPlaying(false));
-                }
-            } else if (!hasAutoPlayedRef.current) {
-                // 首次加载时尝试自动播放（默认开启）
-                hasAutoPlayedRef.current = true;
+            // 如果之前正在播放，或者应该自动播放（首次加载），则播放
+            if (wasPlaying || (shouldAutoPlayRef.current && isNewSrc)) {
+                shouldAutoPlayRef.current = false; // 标记已尝试自动播放
                 const playPromise = audioRef.current.play();
                 if (playPromise !== undefined) {
                     playPromise
@@ -40,6 +35,23 @@ const AudioPlayer = ({ src }) => {
             }
         }
     }, [src, volume]);
+    
+    // 组件首次挂载时，如果src已存在，尝试自动播放
+    useEffect(() => {
+        if (audioRef.current && src && shouldAutoPlayRef.current) {
+            audioRef.current.src = src;
+            audioRef.current.volume = volume;
+            shouldAutoPlayRef.current = false;
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => setIsPlaying(true))
+                    .catch(() => {
+                        setIsPlaying(false);
+                    });
+            }
+        }
+    }, []); // 只在组件挂载时执行一次
 
     const togglePlay = () => {
         if (isPlaying) {
