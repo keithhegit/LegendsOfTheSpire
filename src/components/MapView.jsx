@@ -25,7 +25,10 @@ const MapView = ({ mapData, onNodeSelect }) => {
   }
   return (
     <div className="flex flex-col items-center h-full w-full relative overflow-hidden bg-[#0c0c12]">
-      <div className="absolute inset-0 z-0"><div className="absolute inset-0 bg-black/80 z-10" /><div className="absolute inset-0 bg-cover bg-center opacity-50" style={{ backgroundImage: `url('${MAP_BG_URL}')` }}></div></div>
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${MAP_BG_URL}')` }}></div>
+        <div className="absolute inset-0 bg-black/70 z-10"></div>
+      </div>
       <div className="relative z-20 w-full h-full flex flex-col-reverse items-center overflow-y-auto py-20 gap-16 hide-scrollbar">
         {mapData.map((floor, floorIndex) => (
           <div key={floorIndex} className="flex justify-center gap-24 relative group">

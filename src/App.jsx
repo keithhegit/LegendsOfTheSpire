@@ -29,7 +29,7 @@ export default function App() {
   const [relics, setRelics] = useState([]);
   const [baseStr, setBaseStr] = useState(0);
   const [activeNode, setActiveNode] = useState(null);
-  const [usedEnemies, setUsedEnemies] = useState([]);
+  const [usedEnemies, setUsedEnemies] = useState([]); 
   
   // 解锁系统
   const [unlockedChamps, setUnlockedChamps] = useState(() => getUnlockedChampions(CHAMPION_POOL));
@@ -132,15 +132,15 @@ export default function App() {
   const restartGame = () => {
     clearSave();
     setHasSave(false);
-    setView('CHAMPION_SELECT');
+      setView('CHAMPION_SELECT');
     setMasterDeck([]);
     setCurrentHp(80);
     setMaxHp(80);
     setGold(100);
     setRelics([]);
     setBaseStr(0);
-    setChampion(null);
-    setUsedEnemies([]);
+      setChampion(null); 
+      setUsedEnemies([]); 
   };
 
   const renderView = () => {
@@ -185,8 +185,8 @@ export default function App() {
       <div className="relative h-screen w-full bg-[#091428] font-sans select-none overflow-hidden">
           <AudioPlayer src={currentBGM} />
           {view !== 'GAMEOVER' && view !== 'VICTORY_ALL' && view !== 'CHAMPION_SELECT' && champion && (
-              <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black to-transparent z-50 flex items-center justify-between px-8 pointer-events-none">
-                  <div className="flex items-center gap-6 pointer-events-auto">
+              <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black to-transparent z-50 flex items-center px-8 pointer-events-none">
+                  <div className="flex items-center gap-6 pointer-events-auto flex-1">
                       <div className="relative group">
                           <img src={champion.avatar} className="w-12 h-12 rounded-full border-2 border-[#C8AA6E] shadow-lg" />
                           <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-xs font-bold text-[#C8AA6E]">{currentFloor+1}F</div>
@@ -205,8 +205,8 @@ export default function App() {
                               <span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span>
                           </div>
                       </div>
-                  </div>
-                  <div className="flex gap-2 pointer-events-auto mr-4">
+                      {/* 道具装备移到英雄专属右侧 */}
+                      <div className="flex gap-2 pointer-events-auto ml-4">
                       {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
                           const relic = RELIC_DATABASE[rid];
                           return (
@@ -220,6 +220,7 @@ export default function App() {
                               </RelicTooltip>
                           );
                       })}
+                      </div>
                   </div>
               </div>
           )}
