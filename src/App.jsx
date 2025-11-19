@@ -10,7 +10,7 @@ import RewardView from './components/RewardView';
 import RestView from './components/RestView';
 import AudioPlayer from './components/shared/AudioPlayer';
 import RelicTooltip from './components/shared/RelicTooltip';
-import { STARTING_DECK_BASIC } from './data/constants';
+import { STARTING_DECK_BASIC, BGM_MAP_URL, BGM_BATTLE_URL } from './data/constants';
 import { RELIC_DATABASE } from './data/relics';
 import { generateMap } from './utils/mapGenerator';
 import { shuffle } from './utils/gameLogic';
@@ -92,9 +92,12 @@ export default function App() {
       }
   };
 
+  // 根据当前视图决定使用哪首 BGM
+  const currentBGM = view === 'COMBAT' ? BGM_BATTLE_URL : BGM_MAP_URL;
+
   return (
       <div className="relative h-screen w-full bg-[#091428] font-sans select-none overflow-hidden">
-          <AudioPlayer />
+          <AudioPlayer src={currentBGM} />
           {view !== 'GAMEOVER' && view !== 'VICTORY_ALL' && view !== 'CHAMPION_SELECT' && champion && (
               <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black to-transparent z-50 flex items-center justify-between px-8 pointer-events-none">
                   <div className="flex items-center gap-6 pointer-events-auto">
