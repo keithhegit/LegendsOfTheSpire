@@ -9,13 +9,14 @@ const LOADING_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/loadin
 const SPLASH_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash";
 const ITEM_URL = `${CDN_URL}/img/item`;
 const SPELL_URL = `${CDN_URL}/img/spell`;
+const PASSIVE_URL = `${CDN_URL}/img/passive`;
 const PROFILEICON_URL = `${CDN_URL}/img/profileicon`;
 
 // 局外地图背景
 const MAP_BG_URL = "https://pub-c98d5902eedf42f6a99765dfad981fd88.r2.dev/LoL/lol-valley.jpg";
 
 // BGM 地址
-const BGM_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/spire/To-the-Infinity%20-Castle%20(1).mp3"; // 局外BGM
+const BGM_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/origin/01%20-%20Aim%20to%20Be%20a%20Pok%C3%A9mon%20Master%20-%20%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC.mp3";
 const BATTLE_BGM_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/spire/guimie-battle%20(1).mp3"; // 战斗BGM
 
 // 初始卡组 (基础卡)
@@ -100,9 +101,9 @@ const CHAMPION_POOL = {
   // 维克托 - 科技/进化
   "Viktor": {
     id: "Viktor", name: "维克托", title: "机械先驱", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Viktor.png`, img: `${LOADING_URL}/Viktor_0.jpg`,
-    passive: "光荣进化: 每次抓取新卡时，有 50% 几率抓取一张额外的基础卡",
+    passive: "光荣进化: 回合开始时，50% 几率获得一张额外基础卡",
     relicId: "ViktorPassive",
-    initialCards: ["ViktorQ", "ViktorE", "Heal", "Ignite"],
+    initialCards: ["ViktorQ", "ViktorE", "Ignite", "Heal"],
     description: "高科技法师，擅长通过快速滤牌获得优势。"
   },
 };
@@ -110,16 +111,16 @@ const CHAMPION_POOL = {
 // 2.2 遗物数据库 (Relics) - 新增宝箱/商店遗物
 const RELIC_DATABASE = {
   // 基础被动遗物
-  "GarenPassive": { id: "GarenPassive", name: "坚韧", description: "战斗结束时恢复 6 HP", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/GarenP.png` },
-  "DariusPassive": { id: "DariusPassive", name: "出血", description: "每次攻击时，给予敌人 1 层虚弱", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/DariusP.png` },
-  "LuxPassive": { id: "LuxPassive", name: "光芒四射", description: "每回合开始时获得 1 点额外法力", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/LuxP.png` },
-  "JinxPassive": { id: "JinxPassive", name: "爆发", description: "每回合初始手牌数量+1", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/JinxP.png` },
-  "YasuoPassive": { id: "YasuoPassive", name: "浪客之道", description: "攻击牌暴击几率+10%", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/YasuoP.png` },
-  "SonaPassive": { id: "SonaPassive", name: "能量弦", description: "每回合打出第三张卡时，获得 3 点临时护甲", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/SonaP.png` },
-  "EkkoPassive": { id: "EkkoPassive", name: "Z型驱动共振", description: "每次打出消耗卡时，获得 1 点力量", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/EkkoP.png` },
-  "SylasPassive": { id: "SylasPassive", name: "叛乱", description: "每次打出技能牌时，回复 3 点生命值", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/SylasP.png` },
-  "UrgotPassive": { id: "UrgotPassive", name: "回火", description: "战斗开始时获得 15 点临时护甲", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/UrgotP.png` },
-  "ViktorPassive": { id: "ViktorPassive", name: "光荣进化", description: "每次抓取新卡时，有 50% 几率抓取一张额外的基础卡", price: 0, rarity: "PASSIVE", img: `${SPELL_URL}/ViktorP.png` },
+  "GarenPassive": { id: "GarenPassive", name: "坚韧", description: "战斗结束时恢复 6 HP", rarity: "PASSIVE", img: `${PASSIVE_URL}/Garen_Passive.png` },
+  "DariusPassive": { id: "DariusPassive", name: "出血", description: "每次攻击时，给予敌人 1 层虚弱", rarity: "PASSIVE", img: `${PASSIVE_URL}/Darius_Passive.png` },
+  "LuxPassive": { id: "LuxPassive", name: "光芒四射", description: "每回合开始时获得 1 点额外法力", rarity: "PASSIVE", img: `${PASSIVE_URL}/LuxIllumination.png` },
+  "JinxPassive": { id: "JinxPassive", name: "爆发", description: "每回合初始手牌数量+1", rarity: "PASSIVE", img: `${PASSIVE_URL}/Jinx_Passive.png` },
+  "YasuoPassive": { id: "YasuoPassive", name: "浪客之道", description: "攻击牌暴击几率+10%", rarity: "PASSIVE", img: `${PASSIVE_URL}/Yasuo_Passive.png` },
+  "SonaPassive": { id: "SonaPassive", name: "能量弦", description: "每回合打出第三张卡时，获得 3 点临时护甲", rarity: "PASSIVE", img: `${PASSIVE_URL}/Sona_Passive.png` },
+  "EkkoPassive": { id: "EkkoPassive", name: "Z型驱动共振", description: "每次打出消耗卡时，获得 1 点力量", rarity: "PASSIVE", img: `${PASSIVE_URL}/Ekko_P.png` },
+  "SylasPassive": { id: "SylasPassive", name: "叛乱", description: "每次打出技能牌时，回复 3 点生命值", rarity: "PASSIVE", img: `${PASSIVE_URL}/SylasP.png` },
+  "UrgotPassive": { id: "UrgotPassive", name: "回火", description: "战斗开始时获得 15 点临时护甲", rarity: "PASSIVE", img: `${PASSIVE_URL}/Urgot_Passive.png` },
+  "ViktorPassive": { id: "ViktorPassive", name: "光荣进化", description: "回合开始时，50% 几率获得一张额外基础卡", rarity: "PASSIVE", img: `${PASSIVE_URL}/Viktor_Passive.png` },
 
   // 商店/宝箱遗物 (COMMON)
   "DoransShield": {
@@ -269,59 +270,50 @@ const ENEMY_POOL = {
 // 2.4 卡牌数据库 (Cards) - 包含所有英雄的基础卡和通用卡
 const CARD_DATABASE = {
   // 基础卡 (通用卡牌)
-  "Strike": { id: "Strike", name: "打击", price: 0, type: "ATTACK", cost: 1, value: 6, description: "造成 6 点伤害。", img: `${SPELL_URL}/SummonerFlash.png`, rarity: "BASIC" }, 
-  "Defend": { id: "Defend", name: "防御", price: 0, type: "SKILL", cost: 1, block: 5, description: "获得 5 点护甲。", img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "BASIC" }, 
-  "Ignite": { id: "Ignite", name: "点燃", price: 80, type: "SKILL", cost: 0, value: 0, effect: "STRENGTH", effectValue: 2, exhaust: true, description: "获得 2 点力量。消耗。", img: `${SPELL_URL}/SummonerDot.png`, rarity: "UNCOMMON" }, // 中立技能，维克托卡组中是合理的
-  "Heal": { id: "Heal", name: "治疗术", price: 80, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 10, exhaust: true, description: "恢复 10 点生命。消耗。", img: `${SPELL_URL}/SummonerHeal.png`, rarity: "UNCOMMON" },
+  "Strike": { id: "Strike", hero: "Neutral", name: "打击", price: 0, type: "ATTACK", cost: 1, value: 6, description: "造成 6 点伤害。", img: `${SPELL_URL}/SummonerFlash.png`, rarity: "BASIC" }, 
+  "Defend": { id: "Defend", hero: "Neutral", name: "防御", price: 0, type: "SKILL", cost: 1, block: 5, description: "获得 5 点护甲。", img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "BASIC" }, 
+  "Ignite": { id: "Ignite", hero: "Neutral", name: "点燃", price: 80, type: "SKILL", cost: 0, value: 0, effect: "STRENGTH", effectValue: 2, exhaust: true, description: "获得 2 点力量。消耗。", img: `${SPELL_URL}/SummonerDot.png`, rarity: "UNCOMMON" },
+  "Heal": { id: "Heal", hero: "Neutral", name: "治疗术", price: 80, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 10, exhaust: true, description: "恢复 10 点生命。消耗。", img: `${SPELL_URL}/SummonerHeal.png`, rarity: "UNCOMMON" },
   
   // 盖伦 (Garen)
-  "GarenQ": { id: "GarenQ", name: "致命打击", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "VULNERABLE", effectValue: 2, description: "造成 8 点伤害。给予 2 层易伤。", img: `${SPELL_URL}/GarenQ.png`, rarity: "COMMON" },
-  "GarenW": { id: "GarenW", name: "勇气", price: 50, type: "SKILL", cost: 1, block: 12, effect: "CLEANSE", description: "获得 12 点护甲。净化所有负面状态。", img: `${SPELL_URL}/GarenW.png`, rarity: "UNCOMMON" },
+  "GarenQ": { id: "GarenQ", hero: "Garen", name: "致命打击", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "VULNERABLE", effectValue: 2, description: "造成 8 点伤害。给予 2 层易伤。", img: `${SPELL_URL}/GarenQ.png`, rarity: "COMMON" },
+  "GarenW": { id: "GarenW", hero: "Garen", name: "勇气", price: 50, type: "SKILL", cost: 1, block: 12, effect: "CLEANSE", description: "获得 12 点护甲。净化。", img: `${SPELL_URL}/GarenW.png`, rarity: "UNCOMMON" },
 
   // 德莱厄斯 (Darius)
-  "DariusW": { id: "DariusW", name: "致残打击", price: 60, type: "ATTACK", cost: 1, value: 10, effect: "WEAK", effectValue: 1, description: "造成 10 点伤害。给予 1 层虚弱。", img: `${SPELL_URL}/DariusW.png`, rarity: "COMMON" },
-  // 修复 6: DariusE 图标
-  "DariusE": { id: "DariusE", name: "无情铁手", price: 80, type: "SKILL", cost: 2, effect: "VULNERABLE", effectValue: 3, description: "给予 3 层易伤。抓取 1 张牌。", img: `${SPELL_URL}/DariusE.png`, rarity: "UNCOMMON" },
+  "DariusW": { id: "DariusW", hero: "Darius", name: "致残打击", price: 60, type: "ATTACK", cost: 1, value: 10, effect: "WEAK", effectValue: 1, description: "造成 10 点伤害。给予 1 层虚弱。", img: `${SPELL_URL}/DariusNoxianTacticsONH.png`, rarity: "COMMON" },
+  "DariusE": { id: "DariusE", hero: "Darius", name: "无情铁手", price: 80, type: "SKILL", cost: 2, effect: "DRAW", effectValue: 1, description: "抓取 1 张牌。给予 3 层易伤。", img: `${SPELL_URL}/DariusAxeGrab.png`, rarity: "UNCOMMON" },
   
   // 拉克丝 (Lux)
-  // 修复 1: LuxQ 图标
-  "LuxQ": { id: "LuxQ", name: "光之束缚", price: 70, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 3, description: "给予 3 层易伤。下回合抓取 1 张牌。", img: `${SPELL_URL}/LuxLightBinding.png`, rarity: "COMMON" },
-  // 修复 1: LuxE 图标
-  "LuxE": { id: "LuxE", name: "透光奇点", price: 120, type: "ATTACK", cost: 2, value: 15, exhaust: true, description: "造成 15 点伤害。消耗。", img: `${SPELL_URL}/LuxLightStrike.png`, rarity: "UNCOMMON" },
+  "LuxQ": { id: "LuxQ", hero: "Lux", name: "光之束缚", price: 70, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 3, description: "给予 3 层易伤。", img: `${SPELL_URL}/LuxLightBinding.png`, rarity: "COMMON" },
+  "LuxE": { id: "LuxE", hero: "Lux", name: "透光奇点", price: 120, type: "ATTACK", cost: 2, value: 15, exhaust: true, description: "造成 15 点伤害。消耗。", img: `${SPELL_URL}/LuxLightStrikeKage.png`, rarity: "UNCOMMON" },
 
   // 金克丝 (Jinx)
-  // 修复 2: JinxQ 图标
-  "JinxQ": { id: "JinxQ", name: "切自动挡", price: 40, type: "ATTACK", cost: 0, value: 4, isMultiHit: true, hits: 2, description: "造成 2 次 4 点伤害。", img: `${SPELL_URL}/JinxQ.png`, rarity: "COMMON" },
-  // 修复 2: JinxW 图标
-  "JinxW": { id: "JinxW", name: "震荡电磁波", price: 90, type: "ATTACK", cost: 2, value: 20, effect: "WEAK", effectValue: 2, description: "造成 20 点伤害。给予 2 层虚弱。", img: `${SPELL_URL}/JinxW.png`, rarity: "UNCOMMON" },
+  "JinxQ": { id: "JinxQ", hero: "Jinx", name: "切自动挡", price: 40, type: "ATTACK", cost: 0, value: 4, isMultiHit: true, hits: 2, description: "造成 2 次 4 点伤害。", img: `${SPELL_URL}/JinxQ.png`, rarity: "COMMON" },
+  "JinxW": { id: "JinxW", hero: "Jinx", name: "震荡电磁波", price: 90, type: "ATTACK", cost: 2, value: 20, effect: "WEAK", effectValue: 2, description: "造成 20 点伤害。给予 2 层虚弱。", img: `${SPELL_URL}/JinxW.png`, rarity: "UNCOMMON" },
 
   // 亚索 (Yasuo)
-  // 修复 5: YasuoQ 图标
-  "YasuoQ": { id: "YasuoQ", name: "斩钢闪", price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。可多次使用。", img: `${SPELL_URL}/YasuoQ.png`, rarity: "COMMON" },
-  // 修复 5: YasuoE 图标
-  "YasuoE": { id: "YasuoE", name: "踏前斩", price: 70, type: "ATTACK", cost: 1, value: 8, effect: "STRENGTH", effectValue: 1, description: "造成 8 点伤害。获得 1 点力量。", img: `${SPELL_URL}/YasuoE.png`, rarity: "UNCOMMON" },
+  "YasuoQ": { id: "YasuoQ", hero: "Yasuo", name: "斩钢闪", price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。", img: `${SPELL_URL}/YasuoQ1Wrapper.png`, rarity: "COMMON" },
+  "YasuoE": { id: "YasuoE", hero: "Yasuo", name: "踏前斩", price: 70, type: "ATTACK", cost: 1, value: 8, effect: "STRENGTH", effectValue: 1, description: "造成 8 点伤害。获得 1 点力量。", img: `${SPELL_URL}/YasuoDashWrapper.png`, rarity: "UNCOMMON" },
   
   // 娑娜 (Sona)
-  "SonaQ": { id: "SonaQ", name: "英勇赞美诗", price: 50, type: "ATTACK", cost: 1, value: 7, effect: "HEAL", effectValue: 3, description: "造成 7 点伤害，回复 3 点生命。", img: `${SPELL_URL}/SonaQ.png`, rarity: "COMMON" },
-  "SonaW": { id: "SonaW", name: "坚毅咏叹调", price: 80, type: "SKILL", cost: 1, block: 8, effect: "HEAL", effectValue: 5, description: "获得 8 点护甲，回复 5 点生命。", img: `${SPELL_URL}/SonaW.png`, rarity: "UNCOMMON" },
+  "SonaQ": { id: "SonaQ", hero: "Sona", name: "英勇赞美诗", price: 50, type: "ATTACK", cost: 1, value: 7, effect: "HEAL", effectValue: 3, description: "造成 7 点伤害，回复 3 点生命。", img: `${SPELL_URL}/SonaHymnofValor.png`, rarity: "COMMON" },
+  "SonaW": { id: "SonaW", hero: "Sona", name: "坚毅咏叹调", price: 80, type: "SKILL", cost: 1, block: 8, effect: "HEAL", effectValue: 5, description: "获得 8 点护甲，回复 5 点生命。", img: `${SPELL_URL}/SonaAriaofPerseverance.png`, rarity: "UNCOMMON" },
 
   // 艾克 (Ekko)
-  "EkkoQ": { id: "EkkoQ", name: "时间卷曲器", price: 50, type: "ATTACK", cost: 1, value: 12, exhaust: true, description: "造成 12 点伤害。消耗。", img: `${SPELL_URL}/EkkoQ.png`, rarity: "COMMON" },
-  "EkkoE": { id: "EkkoE", name: "相位俯冲", price: 90, type: "SKILL", cost: 0, block: 5, exhaust: true, description: "获得 5 点护甲。本回合内，下一次攻击伤害+5。", img: `${SPELL_URL}/EkkoE.png`, rarity: "UNCOMMON" },
+  "EkkoQ": { id: "EkkoQ", hero: "Ekko", name: "时间卷曲器", price: 50, type: "ATTACK", cost: 1, value: 12, exhaust: true, description: "造成 12 点伤害。消耗。", img: `${SPELL_URL}/EkkoQ.png`, rarity: "COMMON" },
+  "EkkoE": { id: "EkkoE", hero: "Ekko", name: "相位俯冲", price: 90, type: "SKILL", cost: 0, block: 5, exhaust: true, description: "获得 5 点护甲。", img: `${SPELL_URL}/EkkoE.png`, rarity: "UNCOMMON" },
 
   // 塞拉斯 (Sylas)
-  "SylasQ": { id: "SylasQ", name: "锁链鞭击", price: 50, type: "ATTACK", cost: 1, value: 7, isMultiHit: true, hits: 2, description: "造成 2 次 7 点伤害。", img: `${SPELL_URL}/SylasQ.png`, rarity: "COMMON" },
-  "SylasW": { id: "SylasW", name: "弑君突刺", price: 90, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 15, description: "回复 15 点生命。本回合不能再次回复生命。", img: `${SPELL_URL}/SylasW.png`, rarity: "UNCOMMON" },
+  "SylasQ": { id: "SylasQ", hero: "Sylas", name: "锁链鞭击", price: 50, type: "ATTACK", cost: 1, value: 7, isMultiHit: true, hits: 2, description: "造成 2 次 7 点伤害。", img: `${SPELL_URL}/SylasQ.png`, rarity: "COMMON" },
+  "SylasW": { id: "SylasW", hero: "Sylas", name: "弑君突刺", price: 90, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 15, description: "回复 15 点生命。", img: `${SPELL_URL}/SylasW.png`, rarity: "UNCOMMON" },
   
   // 厄加特 (Urgot)
-  "UrgotQ": { id: "UrgotQ", name: "腐蚀电荷", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "WEAK", effectValue: 1, description: "造成 8 点伤害，给予 1 层虚弱。", img: `${SPELL_URL}/UrgotQ.png`, rarity: "COMMON" },
-  "UrgotW": { id: "UrgotW", name: "净除", price: 90, type: "SKILL", cost: 1, block: 8, effect: "VULNERABLE", effectValue: 1, description: "获得 8 点护甲，给予 1 层易伤。", img: `${SPELL_URL}/UrgotW.png`, rarity: "UNCOMMON" },
+  "UrgotQ": { id: "UrgotQ", hero: "Urgot", name: "腐蚀电荷", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "WEAK", effectValue: 1, description: "造成 8 点伤害，给予 1 层虚弱。", img: `${SPELL_URL}/UrgotQ.png`, rarity: "COMMON" },
+  "UrgotW": { id: "UrgotW", hero: "Urgot", name: "净除", price: 90, type: "SKILL", cost: 1, block: 8, effect: "VULNERABLE", effectValue: 1, description: "获得 8 点护甲，给予 1 层易伤。", img: `${SPELL_URL}/UrgotW.png`, rarity: "UNCOMMON" },
 
   // 维克托 (Viktor)
-  // 修复 5: ViktorQ 图标
-  "ViktorQ": { id: "ViktorQ", name: "能量转移", price: 40, type: "ATTACK", cost: 0, value: 3, block: 3, description: "造成 3 点伤害，获得 3 点护甲。", img: `${SPELL_URL}/ViktorPowerTransfer.png`, rarity: "COMMON" },
-  // 修复 5: ViktorE 图标
-  "ViktorE": { id: "ViktorE", name: "死亡射线", price: 100, type: "ATTACK", cost: 2, value: 18, description: "造成 18 点伤害。", img: `${SPELL_URL}/ViktorDeathRay.png`, rarity: "UNCOMMON" },
+  "ViktorQ": { id: "ViktorQ", hero: "Viktor", name: "能量转移", price: 40, type: "ATTACK", cost: 0, value: 3, block: 3, description: "造成 3 点伤害，获得 3 点护甲。", img: `${SPELL_URL}/ViktorPowerTransfer.png`, rarity: "COMMON" },
+  "ViktorE": { id: "ViktorE", hero: "Viktor", name: "死亡射线", price: 100, type: "ATTACK", cost: 2, value: 18, description: "造成 18 点伤害。", img: `${SPELL_URL}/ViktorDeathRay.png`, rarity: "UNCOMMON" },
 };
 
 
@@ -494,11 +486,10 @@ const MapView = ({ mapData, onNodeSelect, currentFloor }) => {
   const getMapIcon = (node) => {
       if (node.type === 'BOSS') return `${CDN_URL}/img/champion/Darius.png`; 
       if (node.type === 'REST') return `${ITEM_URL}/2003.png`; 
-      if (node.type === 'SHOP') return `${ITEM_URL}/3400.png`; // 贪婪之刃
-      // 修复 3: Chest 图标
-      if (node.type === 'EVENT') return `${ITEM_URL}/3340.png`; // 真眼
-      if (node.type === 'CHEST') return `${ITEM_URL}/3302.png`; // 宝箱
-      if (node.type === 'BATTLE' && node.enemyId) return ENEMY_POOL[node.enemyId].avatar; 
+      if (node.type === 'SHOP') return `${ITEM_URL}/3400.png`; 
+      if (node.type === 'EVENT') return `${ITEM_URL}/3340.png`; 
+      if (node.type === 'CHEST') return `${PROFILEICON_URL}/2065.png`; 
+      if (node.type === 'BATTLE' && node.enemyId) return ENEMY_POOL[node.enemyId]?.avatar || `${PROFILEICON_URL}/29.png`; 
       return null;
   };
 
@@ -532,7 +523,7 @@ const MapView = ({ mapData, onNodeSelect, currentFloor }) => {
                const isCompleted = node.status === 'COMPLETED';
                const isLocked = node.status === 'LOCKED';
                const iconUrl = getMapIcon(node);
-               const labelText = node.type === 'BATTLE' ? ENEMY_POOL[node.enemyId].name : node.type;
+               const labelText = node.type === 'BATTLE' ? (ENEMY_POOL[node.enemyId]?.name || 'Unknown') : node.type;
 
                return (
                  <div key={node.id} className="relative flex flex-col items-center">
@@ -575,8 +566,8 @@ const MapView = ({ mapData, onNodeSelect, currentFloor }) => {
 };
 
 // 4.2 商店视图 (ShopView) - 新增 CHEST 逻辑
-const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics }) => {
-    const cardStock = useMemo(() => shuffle(Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC')).slice(0, 5), []);
+const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, championName }) => {
+    const cardStock = useMemo(() => shuffle(Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC' && (c.hero === 'Neutral' || c.hero === championName))).slice(0, 5), [championName]);
     const relicStock = useMemo(() => Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)).slice(0, 3), [relics]);
     const [purchasedItems, setPurchasedItems] = useState([]);
     
@@ -613,11 +604,11 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics }) => {
                         <div className="flex flex-wrap gap-4">
                             {cardStock.map(card => {
                                 const isBought = purchasedItems.includes(card.id);
-                                const canAfford = gold >= card.price;
                                 return (
                                     <div key={card.id} onClick={() => !isBought && handleBuy(card, 'CARD')} className={`w-32 h-48 relative group transition-all ${isBought ? 'opacity-20 grayscale pointer-events-none' : 'hover:scale-105 cursor-pointer'}`}>
                                         <img src={card.img} className="w-full h-full object-cover rounded border border-slate-600" />
                                         <div className="absolute bottom-0 left-0 right-0 bg-black/90 text-center py-1 text-xs font-bold text-[#C8AA6E] border-t border-[#C8AA6E]">{card.price} G</div>
+                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 bg-black border border-[#C8AA6E] p-2 z-50 hidden group-hover:block text-center pointer-events-none text-xs text-white"><div className="font-bold mb-1">{card.name}</div>{card.description}</div>
                                     </div>
                                 )
                             })}
@@ -628,15 +619,11 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics }) => {
                         <div className="flex flex-wrap gap-6">
                             {relicStock.map(relic => {
                                 const isBought = purchasedItems.includes(relic.id);
-                                const canAfford = gold >= relic.price;
                                 return (
                                     <div key={relic.id} onClick={() => !isBought && handleBuy(relic, 'RELIC')} className={`w-20 h-20 relative group transition-all ${isBought ? 'opacity-20 grayscale pointer-events-none' : 'hover:scale-110 cursor-pointer'}`}>
                                         <img src={relic.img} className="w-full h-full object-cover rounded-lg border-2 border-[#C8AA6E] shadow-[0_0_10px_#C8AA6E]" />
                                         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-black/80 px-2 rounded text-yellow-400 font-bold text-sm whitespace-nowrap">{relic.price} G</div>
-                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-black border border-[#C8AA6E] p-3 z-50 hidden group-hover:block text-center pointer-events-none">
-                                            <div className="font-bold text-[#F0E6D2]">{relic.name}</div>
-                                            <div className="text-xs text-[#A09B8C]">{relic.description}</div>
-                                        </div>
+                                        <RelicTooltip relic={relic}><div className="w-full h-full absolute inset-0"></div></RelicTooltip>
                                     </div>
                                 )
                             })}
@@ -732,11 +719,11 @@ const ChampionSelect = ({ onChampionSelect }) => {
 
 // 4.5 遗物提示组件 (RelicTooltip) - 修复右上角遗物提示
 const RelicTooltip = ({ relic, children }) => {
+    if (!relic) return children; // 防止 relic 为空导致错误
     return (
         <div className="relative group">
             {children}
-            {/* 调整悬停框位置到左侧/下方 */}
-            <div className="absolute top-0 left-12 mt-2 w-48 bg-black border border-[#C8AA6E] p-3 z-[110] hidden group-hover:block text-center pointer-events-none rounded-lg shadow-xl">
+            <div className="absolute top-full left-1/2 mt-2 transform -translate-x-1/2 w-48 bg-black border border-[#C8AA6E] p-3 z-[110] hidden group-hover:block text-center pointer-events-none rounded-lg shadow-xl">
                 <div className="font-bold text-[#F0E6D2]">{relic.name}</div>
                 <div className="text-xs text-[#A09B8C]">{relic.description}</div>
                 {relic.charges !== undefined && <div className="text-xs text-red-400 mt-1">剩余次数: {relic.charges}</div>}
@@ -772,11 +759,12 @@ const EventView = ({ onLeave, onReward }) => (
     </div>
 );
 
-const RewardView = ({ onSkip, onCardSelect, goldReward }) => {
+const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
   const rewards = useMemo(() => {
     const allCards = Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC' && c.rarity !== 'PASSIVE');
-    return shuffle(allCards).slice(0, 3);
-  }, []);
+    const heroCards = allCards.filter(c => c.hero === championName || c.hero === 'Neutral');
+    return shuffle(heroCards).slice(0, 3);
+  }, [championName]);
   return (
     <div className="absolute inset-0 z-50 bg-black/90 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
        <h2 className="text-4xl font-bold text-[#C8AA6E] mb-2">胜利!</h2>
@@ -819,7 +807,7 @@ const RestView = ({ onRest }) => (
 
 // --- 5. 主游戏容器 (Game Manager) ---
 
-export default function App() {
+export default function LegendsOfTheSpire() {
   const [view, setView] = useState('CHAMPION_SELECT'); // 初始视图改为英雄选择
   const [mapData, setMapData] = useState([]);
   const [currentFloor, setCurrentFloor] = useState(0);
@@ -834,44 +822,27 @@ export default function App() {
   const [usedEnemies, setUsedEnemies] = useState([]); 
 
   const handleChampionSelect = (selectedChamp) => {
-    setChampion(selectedChamp);
-    setMaxHp(selectedChamp.maxHp);
-    setCurrentHp(selectedChamp.maxHp);
-    
-    // 初始化英雄牌组：基础卡 + 英雄专属卡
-    const heroDeck = [...STARTING_DECK_BASIC, ...selectedChamp.initialCards];
-    setMasterDeck(heroDeck);
-    
-    // 设置英雄被动遗物
-    const heroRelic = RELIC_DATABASE[selectedChamp.relicId];
-    setRelics([heroRelic.id]);
-    
-    // 生成地图并开始游戏
+    setChampion(selectedChamp); setMaxHp(selectedChamp.maxHp); setCurrentHp(selectedChamp.maxHp);
+    setMasterDeck([...STARTING_DECK_BASIC, ...selectedChamp.initialCards]);
+    setRelics([RELIC_DATABASE[selectedChamp.relicId].id]);
     const { map: newMap, finalEnemyIds } = generateMap(usedEnemies);
-    setMapData(newMap);
-    setUsedEnemies(finalEnemyIds);
-    setCurrentFloor(0);
-    setView('MAP');
+    setMapData(newMap); setUsedEnemies(finalEnemyIds); setCurrentFloor(0); setView('MAP');
   };
 
 
   const completeNode = () => {
       const newMap = [...mapData];
       const floorNodes = newMap[currentFloor];
-      const targetNode = floorNodes.find(n => n.id === activeNode.id);
-      if(targetNode) targetNode.status = 'COMPLETED';
+      floorNodes.forEach(n => { if (n.id === activeNode.id) n.status = 'COMPLETED'; else n.status = 'LOCKED'; });
       const nextFloorIdx = currentFloor + 1;
       if (nextFloorIdx < newMap.length) {
-          activeNode.next.forEach(nextId => {
-              const nextNode = newMap[nextFloorIdx].find(n => n.id === nextId);
-              if(nextNode) nextNode.status = 'AVAILABLE';
-          });
-          setCurrentFloor(nextFloorIdx);
-          setView('MAP');
+          activeNode.next.forEach(nextId => { const nextNode = newMap[nextFloorIdx].find(n => n.id === nextId); if(nextNode) nextNode.status = 'AVAILABLE'; });
+          setCurrentFloor(nextFloorIdx); setView('MAP');
       } else { setView('VICTORY_ALL'); }
   };
   
   const handleNodeSelect = (node) => {
+      if (node.status !== 'AVAILABLE') return;
       setActiveNode(node);
       switch(node.type) {
           case 'BATTLE': case 'BOSS': setView('COMBAT'); break;
@@ -884,54 +855,29 @@ export default function App() {
   };
 
   const handleBattleWin = (remainingHp) => { 
-      let passiveHeal = 0;
-      if(champion.relicId === "GarenPassive") passiveHeal = 6; // 盖伦被动回血
+      let passiveHeal = champion.relicId === "GarenPassive" ? 6 : 0; 
       setCurrentHp(Math.min(maxHp, remainingHp + passiveHeal)); 
       setView('REWARD'); 
   };
   const handleBuyCard = (card) => { setGold(prev => prev - card.price); setMasterDeck(prev => [...prev, card.id]); };
-  const handleRelicReward = (relic) => {
-      setRelics(prev => [...prev, relic.id]);
-      if (relic.onPickup) { 
-          const ns = relic.onPickup({ maxHp, currentHp }); 
-          setMaxHp(ns.maxHp); 
-          setCurrentHp(ns.currentHp); 
-      }
-      completeNode();
-  };
-  const handleBuyRelic = (relic) => {
-      setGold(prev => prev - relic.price); 
-      handleRelicReward(relic);
-  };
-  const handleEventReward = (reward) => {
-      if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value);
-      if (reward.type === 'RELIC_RANDOM') {
-          const pool = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id));
-          if (pool.length > 0) handleRelicReward(shuffle(pool)[0]);
-      }
-      completeNode();
-  };
+  const handleRelicReward = (relic) => { setRelics(prev => [...prev, relic.id]); if (relic.onPickup) { const ns = relic.onPickup({ maxHp, currentHp }); setMaxHp(ns.maxHp); setCurrentHp(ns.currentHp); } completeNode(); };
+  const handleBuyRelic = (relic) => { setGold(prev => prev - relic.price); handleRelicReward(relic); };
+  const handleEventReward = (reward) => { if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value); if (reward.type === 'RELIC_RANDOM') { const pool = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)); if (pool.length > 0) handleRelicReward(shuffle(pool)[0]); } completeNode(); };
   const handleCardReward = (cardId) => { setMasterDeck([...masterDeck, cardId]); setGold(gold + 50); completeNode(); };
   const handleSkipReward = () => { setGold(gold + 50); completeNode(); };
   const handleRest = () => { setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.3))); completeNode(); };
   
-  // 游戏重新开始
-  const restartGame = () => {
-      setView('CHAMPION_SELECT');
-      setMasterDeck([]); setCurrentHp(80); setMaxHp(80); setGold(100); setRelics([]); setBaseStr(0);
-      setChampion(null); 
-      setUsedEnemies([]); 
-  };
+  const restartGame = () => { setView('CHAMPION_SELECT'); setMasterDeck([]); setCurrentHp(80); setMaxHp(80); setGold(100); setRelics([]); setBaseStr(0); setChampion(null); setUsedEnemies([]); };
 
   const renderView = () => {
       switch(view) {
           case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} />;
           case 'MAP': return <MapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} />;
-          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} />;
+          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
           case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} />;
           case 'COMBAT': return <BattleScene heroData={{...champion, maxHp, currentHp, relics, baseStr}} enemyId={activeNode.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => setView('GAMEOVER')} floorIndex={currentFloor} />;
-          case 'REWARD': return <RewardView goldReward={50} onCardSelect={handleCardReward} onSkip={handleSkipReward} />;
+          case 'REWARD': return <RewardView goldReward={50} onCardSelect={handleCardReward} onSkip={handleSkipReward} championName={champion.name} />;
           case 'REST': return <RestView onRest={handleRest} />;
           case 'VICTORY_ALL': return <div className="h-screen w-full bg-[#0AC8B9]/20 flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-[#0AC8B9]">德玛西亚万岁！</h1><button onClick={restartGame} className="mt-8 px-8 py-3 bg-[#0AC8B9] text-black font-bold rounded">再来一局</button></div>;
           case 'GAMEOVER': return <div className="h-screen w-full bg-black flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-red-600">战败</h1><button onClick={restartGame} className="mt-8 px-8 py-3 bg-red-800 rounded font-bold">重新开始</button></div>;
@@ -1012,92 +958,87 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   const [enemyBlock, setEnemyBlock] = useState(0);
   const [nextEnemyAction, setNextEnemyAction] = useState(enemyConfig.actions[0]);
   
-  const [drawPile, setDrawPile] = useState([]);
-  const [hand, setHand] = useState([]);
-  const [discardPile, setDiscardPile] = useState([]);
-  const [dmgOverlay, setDmgOverlay] = useState(null);
+  // 使用 Ref 管理牌库，解决闭包状态丢失问题
+  const deckRef = useRef({
+    drawPile: [],
+    hand: [],
+    discardPile: []
+  });
   
+  const [renderTrigger, setRenderTrigger] = useState(0);
+  const forceUpdate = () => setRenderTrigger(prev => prev + 1);
+
+  const [dmgOverlay, setDmgOverlay] = useState(null);
   const [heroAnim, setHeroAnim] = useState("");
   const [enemyAnim, setEnemyAnim] = useState("");
-
   const [playerStatus, setPlayerStatus] = useState({ strength: heroData.baseStr || 0, weak: 0, vulnerable: 0 });
   const [enemyStatus, setEnemyStatus] = useState({ strength: 0, weak: 0, vulnerable: 0 });
 
   useEffect(() => {
-    const deck = shuffle([...initialDeck]);
-    setDrawPile(deck);
+    const initialDrawPile = shuffle([...initialDeck]);
+    deckRef.current = { drawPile: initialDrawPile, hand: [], discardPile: [] };
     let block = 0; let str = heroData.baseStr || 0;
-    
-    // 处理战斗开始遗物效果
     heroData.relics.forEach(rid => {
         const relic = RELIC_DATABASE[rid];
-        if(relic.onBattleStart) {
-            const newState = relic.onBattleStart({ block, status: { strength: str } });
-            block = newState.block;
-            str = newState.status.strength;
-        }
-        if(rid === heroData.relicId && heroData.relicId === "UrgotPassive") block += 15; // 厄加特被动
+        if(relic.onBattleStart) { const newState = relic.onBattleStart({ block, status: { strength: str } }); block = newState.block; str = newState.status.strength; }
+        if(rid === heroData.relicId && heroData.relicId === "UrgotPassive") block += 15; 
     });
-
-    setPlayerBlock(block);
-    setPlayerStatus(prev => ({ ...prev, strength: str }));
-    startTurn(deck, []);
+    setPlayerBlock(block); setPlayerStatus(prev => ({ ...prev, strength: str }));
+    startTurnLogic();
   }, []);
 
-  const triggerAnim = (target, type) => {
-      if(target === 'HERO') { setHeroAnim(type); setTimeout(() => setHeroAnim(""), 500); }
-      if(target === 'ENEMY') { setEnemyAnim(type); setTimeout(() => setEnemyAnim(""), 500); }
+  const triggerAnim = (target, type) => { if(target === 'HERO') { setHeroAnim(type); setTimeout(() => setHeroAnim(""), 500); } if(target === 'ENEMY') { setEnemyAnim(type); setTimeout(() => setEnemyAnim(""), 500); } };
+
+  const drawCards = (count) => {
+      let { drawPile, hand, discardPile } = deckRef.current;
+      for(let i=0; i<count; i++) {
+          if (drawPile.length === 0) {
+              if (discardPile.length === 0) break; 
+              drawPile = shuffle([...discardPile]);
+              discardPile = [];
+          }
+          hand.push(drawPile.pop());
+          // 维克托被动：50% 几率获得一张额外基础卡
+          if (heroData.relicId === "ViktorPassive" && Math.random() < 0.5) {
+              const basicCard = shuffle(['Strike', 'Defend'])[0];
+              hand.push(basicCard);
+          }
+      }
+      deckRef.current = { drawPile, hand, discardPile };
+      forceUpdate();
   };
 
-  const startTurn = (currDraw, currDiscard) => {
+  const startTurnLogic = () => {
     setGameState('PLAYER_TURN'); 
-    // 修复 2: 使用 initialMana (即 heroData.maxMana) 而不是 heroData.maxMana，以避免 NaN
-    setPlayerMana(initialMana + (heroData.relicId === "LuxPassive" ? 1 : 0)); // 拉克丝被动
+    setPlayerMana(initialMana + (heroData.relicId === "LuxPassive" ? 1 : 0)); 
     setPlayerBlock(0);
     
-    let newDraw = [...currDraw], newDiscard = [...currDiscard], newHand = [];
-    // 修复 3: 默认抽牌 5 张
-    let drawCount = 5; 
-    // 检查金克丝被动
-    if (heroData.relicId === "JinxPassive") drawCount = 6; 
-
-    for(let i=0; i<drawCount; i++) {
-        if(newDraw.length===0) { if(newDiscard.length===0) break; newDraw=shuffle([...newDiscard]); newDiscard=[]; }
-        newHand.push(newDraw.pop());
-        
-        // 维克托被动
-        if (heroData.relicId === "ViktorPassive" && Math.random() < 0.5) {
-             const basicCard = shuffle(['Strike', 'Defend'])[0];
-             newHand.push(basicCard);
-        }
-    }
-    setDrawPile(newDraw); setDiscardPile(newDiscard); setHand(newHand);
+    let drawCount = 5; if (heroData.relicId === "JinxPassive") drawCount = 6; 
+    drawCards(drawCount);
+    
     setNextEnemyAction(enemyConfig.actions[Math.floor(Math.random()*enemyConfig.actions.length)]);
     
-    // 处理回合开始遗物效果
-    heroData.relics.forEach(rid => {
-        const relic = RELIC_DATABASE[rid];
-        if(relic.onTurnStart) {
-            const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp });
-            setPlayerHp(pState.hp);
-            setEnemyHp(eState.hp);
-        }
-    });
+    heroData.relics.forEach(rid => { const relic = RELIC_DATABASE[rid]; if(relic.onTurnStart) { const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp }); setPlayerHp(pState.hp); setEnemyHp(eState.hp); } });
   };
 
   const playCard = (index) => {
       if(gameState!=='PLAYER_TURN') return;
-      const card = CARD_DATABASE[hand[index]];
+      const { hand, discardPile } = deckRef.current;
+      const cardId = hand[index];
+      const card = CARD_DATABASE[cardId];
+      
       if(playerMana < card.cost) return;
-      
       setPlayerMana(p => p - card.cost);
-      const newHand = [...hand]; newHand.splice(index, 1); setHand(newHand);
-      if(card.exhaust) {/*...*/ } else setDiscardPile(p => [...p, card.id]);
       
-      // 塞拉斯/艾克被动检查
+      const newHand = [...hand]; newHand.splice(index, 1);
+      if(!card.exhaust) { deckRef.current = { ...deckRef.current, hand: newHand, discardPile: [...discardPile, cardId] }; } 
+      else { deckRef.current = { ...deckRef.current, hand: newHand }; }
+      forceUpdate();
+      
+      if(card.effect === 'DRAW') drawCards(card.effectValue);
+
       if(card.exhaust && heroData.relicId === "EkkoPassive") setPlayerStatus(s => ({ ...s, strength: s.strength + 1 }));
       if(card.type === 'SKILL' && heroData.relicId === "SylasPassive") setPlayerHp(h => Math.min(heroData.maxHp, h + 3));
-
       if(card.effect === 'VULNERABLE') setEnemyStatus(s => ({ ...s, vulnerable: s.vulnerable + card.effectValue }));
       if(card.effect === 'WEAK') setEnemyStatus(s => ({ ...s, weak: s.weak + card.effectValue }));
       if(card.effect === 'STRENGTH') setPlayerStatus(s => ({ ...s, strength: s.strength + card.effectValue }));
@@ -1105,37 +1046,23 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       if(card.effect === 'HEAL') setPlayerHp(h => Math.min(heroData.maxHp, h + card.effectValue));
 
       if(card.type === 'ATTACK') {
-          triggerAnim('HERO', 'attack');
-          setTimeout(() => triggerAnim('ENEMY', 'hit'), 200);
-          
+          triggerAnim('HERO', 'attack'); setTimeout(() => triggerAnim('ENEMY', 'hit'), 200);
           let dmg = card.value + playerStatus.strength;
           if (playerStatus.weak > 0) dmg = Math.floor(dmg * 0.75);
-          
           const hits = card.isMultiHit ? card.hits : 1;
           let total = 0;
           for(let i=0; i<hits; i++) {
               let finalDmg = dmg;
               if (enemyStatus.vulnerable > 0) finalDmg = Math.floor(finalDmg * 1.5);
-              
-              // 暴击 (亚索被动)
               if (heroData.relicId === "YasuoPassive" && Math.random() < 0.1) finalDmg = Math.floor(finalDmg * 2);
-              // 无尽之刃
               if (heroData.relics.includes("InfinityEdge")) finalDmg = Math.floor(finalDmg * 1.5);
-
               let dmgToHp = finalDmg;
-              if (enemyBlock > 0) {
-                  if (enemyBlock >= finalDmg) { setEnemyBlock(b => b - finalDmg); dmgToHp = 0; }
-                  else { dmgToHp = finalDmg - enemyBlock; setEnemyBlock(0); }
-              }
-              setEnemyHp(h => Math.max(0, h - dmgToHp));
-              total += dmgToHp;
-              
-              // 遗物触发
+              if (enemyBlock > 0) { if (enemyBlock >= finalDmg) { setEnemyBlock(b => b - finalDmg); dmgToHp = 0; } else { dmgToHp = finalDmg - enemyBlock; setEnemyBlock(0); } }
+              setEnemyHp(h => Math.max(0, h - dmgToHp)); total += dmgToHp;
               if(heroData.relics.includes("VampiricScepter")) setPlayerHp(h => Math.min(heroData.maxHp, h + 1));
               if(heroData.relicId === "DariusPassive") setEnemyStatus(s => ({ ...s, weak: s.weak + 1 }));
           }
-          setDmgOverlay({val: total, target: 'ENEMY'});
-          setTimeout(()=>setDmgOverlay(null), 800);
+          setDmgOverlay({val: total, target: 'ENEMY'}); setTimeout(()=>setDmgOverlay(null), 800);
       }
       if(card.block) setPlayerBlock(b => b + card.block);
   };
@@ -1143,11 +1070,14 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   useEffect(() => { if(enemyHp<=0) setTimeout(()=>onWin(playerHp), 1000); }, [enemyHp]);
   useEffect(() => { if(playerHp<=0) setTimeout(onLose, 1000); }, [playerHp]);
 
-  const endTurn = () => {
-      setDiscardPile([...discardPile, ...hand]); setHand([]); setGameState('ENEMY_TURN');
-      setPlayerStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)}));
-      setEnemyStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)}));
-      setTimeout(enemyAction, 1000);
+  const endTurn = () => { 
+      const { hand, discardPile } = deckRef.current;
+      deckRef.current = { ...deckRef.current, discardPile: [...discardPile, ...hand], hand: [] };
+      forceUpdate();
+      setGameState('ENEMY_TURN'); 
+      setPlayerStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)})); 
+      setEnemyStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)})); 
+      setTimeout(enemyAction, 1000); 
   };
 
   const enemyAction = () => {
@@ -1186,15 +1116,12 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           setTimeout(()=>setDmgOverlay(null), 800);
       }
 
-      // 2. 处理Buff/Debuff
       if(act.type === 'BUFF') setEnemyBlock(b => b + act.effectValue);
-      if(act.type === 'DEBUFF') {
-          if(act.effect === 'WEAK') setPlayerStatus(s => ({...s, weak: s.weak + act.effectValue}));
-          if(act.effect === 'VULNERABLE') setPlayerStatus(s => ({...s, vulnerable: s.vulnerable + act.effectValue}));
-      }
+      if(act.type === 'DEBUFF') { if(act.effect === 'WEAK') setPlayerStatus(s => ({...s, weak: s.weak + act.effectValue})); if(act.effect === 'VULNERABLE') setPlayerStatus(s => ({...s, vulnerable: s.vulnerable + act.effectValue})); }
       
-      setEnemyBlock(0);
-      setTimeout(() => startTurn(drawPile, discardPile), 1000);
+      // 在回合结束时重置敌人格挡（除非是BUFF）
+      if(act.type !== 'BUFF') setEnemyBlock(0); 
+      setTimeout(startTurnLogic, 1000); 
   };
 
   const renderStatus = (status) => (
@@ -1205,20 +1132,10 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
     </div>
   );
   
-  const displayValue = nextEnemyAction.type === 'ATTACK' 
-      ? nextEnemyAction.value 
-      : (nextEnemyAction.actionType === 'Attack' ? nextEnemyAction.dmgValue : nextEnemyAction.effectValue);
-  
-  // 意图图标判断逻辑
-  const IntentIcon = () => {
-      const type = nextEnemyAction.type;
-      const isAttack = type === 'ATTACK' || nextEnemyAction.actionType === 'Attack';
+  const displayValue = nextEnemyAction.type === 'ATTACK' ? nextEnemyAction.value : (nextEnemyAction.actionType === 'Attack' ? nextEnemyAction.dmgValue : nextEnemyAction.effectValue);
+  const IntentIcon = () => { const type = nextEnemyAction.type; const isAttack = type === 'ATTACK' || nextEnemyAction.actionType === 'Attack'; if (isAttack) return <Sword size={20} className="text-red-500"/>; if (type === 'BUFF') return <Shield size={20} className="text-blue-400"/>; if (type === 'DEBUFF') return <Skull size={20} className="text-purple-400"/>; return <AlertTriangle size={20} className="text-gray-400"/>; };
 
-      if (isAttack) return <Sword size={20} className="text-red-500"/>;
-      if (type === 'BUFF') return <Shield size={20} className="text-blue-400"/>;
-      if (type === 'DEBUFF') return <Skull size={20} className="text-purple-400"/>;
-      return <AlertTriangle size={20} className="text-gray-400"/>;
-  };
+  const { hand, drawPile: currentDrawPile, discardPile: currentDiscardPile } = deckRef.current;
 
 
   return (
@@ -1233,16 +1150,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                 ${heroAnim === 'hit' ? 'translate-x-[-10px] brightness-50 bg-red-500/30' : ''}
              `}>
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-[#C8AA6E]" />
-                 <div className="absolute -bottom-16 w-full bg-black/80 border border-[#C8AA6E] p-2 rounded flex flex-col gap-1 shadow-lg">
-                     <div className="flex justify-between text-xs text-[#C8AA6E] font-bold">
-                        <span>HP {playerHp}/{heroData.maxHp}</span>
-                        {playerBlock > 0 && <span className="text-blue-400 flex items-center gap-1"><Shield size={12}/>{playerBlock}</span>}
-                     </div>
-                     <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div>
-                     </div>
-                     {renderStatus(playerStatus)}
-                 </div>
+                 <div className="absolute -bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-2 rounded flex flex-col gap-1 shadow-lg z-40"><div className="flex justify-between text-xs text-[#C8AA6E] font-bold"><span>HP {playerHp}/{heroData.maxHp}</span>{playerBlock > 0 && <span className="text-blue-400 flex items-center gap-1"><Shield size={12}/>{playerBlock}</span>}</div><div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div></div>{renderStatus(playerStatus)}</div>
              </div>
 
              <div className="text-6xl font-black text-[#C8AA6E]/20 italic">VS</div>
@@ -1255,63 +1163,33 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
              `}>
                  <img src={enemyConfig.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-red-800" />
                  {/* 意图图标显示 scaled value */}
-                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-3 py-1 rounded flex items-center gap-2 animate-bounce">
-                      <IntentIcon />
-                      <span className="text-white font-bold text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span>
-                 </div>
-                 <div className="absolute -bottom-16 w-full bg-black/80 border border-red-800 p-2 rounded flex flex-col gap-1 shadow-lg">
-                     <div className="flex justify-between text-xs text-red-500 font-bold">
-                        <span>{enemyConfig.name}</span>
-                        <span>{enemyHp}/{enemyConfig.maxHp}</span>
-                     </div>
-                     <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div>
-                     </div>
-                     {enemyBlock > 0 && <div className="text-blue-400 text-xs font-bold flex items-center gap-1"><Shield size={10}/> 格挡 {enemyBlock}</div>}
-                     {renderStatus(enemyStatus)}
-                 </div>
+                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-3 py-1 rounded flex items-center gap-2 animate-bounce"><IntentIcon /><span className="text-white font-bold text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span></div>
+                 <div className="absolute -bottom-24 w-full bg-black/80 border border-red-800 p-2 rounded flex flex-col gap-1 shadow-lg z-40"><div className="flex justify-between text-xs text-red-500 font-bold"><span>{enemyConfig.name}</span><span>{enemyHp}/{enemyConfig.maxHp}</span></div><div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div></div>{enemyBlock > 0 && <div className="text-blue-400 text-xs font-bold flex items-center gap-1"><Shield size={10}/> 格挡 {enemyBlock}</div>}{renderStatus(enemyStatus)}</div>
              </div>
         </div>
 
-        {dmgOverlay && (
-            <div className={`absolute top-1/2 ${dmgOverlay.target==='ENEMY'?'right-1/4':'left-1/4'} -translate-y-1/2 text-8xl font-black text-white drop-shadow-[0_0_10px_red] animate-ping z-50`}>
-                {dmgOverlay.val}
-            </div>
-        )}
+        {dmgOverlay && (<div className={`absolute top-1/2 ${dmgOverlay.target==='ENEMY'?'right-1/4':'left-1/4'} -translate-y-1/2 text-8xl font-black text-white drop-shadow-[0_0_10px_red] animate-ping z-50`}>{dmgOverlay.val}</div>)}
 
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black via-black/80 to-transparent z-20 flex items-end justify-center pb-6 gap-4 pointer-events-none">
-            <div className="absolute left-8 bottom-8 w-24 h-24 rounded-full bg-[#091428] border-4 border-[#C8AA6E] flex items-center justify-center shadow-[0_0_30px_#0066FF] pointer-events-auto">
-                <span className="text-4xl font-bold text-white">{playerMana}</span>
-                <span className="absolute bottom-2 text-[10px] text-[#C8AA6E]">MANA</span>
+            <div className="absolute left-8 bottom-8 w-24 h-24 rounded-full bg-[#091428] border-4 border-[#C8AA6E] flex items-center justify-center shadow-[0_0_30px_#0066FF] pointer-events-auto text-center">
+                <span className="text-4xl font-bold text-white block">{playerMana}</span>
+                <span className="text-[10px] text-[#C8AA6E] block">MANA</span>
+                <div className="text-[8px] text-gray-400 mt-1">{currentDrawPile.length}/{currentDiscardPile.length}</div>
             </div>
-
-            {hand.map((cid, i) => {
-                const c = CARD_DATABASE[cid];
-                const canPlay = playerMana >= c.cost && gameState === 'PLAYER_TURN';
-                return (
-                    <div key={i} onClick={()=>playCard(i)} 
-                         className={`
-                            w-40 h-60 bg-[#1E2328] border-2 rounded-lg relative flex flex-col items-center overflow-hidden shadow-2xl transition-all duration-200 group
-                            ${canPlay ? 'border-[#C8AA6E] hover:-translate-y-12 hover:scale-110 cursor-pointer z-30 pointer-events-auto' : 'border-slate-700 opacity-60'}
-                         `}>
-                        {/* 图片区域加高到 60% */}
-                        <div className="w-full h-40 bg-black overflow-hidden relative"> {/* 调整高度 */}
-                            <img src={c.img} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" />
-                            <div className="absolute top-2 left-2 w-8 h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-lg shadow-md">{c.cost}</div>
+            <div className="flex items-end justify-center" style={{ width: '600px' }}>
+                {hand.map((cid, i) => {
+                    const c = CARD_DATABASE[cid]; const canPlay = playerMana >= c.cost && gameState === 'PLAYER_TURN';
+                    // 修复 2: 手牌堆叠逻辑
+                    const marginLeft = i === 0 ? 0 : (hand.length > 5 ? -40 : 10);
+                    return (
+                        <div key={i} onClick={()=>playCard(i)} style={{ marginLeft: `${marginLeft}px`, zIndex: i }} className={`w-40 h-60 bg-[#1E2328] border-2 rounded-lg relative flex flex-col items-center overflow-hidden shadow-2xl transition-all duration-200 group ${canPlay ? 'border-[#C8AA6E] hover:-translate-y-12 hover:scale-110 cursor-pointer hover:z-50 pointer-events-auto' : 'border-slate-700 opacity-60 pointer-events-auto'}`}>
+                            <div className="w-full h-40 bg-black overflow-hidden relative"><img src={c.img} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" /><div className="absolute top-2 left-2 w-8 h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-lg shadow-md">{c.cost}</div></div>
+                            <div className="flex-1 p-2 text-center flex flex-col w-full"><div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{c.name}</div><div className="text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2">{c.description}</div><div className="mt-auto text-[9px] text-slate-500 uppercase font-bold tracking-wider">{c.type}</div></div>
                         </div>
-                        {/* 文本区域压缩 */}
-                        <div className="flex-1 p-2 text-center flex flex-col w-full">
-                            <div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{c.name}</div>
-                            <div className="text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2">{c.description}</div> {/* 减少到 line-clamp-2 */}
-                            <div className="mt-auto text-[9px] text-slate-500 uppercase font-bold tracking-wider">{c.type}</div>
-                        </div>
-                    </div>
-                )
-            })}
-            
-            <button onClick={endTurn} disabled={gameState!=='PLAYER_TURN'} className="absolute right-8 bottom-8 w-24 h-24 rounded-full bg-[#C8AA6E] border-4 border-[#F0E6D2] flex items-center justify-center font-bold text-[#091428] shadow-lg hover:scale-105 hover:bg-white active:scale-95 transition-all pointer-events-auto">
-                结束<br/>回合
-            </button>
+                    )
+                })}
+            </div>
+            <button onClick={endTurn} disabled={gameState!=='PLAYER_TURN'} className="absolute right-8 bottom-8 w-24 h-24 rounded-full bg-[#C8AA6E] border-4 border-[#F0E6D2] flex items-center justify-center font-bold text-[#091428] shadow-lg hover:scale-105 hover:bg-white active:scale-95 transition-all pointer-events-auto">结束<br/>回合</button>
         </div>
     </div>
   );
