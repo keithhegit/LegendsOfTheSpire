@@ -359,7 +359,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   // 调试：确保 isMobile 正确工作
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      console.log('[BattleScene] isMobile:', isMobile, 'window.innerWidth:', window.innerWidth);
+      console.log('🔍 [BattleScene] isMobile:', isMobile, '| window.innerWidth:', window.innerWidth, '| 设备类型:', isMobile ? '📱 移动端' : '🖥️ 桌面端');
     }
   }, [isMobile]);
 
