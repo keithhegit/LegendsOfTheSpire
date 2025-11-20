@@ -1,12 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { CARD_DATABASE } from '../../data/cards';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} }) => {
   const card = CARD_DATABASE[cardId];
   const [showDetail, setShowDetail] = useState(false);
   const lastTapRef = useRef(0);
   const touchStartYRef = useRef(0);
+  const isMobile = useIsMobile();
   
   // 应用卡牌升级效果
   const upgrade = cardUpgrades[cardId] || {};
@@ -14,19 +16,24 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
   const displayBlock = card.block ? (card.block + (upgrade.block || 0)) : null;
   const displayEffectValue = card.effectValue ? (card.effectValue + (upgrade.effectValue || 0)) : null;
   
-  // 简单的移动端检测 (用于 JS 计算逻辑)
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  
-  // 移动端堆叠更紧密，PC 端较宽松
+  // 移动端堆叠算法优化：大幅增加负边距，确保6张牌能塞进手机屏幕
   const overlap = (i) => {
     if (i === 0) return 0;
-    const mobileGap = totalCards > 4 ? -35 : -10;
-    const desktopGap = totalCards > 5 ? -50 : 10;
-    return isMobile ? mobileGap : desktopGap;
+    // 移动端：根据卡牌数量动态调整重叠距离
+    if (isMobile) {
+      if (totalCards >= 6) return -40; // 6张牌时重叠更多
+      if (totalCards >= 5) return -35; // 5张牌
+      if (totalCards >= 4) return -30; // 4张牌
+      return -15; // 3张以下
+    }
+    // 桌面端：较宽松
+    if (totalCards > 5) return -50;
+    if (totalCards > 4) return -30;
+    return 10;
   };
   
-  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 2 : 3); // 移动端旋转角度小一点
-  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 3 : 6);
+  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 1.5 : 3); // 移动端旋转角度更小
+  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 2 : 6);
   
   // 处理点击事件
   const handleClick = (e) => {
@@ -154,7 +161,7 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
       }}
       
       className={`
-        w-28 h-40 md:w-40 md:h-60 
+        w-24 h-36 md:w-40 md:h-60 
         bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
         transition-all duration-200
         ${canPlay ? 'border-[#C8AA6E] cursor-grab active:cursor-grabbing' : 'border-slate-700 opacity-60 cursor-not-allowed'}
