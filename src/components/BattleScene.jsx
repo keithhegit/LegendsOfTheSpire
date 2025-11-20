@@ -361,7 +361,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
         <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
         
         {/* 战斗区域：核心修复 - 移动端向上平移，为卡牌留出空间 */}
-        <div className={`absolute inset-0 flex items-center justify-between z-10 pointer-events-none ${isMobile ? 'top-[-10%] bottom-[45%]' : ''} pt-2 md:pt-4 px-2 md:px-10`}>
+        <div className={`absolute inset-0 flex items-center justify-between z-10 pointer-events-none ${isMobile ? '-top-[10%]' : ''} pt-2 md:pt-4 px-2 md:px-10`}>
              
              {/* 玩家 (左) - 移动端 w-20 h-28 (80x112px) */}
              <div className={`
