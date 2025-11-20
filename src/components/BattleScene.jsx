@@ -355,6 +355,13 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   
   // 使用 useIsMobile Hook 进行 JS 级响应式检测
   const isMobile = useIsMobile();
+  
+  // 调试：确保 isMobile 正确工作
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('[BattleScene] isMobile:', isMobile, 'window.innerWidth:', window.innerWidth);
+    }
+  }, [isMobile]);
 
   return (
     <div className="w-full h-full relative flex flex-col overflow-hidden bg-black">
@@ -386,13 +393,16 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
              </div>
              
              {/* 敌人 (右) - 移动端 w-20 h-28 (80x112px) */}
-             <div className={`
+             <div 
+               className={`
                 absolute transition-all duration-200
-                right-2 bottom-[45%] w-20 h-28
-                md:right-10 md:bottom-[42%] md:w-64 md:h-[500px]
+                right-2 w-20 h-28
+                md:right-10 md:w-64 md:h-[500px]
                 ${enemyAnim === 'attack' ? '-translate-x-4 md:-translate-x-32' : ''} 
                 ${enemyAnim === 'hit' ? 'translate-x-[5px] md:translate-x-[10px] brightness-50 bg-red-500/30' : ''}
-             `}>
+             `}
+             style={isMobile ? { bottom: '45%' } : { bottom: '42%' }}
+             >
                  {/* 意图图标 */}
                  <div className="absolute -top-4 md:-top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-1 py-0.5 md:px-3 md:py-1 rounded flex items-center gap-0.5 md:gap-2 animate-bounce z-50">
                       <IntentIcon />
@@ -421,7 +431,10 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
             </div>
         )}
         {/* 底部控制区：手牌和按钮 - 移动端 bottom: 60px 避开手势条 */}
-        <div className={`absolute left-0 right-0 ${isMobile ? 'bottom-[60px]' : 'bottom-0'} md:bottom-0 h-[40%] md:h-1/3 bg-gradient-to-t from-black via-black/90 to-transparent z-30 flex items-end justify-center pb-1 md:pb-6 gap-1 md:gap-4 pointer-events-none`}>
+        <div 
+          className="absolute left-0 right-0 md:bottom-0 h-[40%] md:h-1/3 bg-gradient-to-t from-black via-black/90 to-transparent z-30 flex items-end justify-center pb-1 md:pb-6 gap-1 md:gap-4 pointer-events-none"
+          style={isMobile ? { bottom: '60px' } : { bottom: '0' }}
+        >
             
             {/* Mana 球 - z-40 确保层级最高 */}
             <div className="absolute left-1 bottom-1 md:left-8 md:bottom-8 w-12 h-12 md:w-24 md:h-24 rounded-full bg-[#091428] border-2 md:border-4 border-[#C8AA6E] flex items-center justify-center shadow-[0_0_30px_#0066FF] pointer-events-auto text-center z-40">
