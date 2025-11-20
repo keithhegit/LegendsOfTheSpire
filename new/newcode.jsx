@@ -23,9 +23,8 @@ const ACT_BACKGROUNDS = {
     3: "https://pic.upmedia.mg/uploads/content/20220519/EV220519112427593030.webp"  // 虚空之地
 };
 
-// BGM URLs - 从constants导入
-const BGM_MAP_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/spire/To-the-Infinity%20-Castle%20(1).mp3";
-const BGM_BATTLE_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/spire/guimie-battle%20(1).mp3";
+const BGM_MAP_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/origin/01%20-%20Aim%20to%20Be%20a%20Pok%C3%A9mon%20Master%20-%20%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC.mp3";
+const BGM_BATTLE_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/origin/01%20-%20Aim%20to%20Be%20a%20Pok%C3%A9mon%20Master%20-%20%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC.mp3";
 
 // 音效 - 使用新的R2存储地址
 const SFX_BASE_URL = "https://pub-c98d5902eedf42f6a9765dfad981fd88.r2.dev/sfx";
@@ -147,65 +146,46 @@ const CARD_DATABASE = {
   
   "GarenQ": { id: "GarenQ", hero: "Garen", name: "致命打击", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "VULNERABLE", effectValue: 2, description: "造成 8 点伤害。给予 2 层易伤。", img: `${SPELL_URL}/GarenQ.png`, rarity: "COMMON" },
   "GarenW": { id: "GarenW", hero: "Garen", name: "勇气", price: 50, type: "SKILL", cost: 1, block: 12, effect: "CLEANSE", description: "获得 12 点护甲。净化。", img: `${SPELL_URL}/GarenW.png`, rarity: "UNCOMMON" },
-  "GarenR": { id: "GarenR", hero: "Garen", name: "德玛西亚之力", price: 200, type: "ATTACK", cost: 3, value: 30, description: "造成 30 点伤害。", img: `${SPELL_URL}/GarenR.png`, rarity: "RARE" },
   "DariusW": { id: "DariusW", hero: "Darius", name: "致残打击", price: 60, type: "ATTACK", cost: 1, value: 10, effect: "WEAK", effectValue: 1, description: "造成 10 点伤害。给予 1 层虚弱。", img: `${SPELL_URL}/DariusNoxianTacticsONH.png`, rarity: "COMMON" },
   "DariusE": { id: "DariusE", hero: "Darius", name: "无情铁手", price: 80, type: "SKILL", cost: 2, effect: "DRAW", effectValue: 1, description: "抓取 1 张牌。给予 3 层易伤。", img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "UNCOMMON" },
-  "DariusR": { id: "DariusR", hero: "Darius", name: "诺克萨斯断头台", price: 200, type: "ATTACK", cost: 3, value: 35, description: "造成 35 点伤害。", img: `${SPELL_URL}/DariusR.png`, rarity: "RARE" },
   "LuxQ": { id: "LuxQ", hero: "Lux", name: "光之束缚", price: 70, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 3, description: "给予 3 层易伤。", img: `${SPELL_URL}/LuxLightBinding.png`, rarity: "COMMON" },
   "LuxE": { id: "LuxE", hero: "Lux", name: "透光奇点", price: 120, type: "ATTACK", cost: 2, value: 15, exhaust: true, description: "造成 15 点伤害。消耗。", img: `${SPELL_URL}/LuxLightStrikeKage.png`, rarity: "UNCOMMON" },
-  "LuxR": { id: "LuxR", hero: "Lux", name: "终极闪光", price: 200, type: "ATTACK", cost: 3, value: 40, description: "造成 40 点伤害。", img: `${SPELL_URL}/LuxR.png`, rarity: "RARE" },
   "JinxQ": { id: "JinxQ", hero: "Jinx", name: "切自动挡", price: 40, type: "ATTACK", cost: 0, value: 4, isMultiHit: true, hits: 2, description: "造成 2 次 4 点伤害。", img: `${SPELL_URL}/JinxQ.png`, rarity: "COMMON" },
   "JinxW": { id: "JinxW", hero: "Jinx", name: "震荡电磁波", price: 90, type: "ATTACK", cost: 2, value: 20, effect: "WEAK", effectValue: 2, description: "造成 20 点伤害。给予 2 层虚弱。", img: `${SPELL_URL}/JinxW.png`, rarity: "UNCOMMON" },
-  "JinxR": { id: "JinxR", hero: "Jinx", name: "超究极死神飞弹", price: 200, type: "ATTACK", cost: 3, value: 35, description: "造成 35 点伤害。", img: `${SPELL_URL}/JinxR.png`, rarity: "RARE" },
   "YasuoQ": { id: "YasuoQ", hero: "Yasuo", name: "斩钢闪", price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。", img: `${SPELL_URL}/YasuoQ1Wrapper.png`, rarity: "COMMON" },
   "YasuoE": { id: "YasuoE", hero: "Yasuo", name: "踏前斩", price: 70, type: "ATTACK", cost: 1, value: 8, effect: "STRENGTH", effectValue: 1, description: "造成 8 点伤害。获得 1 点力量。", img: `${SPELL_URL}/YasuoDashWrapper.png`, rarity: "UNCOMMON" },
-  "YasuoR": { id: "YasuoR", hero: "Yasuo", name: "狂风绝息斩", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "VULNERABLE", effectValue: 3, description: "造成 30 点伤害。给予 3 层易伤。", img: `${SPELL_URL}/YasuoR.png`, rarity: "RARE" },
   "SonaQ": { id: "SonaQ", hero: "Sona", name: "英勇赞美诗", price: 50, type: "ATTACK", cost: 1, value: 7, effect: "HEAL", effectValue: 3, description: "造成 7 点伤害，回复 3 点生命。", img: `${SPELL_URL}/SonaHymnofValor.png`, rarity: "COMMON" },
   "SonaW": { id: "SonaW", hero: "Sona", name: "坚毅咏叹调", price: 80, type: "SKILL", cost: 1, block: 8, effect: "HEAL", effectValue: 5, description: "获得 8 点护甲，回复 5 点生命。", img: `${SPELL_URL}/SonaAriaofPerseverance.png`, rarity: "UNCOMMON" },
-  "SonaR": { id: "SonaR", hero: "Sona", name: "狂舞终乐章", price: 200, type: "SKILL", cost: 3, effect: "VULNERABLE", effectValue: 5, block: 15, description: "获得 15 点护甲。给予 5 层易伤。", img: `${SPELL_URL}/SonaR.png`, rarity: "RARE" },
   "EkkoQ": { id: "EkkoQ", hero: "Ekko", name: "时间卷曲器", price: 50, type: "ATTACK", cost: 1, value: 12, exhaust: true, description: "造成 12 点伤害。消耗。", img: `${SPELL_URL}/EkkoQ.png`, rarity: "COMMON" },
   "EkkoE": { id: "EkkoE", hero: "Ekko", name: "相位俯冲", price: 90, type: "SKILL", cost: 0, block: 5, exhaust: true, description: "获得 5 点护甲。", img: `${SPELL_URL}/EkkoE.png`, rarity: "UNCOMMON" },
-  "EkkoR": { id: "EkkoR", hero: "Ekko", name: "时空断裂", price: 200, type: "SKILL", cost: 3, effect: "HEAL", effectValue: 30, block: 20, description: "获得 20 点护甲，回复 30 点生命。", img: `${SPELL_URL}/EkkoR.png`, rarity: "RARE" },
   "SylasQ": { id: "SylasQ", hero: "Sylas", name: "锁链鞭击", price: 50, type: "ATTACK", cost: 1, value: 7, isMultiHit: true, hits: 2, description: "造成 2 次 7 点伤害。", img: `${SPELL_URL}/SylasQ.png`, rarity: "COMMON" },
   "SylasW": { id: "SylasW", hero: "Sylas", name: "弑君突刺", price: 90, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 15, description: "回复 15 点生命。", img: `${SPELL_URL}/SylasW.png`, rarity: "UNCOMMON" },
-  "SylasR": { id: "SylasR", hero: "Sylas", name: "其人之道", price: 200, type: "ATTACK", cost: 3, value: 25, effect: "DRAW", effectValue: 2, description: "造成 25 点伤害。抓取 2 张牌。", img: `${SPELL_URL}/SylasR.png`, rarity: "RARE" },
   "UrgotQ": { id: "UrgotQ", hero: "Urgot", name: "腐蚀电荷", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "WEAK", effectValue: 1, description: "造成 8 点伤害，给予 1 层虚弱。", img: `${SPELL_URL}/UrgotQ.png`, rarity: "COMMON" },
   "UrgotW": { id: "UrgotW", hero: "Urgot", name: "净除", price: 90, type: "SKILL", cost: 1, block: 8, effect: "VULNERABLE", effectValue: 1, description: "获得 8 点护甲，给予 1 层易伤。", img: `${SPELL_URL}/UrgotW.png`, rarity: "UNCOMMON" },
-  "UrgotR": { id: "UrgotR", hero: "Urgot", name: "超越死亡的恐惧", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "WEAK", effectValue: 3, description: "造成 30 点伤害。给予 3 层虚弱。", img: `${SPELL_URL}/UrgotR.png`, rarity: "RARE" },
   "ViktorQ": { id: "ViktorQ", hero: "Viktor", name: "能量转移", price: 40, type: "ATTACK", cost: 0, value: 3, block: 3, description: "造成 3 点伤害，获得 3 点护甲。", img: `${SPELL_URL}/ViktorPowerTransfer.png`, rarity: "COMMON" },
   "ViktorE": { id: "ViktorE", hero: "Viktor", name: "死亡射线", price: 100, type: "ATTACK", cost: 2, value: 18, description: "造成 18 点伤害。", img: `${SPELL_URL}/ViktorDeathRay.png`, rarity: "UNCOMMON" },
-  "ViktorR": { id: "ViktorR", hero: "Viktor", name: "混乱风暴", price: 200, type: "ATTACK", cost: 3, value: 18, isMultiHit: true, hits: 2, description: "造成 2 次 18 点伤害。", img: `${SPELL_URL}/ViktorR.png`, rarity: "RARE" },
 
   // 新储备英雄技能 (Placeholder icons until updated)
   "RivenQ": { id: "RivenQ", hero: "Riven", name: "折翼之舞", price: 50, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。", img: `${SPELL_URL}/RivenTriCleave.png`, rarity: "COMMON" },
   "RivenE": { id: "RivenE", hero: "Riven", name: "勇往直前", price: 80, type: "SKILL", cost: 1, block: 5, effect: "DRAW", effectValue: 1, description: "获得 5 点护甲。抓取 1 张牌。", img: `${SPELL_URL}/RivenFeint.png`, rarity: "UNCOMMON" },
-  "RivenR": { id: "RivenR", hero: "Riven", name: "放逐之锋", price: 200, type: "ATTACK", cost: 3, value: 32, effect: "STRENGTH", effectValue: 3, description: "造成 32 点伤害。获得 3 点力量。", img: `${SPELL_URL}/RivenR.png`, rarity: "RARE" },
   "TwistedFateW": { id: "TwistedFateW", hero: "TwistedFate", name: "选牌", price: 60, type: "SKILL", cost: 1, description: "获得随机一张红/黄/蓝牌 (简化: 抽2张)", effect: "DRAW", effectValue: 2, img: `${SPELL_URL}/PickACard.png`, rarity: "COMMON" },
   "TwistedFateQ": { id: "TwistedFateQ", hero: "TwistedFate", name: "万能牌", price: 90, type: "ATTACK", cost: 2, value: 8, description: "造成 8 点伤害 (群攻简化为单体)。", img: `${SPELL_URL}/WildCards.png`, rarity: "COMMON" },
-  "TwistedFateR": { id: "TwistedFateR", hero: "TwistedFate", name: "命运", price: 200, type: "SKILL", cost: 3, effect: "DRAW", effectValue: 3, description: "抓取 3 张牌。", img: `${SPELL_URL}/TwistedFateR.png`, rarity: "RARE" },
   "LeeSinQ": { id: "LeeSinQ", hero: "LeeSin", name: "天音波", price: 50, type: "ATTACK", cost: 1, value: 6, effect: "VULNERABLE", effectValue: 1, description: "造成 6 点伤害。给予 1 层易伤。", img: `${SPELL_URL}/BlindMonkQOne.png`, rarity: "COMMON" },
   "LeeSinW": { id: "LeeSinW", hero: "LeeSin", name: "金钟罩", price: 80, type: "SKILL", cost: 1, block: 8, description: "获得 8 点护甲。", img: `${SPELL_URL}/BlindMonkWOne.png`, rarity: "UNCOMMON" },
-  "LeeSinR": { id: "LeeSinR", hero: "LeeSin", name: "神龙摆尾", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "VULNERABLE", effectValue: 5, description: "造成 30 点伤害。给予 5 层易伤。", img: `${SPELL_URL}/LeeSinR.png`, rarity: "RARE" },
   "VayneQ": { id: "VayneQ", hero: "Vayne", name: "闪避突袭", price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。", img: `${SPELL_URL}/VayneTumble.png`, rarity: "COMMON" },
   "VayneE": { id: "VayneE", hero: "Vayne", name: "恶魔审判", price: 90, type: "ATTACK", cost: 2, value: 12, effect: "WEAK", effectValue: 2, description: "造成 12 点伤害。给予 2 层虚弱。", img: `${SPELL_URL}/VayneCondemn.png`, rarity: "UNCOMMON" },
-  "VayneR": { id: "VayneR", hero: "Vayne", name: "终极时刻", price: 200, type: "ATTACK", cost: 3, value: 25, effect: "STRENGTH", effectValue: 5, description: "造成 25 点伤害。获得 5 点力量。", img: `${SPELL_URL}/VayneR.png`, rarity: "RARE" },
   "TeemoQ": { id: "TeemoQ", hero: "Teemo", name: "致盲吹箭", price: 50, type: "ATTACK", cost: 1, value: 5, effect: "WEAK", effectValue: 2, description: "造成 5 点伤害。给予 2 层虚弱。", img: `${SPELL_URL}/BlindingDart.png`, rarity: "COMMON" },
   "TeemoR": { id: "TeemoR", hero: "Teemo", name: "种蘑菇", price: 80, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 4, exhaust: true, description: "给予 4 层易伤。消耗。", img: `${SPELL_URL}/TeemoRCast.png`, rarity: "UNCOMMON" },
   "ZedQ": { id: "ZedQ", hero: "Zed", name: "影奥义！诸刃", price: 50, type: "ATTACK", cost: 1, value: 8, description: "造成 8 点伤害。", img: `${SPELL_URL}/ZedQ.png`, rarity: "COMMON" },
   "ZedE": { id: "ZedE", hero: "Zed", name: "影奥义！鬼斩", price: 80, type: "ATTACK", cost: 1, value: 4, effect: "DRAW", effectValue: 1, description: "造成 4 点伤害。抓取 1 张牌。", img: `${SPELL_URL}/ZedE.png`, rarity: "UNCOMMON" },
-  "ZedR": { id: "ZedR", hero: "Zed", name: "禁奥义！瞬狱影杀阵", price: 200, type: "ATTACK", cost: 3, value: 18, isMultiHit: true, hits: 2, description: "造成 2 次 18 点伤害。", img: `${SPELL_URL}/ZedR.png`, rarity: "RARE" },
   "NasusQ": { id: "NasusQ", hero: "Nasus", name: "汲魂痛击", price: 50, type: "ATTACK", cost: 1, value: 6, description: "造成 6 点伤害。", img: `${SPELL_URL}/NasusQ.png`, rarity: "COMMON" },
   "NasusW": { id: "NasusW", hero: "Nasus", name: "枯萎", price: 80, type: "SKILL", cost: 1, effect: "WEAK", effectValue: 3, description: "给予 3 层虚弱。", img: `${SPELL_URL}/NasusW.png`, rarity: "UNCOMMON" },
-  "NasusR": { id: "NasusR", hero: "Nasus", name: "死神降临", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "STRENGTH", effectValue: 5, block: 15, description: "造成 30 点伤害。获得 5 点力量和 15 点护甲。", img: `${SPELL_URL}/NasusR.png`, rarity: "RARE" },
   "IreliaQ": { id: "IreliaQ", hero: "Irelia", name: "利刃冲击", price: 50, type: "ATTACK", cost: 1, value: 8, description: "造成 8 点伤害。", img: `${SPELL_URL}/IreliaQ.png`, rarity: "COMMON" },
   "IreliaE": { id: "IreliaE", hero: "Irelia", name: "比翼双刃", price: 80, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 2, description: "给予 2 层易伤。", img: `${SPELL_URL}/IreliaE.png`, rarity: "UNCOMMON" },
-  "IreliaR": { id: "IreliaR", hero: "Irelia", name: "先锋之刃", price: 200, type: "ATTACK", cost: 3, value: 12, isMultiHit: true, hits: 3, description: "造成 3 次 12 点伤害。", img: `${SPELL_URL}/IreliaR.png`, rarity: "RARE" },
   "ThreshQ": { id: "ThreshQ", hero: "Thresh_Hero", name: "死亡判决", price: 80, type: "ATTACK", cost: 2, value: 10, effect: "VULNERABLE", effectValue: 1, description: "造成 10 点伤害。给予 1 层易伤。", img: `${SPELL_URL}/ThreshQ.png`, rarity: "COMMON" },
   "ThreshW": { id: "ThreshW", hero: "Thresh_Hero", name: "魂引之灯", price: 70, type: "SKILL", cost: 1, block: 10, effect: "DRAW", effectValue: 1, description: "获得 10 点护甲。抓取 1 张牌。", img: `${SPELL_URL}/ThreshW.png`, rarity: "UNCOMMON" },
-  "ThreshR": { id: "ThreshR", hero: "Thresh_Hero", name: "幽冥监牢", price: 200, type: "SKILL", cost: 3, effect: "VULNERABLE", effectValue: 5, block: 20, description: "获得 20 点护甲。给予 5 层易伤。", img: `${SPELL_URL}/ThreshR.png`, rarity: "RARE" },
   "KatarinaQ": { id: "KatarinaQ", hero: "Katarina_Hero", name: "弹射之刃", price: 50, type: "ATTACK", cost: 1, value: 4, isMultiHit: true, hits: 3, description: "造成 3 次 4 点伤害。", img: `${SPELL_URL}/KatarinaQ.png`, rarity: "COMMON" },
   "KatarinaE": { id: "KatarinaE", hero: "Katarina_Hero", name: "瞬步", price: 40, type: "ATTACK", cost: 0, value: 3, effect: "DRAW", effectValue: 1, description: "造成 3 点伤害。抓取 1 张牌。", img: `${SPELL_URL}/KatarinaE.png`, rarity: "UNCOMMON" },
-  "KatarinaR": { id: "KatarinaR", hero: "Katarina_Hero", name: "死亡莲华", price: 200, type: "ATTACK", cost: 3, value: 8, isMultiHit: true, hits: 5, description: "造成 5 次 8 点伤害。", img: `${SPELL_URL}/KatarinaR.png`, rarity: "RARE" },
 };
 
 // --- Utils ---
@@ -226,8 +206,7 @@ const scaleEnemyStats = (baseStats, floorIndex, act) => {
     const isAttack = scaledAction.type === 'ATTACK' || scaledAction.actionType === 'Attack';
     if (isAttack) {
       const baseDmg = scaledAction.type === 'ATTACK' ? scaledAction.value : scaledAction.dmgValue;
-      // 降低攻击力50%：原来 floorIndex * 2，现在改为 floorIndex * 1，并且整体降低50%
-      const scaledDmg = Math.floor((baseDmg + floorIndex * 1 + (act - 1) * 3) * 0.5);
+      const scaledDmg = Math.floor(baseDmg + floorIndex * 2 + (act - 1) * 5);
       if (scaledAction.type === 'ATTACK') scaledAction.value = scaledDmg;
       if (scaledAction.actionType === 'Attack') scaledAction.dmgValue = scaledDmg;
     }
@@ -256,19 +235,11 @@ const generateMap = (usedEnemyIds, act) => {
 
   map.push([{ ...createNode('1-0', 'BATTLE'), status: 'AVAILABLE', next: ['2-0', '2-1'] }]);
   for (let i = 2; i <= 8; i++) {
-    // Rest只在第8层（Boss前）出现，且只有10%概率
-    const restOptions = i === 8 ? (Math.random() < 0.1 ? ['REST'] : []) : [];
-    const nodeType1Pool = i === 8 
-      ? [...restOptions, 'BATTLE', 'SHOP', 'EVENT', 'CHEST'].filter(Boolean)
-      : ['BATTLE', 'SHOP', 'EVENT', 'CHEST'];
-    const nodeType2Pool = i === 8 
-      ? [...restOptions, 'BATTLE', 'EVENT', 'CHEST', 'SHOP'].filter(Boolean)
-      : ['BATTLE', 'EVENT', 'CHEST', 'SHOP'];
-    const nodeType1 = shuffle(nodeType1Pool)[0];
-    const nodeType2 = shuffle(nodeType2Pool)[0];
+    const nodeType1 = shuffle(['BATTLE', 'REST', 'SHOP'])[0];
+    const nodeType2 = shuffle(['BATTLE', 'EVENT', 'CHEST'])[0];
     const nodes = [createNode(`${i}-0`, nodeType1), createNode(`${i}-1`, nodeType2)];
     const nextFloorIndex = i + 1;
-    if (nextFloorIndex <= 9) {
+    if (nextFloorIndex <= 9) { 
         nodes[0].next = [`${nextFloorIndex}-0`, `${nextFloorIndex}-1`]; 
         nodes[1].next = [`${nextFloorIndex}-0`, `${nextFloorIndex}-1`]; 
     }
@@ -278,7 +249,6 @@ const generateMap = (usedEnemyIds, act) => {
     }
     map.push(nodes);
   }
-  // 第9层固定为REST（Boss前）
   map.push([{ ...createNode('9-0', 'REST'), next: ['10-0'] }]);
   
   let bossId = "Darius_BOSS";
@@ -297,9 +267,9 @@ const RelicTooltip = ({ relic, children }) => {
     return (
         <div className="relative group">
             {children}
-            <div className="absolute top-full left-0 mt-2 w-56 bg-black/95 border border-[#C8AA6E] p-3 z-[110] hidden group-hover:block text-left pointer-events-none rounded-lg shadow-xl">
-                <div className="font-bold text-[#F0E6D2] mb-1">{relic.name}</div>
-                <div className="text-xs text-[#A09B8C] leading-relaxed whitespace-normal">{relic.description}</div>
+            <div className="absolute top-0 left-12 mt-2 w-48 bg-black border border-[#C8AA6E] p-3 z-[110] hidden group-hover:block text-center pointer-events-none rounded-lg shadow-xl">
+                <div className="font-bold text-[#F0E6D2]">{relic.name}</div>
+                <div className="text-xs text-[#A09B8C]">{relic.description}</div>
                 {relic.charges !== undefined && <div className="text-xs text-red-400 mt-1">剩余次数: {relic.charges}</div>}
             </div>
         </div>
@@ -310,24 +280,14 @@ const AudioPlayer = ({ src }) => {
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(true);
     const [volume, setVolume] = useState(0.3);
-    useEffect(() => {
-        if(audioRef.current && src) { 
-            audioRef.current.volume = volume;
-            audioRef.current.load(); // 重新加载音频
+    useEffect(() => { 
+        if(audioRef.current) { 
+            audioRef.current.volume = volume; 
             const p = audioRef.current.play(); 
-            if(p !== undefined) {
-                p.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false)); 
-            }
+            if(p !== undefined) p.catch(() => setIsPlaying(false)); 
         } 
-    }, [src, volume]);
-    const togglePlay = () => {
-        if (isPlaying) { 
-            audioRef.current?.pause(); 
-            setIsPlaying(false); 
-        } else { 
-            audioRef.current?.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false)); 
-        } 
-    };
+    }, [src]);
+    const togglePlay = () => { if (isPlaying) { audioRef.current.pause(); setIsPlaying(false); } else { audioRef.current.play(); setIsPlaying(true); } };
     return (
         <div className="fixed top-4 right-4 z-[100] flex items-center gap-2 bg-black/50 p-2 rounded-full border border-[#C8AA6E]/50 hover:bg-black/80 transition-all">
             <audio ref={audioRef} src={src} loop />
@@ -442,10 +402,9 @@ const MapView = ({ mapData, onNodeSelect, act }) => {
   )
 };
 
-const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, gold, deck, relics, championName }) => {
+const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, championName }) => {
     const cardStock = useMemo(() => shuffle(Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC' && (c.hero === 'Neutral' || c.hero === championName))).slice(0, 5), [championName]);
     const relicStock = useMemo(() => Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)).slice(0, 3), [relics]);
-    const showManaUpgrade = useMemo(() => Math.random() < 0.2, []); // 20%概率
     const [purchasedItems, setPurchasedItems] = useState([]);
     const handleBuy = (item, type) => { if (gold >= item.price && !purchasedItems.includes(item.id)) { setPurchasedItems([...purchasedItems, item.id]); if (type === 'CARD') onBuyCard(item); if (type === 'RELIC') onBuyRelic(item); } };
     return (
@@ -456,9 +415,9 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, gold, deck, relic
                     <div className="flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full border-2 border-[#C8AA6E] overflow-hidden bg-black"><img src={`${ITEM_URL}/3400.png`} className="w-full h-full object-cover" /></div>
                         <div><h2 className="text-3xl font-bold text-[#C8AA6E]">黑市商人</h2><p className="text-[#A09B8C] italic">"只要给钱，什么都卖。"</p></div>
-                        </div>
+                    </div>
                     <div className="flex items-center gap-2 text-4xl font-bold text-yellow-400 bg-black/50 px-6 py-2 rounded-lg border border-yellow-600"><Coins size={32} /> {gold}</div>
-                        </div>
+                </div>
                 <div className="grid grid-cols-2 gap-12 flex-1 overflow-y-auto">
                     <div>
                         <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-blue-500 pl-3">技能卷轴</h3>
@@ -489,28 +448,7 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, gold, deck, relic
                                 )
                             })}
                         </div>
-                        {showManaUpgrade && (
-                            <div className="mt-6">
-                                <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-yellow-500 pl-3">特殊强化</h3>
-                                <button 
-                                    onClick={() => { if (gold >= 200 && !purchasedItems.includes('MANA_UPGRADE')) { setPurchasedItems([...purchasedItems, 'MANA_UPGRADE']); onBuyMana(); } }}
-                                    disabled={gold < 200 || purchasedItems.includes('MANA_UPGRADE')}
-                                    className={`p-4 w-full bg-slate-800 hover:bg-yellow-900/50 border rounded transition-all flex items-center gap-4 text-left ${
-                                        gold >= 200 && !purchasedItems.includes('MANA_UPGRADE') 
-                                            ? 'border-yellow-600 hover:border-yellow-500 cursor-pointer' 
-                                            : 'border-slate-600 opacity-50 cursor-not-allowed'
-                                    }`}
-                                >
-                                    <div className="p-3 bg-black rounded border border-slate-700"><Zap className="text-yellow-500" /></div>
-                                    <div className="flex-1">
-                                        <div className="font-bold text-[#F0E6D2]">能量上限+1</div>
-                                        <div className="text-sm text-slate-400">永久增加 <span className="text-yellow-400">1 点能量上限</span></div>
                     </div>
-                                    <div className="text-yellow-400 font-bold">200 G</div>
-                                </button>
-                </div>
-                        )}
-                </div>
                 </div>
                 <div className="mt-auto flex justify-end pt-6 border-t border-[#C8AA6E]/30"><button onClick={onLeave} className="px-8 py-3 bg-[#C8AA6E] hover:bg-[#F0E6D2] text-black font-bold uppercase tracking-widest rounded transition-colors flex items-center gap-2">离开 <ChevronRight /></button></div>
             </div>
@@ -518,23 +456,15 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, gold, deck, relic
     )
 }
 
-const ChestView = ({ onLeave, onRelicReward, relics, act }) => {
-    // 根据当前章节过滤遗物：ACT1只能获得通用遗物，ACT2可以获得ACT1+ACT2，ACT3可以获得所有
-    const availableRelics = Object.values(RELIC_DATABASE).filter(r => {
-        if (r.rarity === 'PASSIVE' || r.rarity === 'BASIC' || relics.includes(r.id)) return false;
-        // 章节专属遗物检查
-        if (r.id === 'Cull' || r.id === 'DarkSeal') return act === 1; // ACT1专属
-        if (r.id === 'QSS' || r.id === 'Executioner') return act >= 2; // ACT2专属
-        if (r.id === 'Nashor') return act >= 3; // ACT3专属
-        return true; // 通用遗物所有章节都可以获得
-    });
-    const rewards = useMemo(() => shuffle(availableRelics).slice(0, 3), [relics, act]);
+const ChestView = ({ onLeave, onRelicReward, relics }) => {
+    const availableRelics = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && r.rarity !== 'BASIC' && !relics.includes(r.id));
+    const rewards = useMemo(() => shuffle(availableRelics).slice(0, 3), [relics]);
     const [rewardChosen, setRewardChosen] = useState(false);
     const handleChoose = (relic) => { if (rewardChosen) return; setRewardChosen(true); onRelicReward(relic); };
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90">
             <div className="relative z-10 max-w-4xl bg-[#091428]/90 border-2 border-[#C8AA6E] p-10 text-center rounded-xl shadow-[0_0_50px_#C8AA6E]">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full border-4 border-[#C8AA6E] overflow-hidden bg-black flex items-center justify-center"><img src={`${ITEM_URL}/3400.png`} className="w-full h-full object-cover" /></div>
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full border-4 border-[#C8AA6E] overflow-hidden"><img src={`${PROFILEICON_URL}/2065.png`} className="w-full h-full object-cover" /></div>
                 <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">海克斯宝箱</h2>
                 <p className="text-[#F0E6D2] text-lg mb-8">打开宝箱，选择一件强大的装备来武装自己。</p>
                 <div className="flex justify-center gap-8">
@@ -555,65 +485,24 @@ const ChestView = ({ onLeave, onRelicReward, relics, act }) => {
 
 const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
     const allChamps = Object.values(CHAMPION_POOL);
-    const [refreshCount, setRefreshCount] = useState(0);
-    const [displayChamps, setDisplayChamps] = useState(() => {
-        const shuffled = shuffle([...allChamps]);
-        return shuffled.slice(0, 3);
-    });
-    
-    const handleRefresh = () => {
-        if (refreshCount >= 3) {
-            alert("基哥觉得你很机车，不许你再挑赶紧开始测");
-            return;
-        }
-        const shuffled = shuffle([...allChamps]);
-        setDisplayChamps(shuffled.slice(0, 3));
-        setRefreshCount(prev => prev + 1);
-    };
-
+    const displayChamps = useMemo(() => {
+        const nonGaren = allChamps.filter(c => c.name !== '盖伦');
+        return [allChamps.find(c => c.name === '盖伦'), ...shuffle(nonGaren).slice(0, 2)];
+    }, []);
     return (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95">
             <h1 className="text-5xl font-bold text-[#C8AA6E] mb-4 uppercase tracking-widest">选择你的英雄</h1>
-            <p className="text-[#F0E6D2] mb-4">选择一位英雄开始你的符文之地冒险</p>
-            <button 
-                onClick={handleRefresh} 
-                className="mb-8 px-6 py-2 bg-[#C8AA6E]/20 hover:bg-[#C8AA6E]/40 border border-[#C8AA6E] text-[#C8AA6E] rounded transition-all flex items-center gap-2"
-            >
-                <RefreshCw size={16} />
-                <span>刷新英雄 ({refreshCount}/3)</span>
-            </button>
+            <p className="text-[#F0E6D2] mb-12">选择一位英雄开始你的符文之地冒险</p>
             <div className="flex gap-8">
                 {displayChamps.map(c => { 
+                    const isUnlocked = unlockedIds.includes(c.id); 
                     return (
-                        <button 
-                            key={c.id} 
-                            onClick={() => onChampionSelect(c)} 
-                            className="w-72 border-2 border-[#C8AA6E] p-4 text-left relative group transition-all hover:scale-105 cursor-pointer bg-[#091428]/80 flex flex-col"
-                            style={{ minHeight: '32rem', maxHeight: '32rem' }}
-                        >
-                            <img src={c.img} className="w-full h-64 object-cover object-top mb-3 rounded border border-[#C8AA6E]/50 flex-shrink-0" />
-                            <div className="mb-2 flex-shrink-0">
-                                <h2 className="text-xl text-[#C8AA6E] font-bold">{c.name}</h2>
-                                <p className="text-xs text-[#A09B8C] italic">{c.title}</p>
-                            </div>
-                            <div className="mb-2 flex items-center gap-2 text-xs flex-shrink-0">
-                                <span className="text-red-400 flex items-center gap-1"><Heart size={12} /> {c.maxHp} HP</span>
-                                <span className="text-blue-400 flex items-center gap-1"><Zap size={12} /> {c.maxMana} 能量</span>
-                        </div>
-                            <p className="text-xs text-gray-300 mb-2 line-clamp-2 overflow-hidden flex-shrink-0" style={{ maxHeight: '2.5rem' }}>{c.description}</p>
-                            <div className="border-t border-[#C8AA6E]/30 pt-2 mt-auto">
-                                <div className="text-xs text-blue-400 font-bold mb-1">专属被动</div>
-                                <div className="text-xs text-[#A09B8C] line-clamp-2 overflow-hidden" style={{ maxHeight: '2.5rem' }}>{c.passive}</div>
-            </div>
-                            <div className="border-t border-[#C8AA6E]/30 pt-2 mt-2">
-                                <div className="text-xs text-purple-400 font-bold mb-1">初始卡组</div>
-                                <div className="text-xs text-[#A09B8C] flex flex-wrap gap-1">
-                                    {c.initialCards.map(cardId => {
-                                        const card = CARD_DATABASE[cardId];
-                                        return card ? <span key={cardId} className="px-1 bg-black/50 rounded">{card.name}</span> : null;
-                                    })}
-        </div>
-                            </div>
+                        <button key={c.id} onClick={()=>isUnlocked&&onChampionSelect(c)} disabled={!isUnlocked} className={`w-64 h-80 border p-4 text-left relative group transition-all ${isUnlocked?'border-[#C8AA6E] hover:scale-105 cursor-pointer':'border-gray-700 opacity-50 cursor-not-allowed'}`}>
+                            <img src={c.img} className={`w-full h-48 object-cover mb-4 ${!isUnlocked ? 'grayscale' : ''}`} />
+                            <h2 className="text-xl text-[#C8AA6E] font-bold">{c.name}</h2>
+                            <p className="text-xs text-gray-400 mt-2 line-clamp-3">{c.description}</p>
+                            <div className="absolute bottom-4 left-4 text-xs text-blue-400">被动: {c.passive}</div>
+                            { !isUnlocked && <div className="absolute inset-0 flex items-center justify-center bg-black/60"><Lock size={48} className="text-gray-400"/></div> }
                         </button>
                     ) 
                 })}
@@ -632,64 +521,14 @@ const EventView = ({ onLeave, onReward }) => (
             <div className="grid grid-cols-1 gap-4">
                 <button onClick={() => { onReward({ type: 'BUFF', stat: 'strength', value: 2 }); }} className="p-4 bg-slate-800 hover:bg-red-900/50 border border-slate-600 hover:border-red-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-red-500"><Sword className="text-red-500" /></div><div><div className="font-bold text-[#F0E6D2]">训练</div><div className="text-sm text-slate-400">永久获得 <span className="text-red-400">+2 力量</span></div></div></button>
                 <button onClick={() => { onReward({ type: 'RELIC_RANDOM' }); }} className="p-4 bg-slate-800 hover:bg-purple-900/50 border border-slate-600 hover:border-purple-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-purple-500"><Gift className="text-purple-500" /></div><div><div className="font-bold text-[#F0E6D2]">搜寻</div><div className="text-sm text-slate-400">获得一件 <span className="text-purple-400">随机装备</span></div></div></button>
-                <button onClick={() => { onReward({ type: 'CARD_UPGRADE' }); }} className="p-4 bg-slate-800 hover:bg-blue-900/50 border border-slate-600 hover:border-blue-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-blue-500"><Star className="text-blue-500" /></div><div><div className="font-bold text-[#F0E6D2]">强化</div><div className="text-sm text-slate-400">随机一张已有卡牌 <span className="text-blue-400">属性+1</span> (攻击/防御/抓牌)</div></div></button>
             </div>
         </div>
     </div>
 );
 
 const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
-  const rewards = useMemo(() => {
-    // championName是中文名（如"盖伦"），需要找到对应的英文id（如"Garen"）
-    const championId = Object.keys(CHAMPION_POOL).find(id => CHAMPION_POOL[id].name === championName);
-    // 优先获取该英雄的R技能（大招）
-    const championR = championId ? Object.values(CARD_DATABASE).find(c => c.hero === championId && c.id.endsWith('R')) : null;
-    // 获取其他符合条件的卡牌（排除BASIC和PASSIVE，且属于该英雄或中立）
-    const otherCards = Object.values(CARD_DATABASE).filter(c => 
-      c.rarity !== 'BASIC' && 
-      c.rarity !== 'PASSIVE' && 
-      (c.hero === 'Neutral' || (championId && c.hero === championId)) &&
-      c.id !== championR?.id
-    );
-    const shuffled = shuffle(otherCards);
-    // 如果存在R技能，确保它出现在奖励中
-    if (championR) {
-      return [championR, ...shuffled.slice(0, 2)];
-    }
-    // 如果没有R技能，返回随机3张
-    return shuffled.slice(0, 3);
-  }, [championName]);
-  return (
-    <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center">
-      <div className="max-w-4xl bg-[#091428]/90 border-2 border-[#C8AA6E] p-10 text-center rounded-xl shadow-[0_0_50px_#C8AA6E]">
-        <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">奖励</h2>
-        <div className="text-2xl text-yellow-400 mb-8 flex items-center justify-center gap-2">
-          <Coins size={28} className="text-yellow-400" />
-          <span>金币 +{goldReward}</span>
-        </div>
-        <div className="flex justify-center gap-6 my-8">
-          {rewards.map(c => (
-            <div 
-              key={c.id} 
-              onClick={() => onCardSelect(c.id)} 
-              className="w-48 h-64 bg-[#1E2328] border-2 border-[#C8AA6E] rounded-lg overflow-hidden cursor-pointer hover:scale-110 hover:shadow-[0_0_20px_#C8AA6E] transition-all group relative"
-            >
-              <div className="w-full h-40 bg-black overflow-hidden relative">
-                <img src={c.img} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" alt={c.name} />
-                <div className="absolute top-2 left-2 w-8 h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-sm">{c.cost}</div>
-              </div>
-              <div className="p-3 flex flex-col h-24">
-                <div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{c.name}</div>
-                <div className="text-[10px] text-[#A09B8C] leading-tight line-clamp-2">{c.description}</div>
-                <div className="mt-auto text-[8px] text-slate-500 uppercase font-bold">{c.type}</div>
-                </div>
-             </div>
-          ))}
-       </div>
-        <button onClick={onSkip} className="mt-6 px-8 py-3 border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest transition-all">跳过</button>
-      </div>
-    </div>
-  );
+  const rewards = useMemo(() => { const all = Object.values(CARD_DATABASE).filter(c => c.rarity!=='BASIC'&&c.rarity!=='PASSIVE'&&(c.hero==='Neutral'||c.hero===championName)); return shuffle(all).slice(0,3); }, [championName]);
+  return (<div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center"><div className="p-8 bg-[#1E2328] border border-[#C8AA6E] text-center"><h2 className="text-3xl text-[#C8AA6E] mb-4">奖励</h2><p>金币 +{goldReward}</p><div className="flex gap-4 my-4">{rewards.map(c=><div key={c.id} onClick={()=>onCardSelect(c.id)} className="p-4 border cursor-pointer">{c.name}</div>)}</div><button onClick={onSkip} className="px-4 py-2 border text-white">跳过</button></div></div>);
 };
 
 const RestView = ({ onRest }) => (
@@ -799,12 +638,12 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
     setPlayerBlock(0);
     let drawCount = 5; if (heroData.relicId === "JinxPassive") drawCount = 6; 
     drawCards(drawCount);
-        if (heroData.relicId === "ViktorPassive" && Math.random() < 0.5) {
-             const basicCard = shuffle(['Strike', 'Defend'])[0];
+    if (heroData.relicId === "ViktorPassive" && Math.random() < 0.5) {
+         const basicCard = shuffle(['Strike', 'Defend'])[0];
          let { hand } = deckRef.current;
          hand.push(basicCard);
          forceUpdate();
-        }
+    }
     setNextEnemyAction(enemyConfig.actions[Math.floor(Math.random()*enemyConfig.actions.length)]);
     heroData.relics.forEach(rid => { const relic = RELIC_DATABASE[rid]; if(relic.onTurnStart) { const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp }); setPlayerHp(pState.hp); setEnemyHp(eState.hp); } });
   };
@@ -834,7 +673,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       if(card.type === 'ATTACK') {
           // 播放攻击挥击音效
           playSfx('ATTACK_SWING');
-          triggerAnim('HERO', 'attack');
+          triggerAnim('HERO', 'attack'); 
           setTimeout(() => {
               triggerAnim('ENEMY', 'hit');
               // 延迟播放攻击命中音效
@@ -850,11 +689,11 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
               if (heroData.relicId === "YasuoPassive" && Math.random() < 0.1) finalDmg = Math.floor(finalDmg * 2);
               if (heroData.relics.includes("InfinityEdge")) finalDmg = Math.floor(finalDmg * 1.5);
               let dmgToHp = finalDmg;
-              if (enemyBlock > 0) {
+              if (enemyBlock > 0) { 
                   // 敌人格挡时播放格挡音效
                   playSfx('BLOCK_SHIELD');
-                  if (enemyBlock >= finalDmg) { setEnemyBlock(b => b - finalDmg); dmgToHp = 0; }
-                  else { dmgToHp = finalDmg - enemyBlock; setEnemyBlock(0); }
+                  if (enemyBlock >= finalDmg) { setEnemyBlock(b => b - finalDmg); dmgToHp = 0; } 
+                  else { dmgToHp = finalDmg - enemyBlock; setEnemyBlock(0); } 
               } else if (dmgToHp > 0) {
                   // 敌人受击时播放受击音效
                   setTimeout(() => playSfx('HIT_TAKEN'), 250);
@@ -874,14 +713,14 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
 
   useEffect(() => { if(enemyHp<=0) { playSfx('WIN'); setTimeout(()=>onWin(playerHp), 1000); } }, [enemyHp]);
   useEffect(() => { if(playerHp<=0) setTimeout(onLose, 1000); }, [playerHp]);
-  const endTurn = () => {
+  const endTurn = () => { 
       const { hand, discardPile } = deckRef.current;
       deckRef.current = { ...deckRef.current, discardPile: [...discardPile, ...hand], hand: [] };
       forceUpdate();
       setGameState('ENEMY_TURN'); 
-      setPlayerStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)}));
-      setEnemyStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)}));
-      setTimeout(enemyAction, 1000);
+      setPlayerStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)})); 
+      setEnemyStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)})); 
+      setTimeout(enemyAction, 1000); 
   };
   const enemyAction = () => {
       if(enemyHp<=0) return;
@@ -947,14 +786,14 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
              <div className={`absolute left-10 bottom-[42%] w-64 h-[500px] transition-all duration-200 ${heroAnim === 'attack' ? 'translate-x-32' : ''} ${heroAnim === 'hit' ? 'translate-x-[-10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-[#C8AA6E]" />
                  <div className="absolute -bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-2 rounded flex flex-col gap-1 shadow-lg z-40"><div className="flex justify-between text-xs text-[#C8AA6E] font-bold"><span>HP {playerHp}/{heroData.maxHp}</span>{playerBlock > 0 && <span className="text-blue-400 flex items-center gap-1"><Shield size={12}/>{playerBlock}</span>}</div><div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div></div>{renderStatus(playerStatus)}</div>
-                     </div>
+             </div>
              <div className="text-6xl font-black text-[#C8AA6E]/20 italic">VS</div>
              <div className={`absolute right-10 bottom-[42%] w-64 h-[500px] transition-all duration-200 ${enemyAnim === 'attack' ? '-translate-x-32' : ''} ${enemyAnim === 'hit' ? 'translate-x-[10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={enemyConfig.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-red-800" />
                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-3 py-1 rounded flex items-center gap-2 animate-bounce"><IntentIcon /><span className="text-white font-bold text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span></div>
                  <div className="absolute -bottom-24 w-full bg-black/80 border border-red-800 p-2 rounded flex flex-col gap-1 shadow-lg z-40"><div className="flex justify-between text-xs text-red-500 font-bold"><span>{enemyConfig.name}</span><span>{enemyHp}/{enemyConfig.maxHp}</span></div><div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div></div>{enemyBlock > 0 && <div className="text-blue-400 text-xs font-bold flex items-center gap-1"><Shield size={10}/> 格挡 {enemyBlock}</div>}{renderStatus(enemyStatus)}</div>
-                     </div>
-                 </div>
+             </div>
+        </div>
         {dmgOverlay && (<div className={`absolute top-1/2 ${dmgOverlay.target==='ENEMY'?'right-1/4':'left-1/4'} -translate-y-1/2 text-8xl font-black text-white drop-shadow-[0_0_10px_red] animate-ping z-50`}>{dmgOverlay.val}</div>)}
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black via-black/80 to-transparent z-20 flex items-end justify-center pb-6 gap-4 pointer-events-none">
             <div className="absolute left-8 bottom-8 w-24 h-24 rounded-full bg-[#091428] border-4 border-[#C8AA6E] flex items-center justify-center shadow-[0_0_30px_#0066FF] pointer-events-auto text-center"><span className="text-4xl font-bold text-white block">{playerMana}</span><span className="text-[10px] text-[#C8AA6E] block">MANA</span><div className="text-[8px] text-gray-400 mt-1">{currentDrawPile.length}/{currentDiscardPile.length}</div></div>
@@ -972,7 +811,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                         )
                     })}
                 </AnimatePresence>
-             </div>
+            </div>
             <button onClick={endTurn} disabled={gameState!=='PLAYER_TURN'} className="absolute right-8 bottom-8 w-24 h-24 rounded-full bg-[#C8AA6E] border-4 border-[#F0E6D2] flex items-center justify-center font-bold text-[#091428] shadow-lg hover:scale-105 hover:bg-white active:scale-95 transition-all pointer-events-auto">结束<br/>回合</button>
         </div>
     </div>
@@ -993,41 +832,17 @@ export default function LegendsOfTheSpire() {
   const [gold, setGold] = useState(100);
   const [relics, setRelics] = useState([]);
   const [baseStr, setBaseStr] = useState(0);
-  const [maxMana, setMaxMana] = useState(3);
-  const [cardUpgrades, setCardUpgrades] = useState({}); // {cardId: {value: +1, block: +1, effectValue: +1}}
-  const [showRelicReward, setShowRelicReward] = useState(null); // 显示遗物奖励UI
   const [activeNode, setActiveNode] = useState(null);
   const [usedEnemies, setUsedEnemies] = useState([]); 
   
-  const [unlockedChamps, setUnlockedChamps] = useState(() => { try { const d = localStorage.getItem(UNLOCK_KEY); return d ? JSON.parse(d) : Object.keys(CHAMPION_POOL); } catch { return Object.keys(CHAMPION_POOL); } });
+  const [unlockedChamps, setUnlockedChamps] = useState(() => { try { const d = localStorage.getItem(UNLOCK_KEY); return d ? JSON.parse(d) : ['Garen']; } catch { return ['Garen']; } });
   const [hasSave, setHasSave] = useState(false);
-  const [showUpdateLog, setShowUpdateLog] = useState(() => {
-      const lastVersion = localStorage.getItem('last_version');
-      return lastVersion !== 'v0.8.0';
-  });
-  const [bgmStarted, setBgmStarted] = useState(false);
-  const [passiveSkillToast, setPassiveSkillToast] = useState(null); // 被动技能生效提示
 
   useEffect(() => { const savedData = localStorage.getItem(SAVE_KEY); if (savedData) setHasSave(true); }, []);
-  
-  // 注册Service Worker (PWA支持)
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then((registration) => {
-            console.log('Service Worker registered:', registration.scope);
-          })
-          .catch((error) => {
-            console.log('Service Worker registration failed:', error);
-          });
-      });
-    }
-  }, []);
 
   useEffect(() => {
       if (view !== 'MENU' && view !== 'CHAMPION_SELECT' && view !== 'GAMEOVER' && view !== 'VICTORY_ALL') {
-          localStorage.setItem(SAVE_KEY, JSON.stringify({ view, mapData, currentFloor, currentAct, masterDeck, champion, currentHp, maxHp, gold, relics, baseStr, maxMana, cardUpgrades, activeNode, usedEnemies }));
+          localStorage.setItem(SAVE_KEY, JSON.stringify({ view, mapData, currentFloor, currentAct, masterDeck, champion, currentHp, maxHp, gold, relics, baseStr, activeNode, usedEnemies }));
       }
   }, [view, currentHp, gold, currentFloor, currentAct]);
 
@@ -1035,7 +850,7 @@ export default function LegendsOfTheSpire() {
       const s = localStorage.getItem(SAVE_KEY);
       if (s) {
           const data = JSON.parse(s);
-          setMapData(data.mapData); setCurrentFloor(data.currentFloor); setCurrentAct(data.currentAct || 1); setMasterDeck(data.masterDeck); setChampion(data.champion); setCurrentHp(data.currentHp); setMaxHp(data.maxHp); setGold(data.gold); setRelics(data.relics); setBaseStr(data.baseStr); setMaxMana(data.maxMana || 3); setCardUpgrades(data.cardUpgrades || {}); setActiveNode(data.activeNode); setUsedEnemies(data.usedEnemies); setView(data.view);
+          setMapData(data.mapData); setCurrentFloor(data.currentFloor); setCurrentAct(data.currentAct || 1); setMasterDeck(data.masterDeck); setChampion(data.champion); setCurrentHp(data.currentHp); setMaxHp(data.maxHp); setGold(data.gold); setRelics(data.relics); setBaseStr(data.baseStr); setActiveNode(data.activeNode); setUsedEnemies(data.usedEnemies); setView(data.view);
       }
   };
 
@@ -1045,23 +860,20 @@ export default function LegendsOfTheSpire() {
     // 播放英雄语音
     playChampionVoice(selectedChamp.id);
     setChampion(selectedChamp); setMaxHp(selectedChamp.maxHp); setCurrentHp(selectedChamp.maxHp);
-    setMaxMana(selectedChamp.maxMana);
     setMasterDeck([...STARTING_DECK_BASIC, ...selectedChamp.initialCards]);
     setRelics([RELIC_DATABASE[selectedChamp.relicId].id]);
-    setCardUpgrades({});
     const { map: newMap } = generateMap(usedEnemies, 1);
     setMapData(newMap); setCurrentFloor(0); setCurrentAct(1); setView('MAP');
   };
 
   const completeNode = () => {
-      // 节点已经在handleNodeSelect时锁定，这里只需要解锁下一层节点
       const newMap = [...mapData];
+      const floorNodes = newMap[currentFloor];
+      floorNodes.forEach(n => { if (n.id === activeNode.id) n.status = 'COMPLETED'; else n.status = 'LOCKED'; });
       const nextFloorIdx = currentFloor + 1;
       if (nextFloorIdx < newMap.length) {
           activeNode.next.forEach(nextId => { const nextNode = newMap[nextFloorIdx].find(n => n.id === nextId); if(nextNode) nextNode.status = 'AVAILABLE'; });
-          setMapData(newMap);
-          setCurrentFloor(nextFloorIdx); 
-          setView('MAP');
+          setCurrentFloor(nextFloorIdx); setView('MAP');
       } else { 
           // 章节通关逻辑
           if (currentAct < 3) {
@@ -1093,17 +905,6 @@ export default function LegendsOfTheSpire() {
   
   const handleNodeSelect = (node) => {
       if (node.status !== 'AVAILABLE') return;
-      // 立即锁定同层的其他节点
-      const newMap = [...mapData];
-      const floorNodes = newMap[currentFloor];
-      floorNodes.forEach(n => { 
-          if (n.id === node.id) {
-              n.status = 'COMPLETED';
-          } else {
-              n.status = 'LOCKED';
-          }
-      });
-      setMapData(newMap);
       setActiveNode(node);
       switch(node.type) {
           case 'BATTLE': case 'BOSS': setView('COMBAT'); break;
@@ -1115,121 +916,15 @@ export default function LegendsOfTheSpire() {
       }
   };
 
-  const handleBattleWin = (remainingHp, killBonus) => { 
+  const handleBattleWin = (remainingHp) => { 
       let passiveHeal = champion.relicId === "GarenPassive" ? 6 : 0; 
       setCurrentHp(Math.min(maxHp, remainingHp + passiveHeal)); 
-      
-      // 处理击杀奖励（内瑟斯、锤石等）
-      if (killBonus) {
-        if (killBonus.type === 'strength') {
-          setBaseStr(prev => prev + killBonus.value);
-        } else if (killBonus.type === 'maxHp') {
-          setMaxHp(prev => prev + killBonus.value);
-          setCurrentHp(prev => prev + killBonus.value); // 同时增加当前血量
-        }
-      }
-      
-      // TwistedFatePassive: 战斗胜利额外获得 15 金币
-      if (champion.relicId === "TwistedFatePassive") {
-        setGold(prev => prev + 15);
-      }
-      
       setView('REWARD'); 
   };
-  
-  const handleKillEnemy = (bonus) => {
-    // 处理击杀敌人时的永久属性增加
-    if (bonus.type === 'strength') {
-      setBaseStr(prev => {
-        const newStr = prev + bonus.value;
-        // 显示被动技能生效提示
-        setPassiveSkillToast({
-          message: `被动技能生效！永久获得 +${bonus.value} 力量`,
-          type: 'strength'
-        });
-        setTimeout(() => setPassiveSkillToast(null), 3000);
-        return newStr;
-      });
-    } else if (bonus.type === 'maxHp') {
-      setMaxHp(prev => {
-        const newMaxHp = prev + bonus.value;
-        setCurrentHp(prevHp => prevHp + bonus.value);
-        // 显示被动技能生效提示
-        setPassiveSkillToast({
-          message: `被动技能生效！永久获得 +${bonus.value} 最大生命值`,
-          type: 'maxHp'
-        });
-        setTimeout(() => setPassiveSkillToast(null), 3000);
-        return newMaxHp;
-      });
-    }
-  };
   const handleBuyCard = (card) => { setGold(prev => prev - card.price); setMasterDeck(prev => [...prev, card.id]); };
-  const handleRelicReward = (relic, showUI = false) => { 
-    setRelics(prev => [...prev, relic.id]); 
-    if (relic.onPickup) { 
-      const ns = relic.onPickup({ maxHp, currentHp }); 
-      setMaxHp(ns.maxHp); 
-      setCurrentHp(ns.currentHp); 
-    }
-    if (showUI) {
-      setShowRelicReward(relic);
-    } else {
-      completeNode();
-    }
-  };
+  const handleRelicReward = (relic) => { setRelics(prev => [...prev, relic.id]); if (relic.onPickup) { const ns = relic.onPickup({ maxHp, currentHp }); setMaxHp(ns.maxHp); setCurrentHp(ns.currentHp); } completeNode(); };
   const handleBuyRelic = (relic) => { setGold(prev => prev - relic.price); handleRelicReward(relic); };
-  const handleEventReward = (reward) => { 
-    if (reward.type === 'BUFF' && reward.stat === 'strength') {
-      setBaseStr(prev => prev + reward.value);
-      completeNode();
-    } else if (reward.type === 'RELIC_RANDOM') { 
-      // 根据当前章节过滤遗物
-      const pool = Object.values(RELIC_DATABASE).filter(r => {
-        if (r.rarity === 'PASSIVE' || relics.includes(r.id)) return false;
-        // 章节专属遗物检查
-        if (r.id === 'Cull' || r.id === 'DarkSeal') return currentAct === 1;
-        if (r.id === 'QSS' || r.id === 'Executioner') return currentAct >= 2;
-        if (r.id === 'Nashor') return currentAct >= 3;
-        return true; // 通用遗物
-      });
-      if (pool.length > 0) {
-        const randomRelic = shuffle(pool)[0];
-        handleRelicReward(randomRelic, true); // 显示UI
-      } else {
-        completeNode();
-      }
-    } else if (reward.type === 'CARD_UPGRADE') {
-      // 随机选择一张已有卡牌进行升级
-      const upgradeableCards = masterDeck.filter(cardId => {
-        const card = CARD_DATABASE[cardId];
-        if (!card) return false;
-        // 可以升级攻击、防御或抓牌效果
-        return (card.type === 'ATTACK' && card.value) || 
-               (card.type === 'SKILL' && card.block) || 
-               (card.effect === 'DRAW' && card.effectValue);
-      });
-      if (upgradeableCards.length > 0) {
-        const targetCardId = shuffle(upgradeableCards)[0];
-        const card = CARD_DATABASE[targetCardId];
-        const upgrade = { ...cardUpgrades[targetCardId] || {} };
-        // 随机选择升级类型
-        const upgradeTypes = [];
-        if (card.type === 'ATTACK' && card.value) upgradeTypes.push('value');
-        if (card.type === 'SKILL' && card.block) upgradeTypes.push('block');
-        if (card.effect === 'DRAW' && card.effectValue) upgradeTypes.push('effectValue');
-        if (upgradeTypes.length > 0) {
-          const upgradeType = shuffle(upgradeTypes)[0];
-          upgrade[upgradeType] = (upgrade[upgradeType] || 0) + 1;
-          setCardUpgrades(prev => ({ ...prev, [targetCardId]: upgrade }));
-        }
-      }
-      completeNode();
-    } else if (reward.type === 'MANA_UPGRADE') {
-      setMaxMana(prev => prev + 1);
-      completeNode();
-    }
-  };
+  const handleEventReward = (reward) => { if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value); if (reward.type === 'RELIC_RANDOM') { const pool = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)); if (pool.length > 0) handleRelicReward(shuffle(pool)[0]); } completeNode(); };
   const handleCardReward = (cardId) => { setMasterDeck([...masterDeck, cardId]); setGold(gold + 50); completeNode(); };
   const handleSkipReward = () => { setGold(gold + 50); completeNode(); };
   const handleRest = () => { setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.3))); completeNode(); };
@@ -1265,58 +960,15 @@ export default function LegendsOfTheSpire() {
           case 'MENU': return (
               <div className="h-screen w-full bg-slate-900 flex flex-col items-center justify-center text-white bg-[url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ryze_0.jpg')] bg-cover bg-center">
                   <div className="absolute inset-0 bg-black/60"></div>
-                  <div className="z-10 text-center"><h1 className="text-8xl font-black text-[#C8AA6E] mb-8 drop-shadow-lg tracking-widest">峡谷尖塔</h1><div className="flex flex-col gap-4 w-64 mx-auto">{hasSave && (<button onClick={handleContinue} className="px-8 py-4 bg-[#0AC8B9] hover:bg-white hover:text-[#0AC8B9] text-black font-bold rounded flex items-center justify-center gap-2 transition-all"><Play fill="currentColor" /> 继续征程</button>)}<button onClick={handleNewGame} className="px-8 py-4 border-2 border-[#C8AA6E] hover:bg-[#C8AA6E] hover:text-black text-[#C8AA6E] font-bold rounded flex items-center justify-center gap-2 transition-all"><RotateCcw /> 新游戏</button></div><p className="mt-8 text-slate-400 text-sm">v0.7.5 Beta</p></div>
-                  {showUpdateLog && (
-                      <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90">
-                          <div className="max-w-2xl bg-[#091428]/95 border-2 border-[#C8AA6E] p-8 rounded-xl shadow-[0_0_50px_#C8AA6E]">
-                              <h2 className="text-3xl font-bold text-[#C8AA6E] mb-6 text-center">v0.8.0 更新日志</h2>
-                              <div className="space-y-4 text-left max-h-96 overflow-y-auto">
-                                  <div className="border-l-4 border-green-500 pl-4">
-                                      <div className="font-bold text-green-400 mb-1">✨ [新功能] 移动端与多端适配</div>
-                                      <div className="text-sm text-[#A09B8C]">• PWA 支持：可添加到主屏幕，离线游玩<br/>• 触摸手势优化：滑动出牌、双击查看卡牌详情</div>
-                                  </div>
-                                  <div className="border-l-4 border-green-500 pl-4">
-                                      <div className="font-bold text-green-400 mb-1">🎮 [游戏机制] 全英雄实装与平衡优化</div>
-                                      <div className="text-sm text-[#A09B8C]">• 英雄池扩充至 20 位，每位英雄拥有独特的初始卡组和被动遗物<br/>• 修复护甲叠加机制，护甲可累积到下一回合<br/>• 完善所有 20 位英雄的被动技能实现（内瑟斯、锤石、艾瑞莉娅等）</div>
-                                  </div>
-                                  <div className="border-l-4 border-green-500 pl-4">
-                                      <div className="font-bold text-green-400 mb-1">📖 [系统] 三章节系统与奖励机制</div>
-                                      <div className="text-sm text-[#A09B8C]">• 正式实装 Act 1 (峡谷), Act 2 (暗影岛), Act 3 (虚空) 完整流程<br/>• 章节专属遗物系统（如 Act 3 的纳什之牙）<br/>• Event 新增卡牌升级选项（攻击+1/防御+1/抓牌+1）<br/>• 商店新增能量上限+1选项（20%概率，200金币）</div>
-                                  </div>
-                                  <div className="border-l-4 border-purple-500 pl-4">
-                                      <div className="font-bold text-purple-400 mb-1">💎 [R技能] 终极技能系统</div>
-                                      <div className="text-sm text-[#A09B8C]">• 所有 20 位英雄的 R 技能（终极技能）已实装<br/>• R 技能可在战斗胜利奖励中获取，或在商店购买（200金币）</div>
-                                  </div>
-                                  <div className="border-l-4 border-blue-500 pl-4">
-                                      <div className="font-bold text-blue-400 mb-1">🔧 [修复] Bug 修复与体验优化</div>
-                                      <div className="text-sm text-[#A09B8C]">• 修复内瑟斯被动技能触发问题，添加被动生效提示<br/>• 修复地图路径锁定逻辑、Rest 节点生成规则<br/>• 修复遗物显示位置、英雄选择界面文本溢出<br/>• 优化英雄选择界面立绘显示（提升高度，避免遮挡）</div>
-                                  </div>
-                                  <div className="border-l-4 border-yellow-500 pl-4">
-                                      <div className="font-bold text-yellow-400 mb-1">🎨 [UI/UX] 界面优化</div>
-                                      <div className="text-sm text-[#A09B8C]">• 新增被动技能生效 Toast 提示<br/>• Event 获取遗物时显示奖励 UI<br/>• 优化奖励界面，显示卡牌图片</div>
-                                  </div>
-                              </div>
-                              <button 
-                                  onClick={() => {
-                                      setShowUpdateLog(false);
-                                      localStorage.setItem('last_version', 'v0.8.0');
-                                      setBgmStarted(true);
-                                  }} 
-                                  className="mt-6 w-full px-8 py-3 bg-[#C8AA6E] hover:bg-[#F0E6D2] text-black font-bold rounded transition-all"
-                              >
-                                  关闭
-                              </button>
-                          </div>
-            </div>
-        )}
-            </div>
+                  <div className="z-10 text-center"><h1 className="text-8xl font-black text-[#C8AA6E] mb-8 drop-shadow-lg tracking-widest">峡谷尖塔</h1><div className="flex flex-col gap-4 w-64 mx-auto">{hasSave && (<button onClick={handleContinue} className="px-8 py-4 bg-[#0AC8B9] hover:bg-white hover:text-[#0AC8B9] text-black font-bold rounded flex items-center justify-center gap-2 transition-all"><Play fill="currentColor" /> 继续征程</button>)}<button onClick={handleNewGame} className="px-8 py-4 border-2 border-[#C8AA6E] hover:bg-[#C8AA6E] hover:text-black text-[#C8AA6E] font-bold rounded flex items-center justify-center gap-2 transition-all"><RotateCcw /> 新游戏</button></div><p className="mt-8 text-slate-400 text-sm">v7.5 Beta</p></div>
+              </div>
           );
           case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
           case 'MAP': return <MapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} />;
-          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} onBuyMana={() => { setGold(prev => prev - 200); setMaxMana(prev => prev + 1); }} championName={champion.name} />;
+          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
-          case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} act={currentAct} />;
-          case 'COMBAT': return <BattleScene heroData={{...champion, maxHp, currentHp, maxMana, relics, baseStr, cardUpgrades, onKillEnemy: handleKillEnemy}} enemyId={activeNode.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => { localStorage.removeItem(SAVE_KEY); setView('GAMEOVER'); }} floorIndex={currentFloor} act={currentAct} />;
+          case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} />;
+          case 'COMBAT': return <BattleScene heroData={{...champion, maxHp, currentHp, relics, baseStr}} enemyId={activeNode.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => { localStorage.removeItem(SAVE_KEY); setView('GAMEOVER'); }} floorIndex={currentFloor} act={currentAct} />;
           case 'REWARD': return <RewardView goldReward={50} onCardSelect={handleCardReward} onSkip={handleSkipReward} championName={champion.name} />;
           case 'REST': return <RestView onRest={handleRest} />;
           case 'VICTORY_ALL': return <div className="h-screen w-full bg-[#0AC8B9]/20 flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-[#0AC8B9]">传奇永不熄灭！</h1><button onClick={() => setView('MENU')} className="mt-8 px-8 py-3 bg-[#0AC8B9] text-black font-bold rounded">回到菜单</button></div>;
@@ -1325,31 +977,16 @@ export default function LegendsOfTheSpire() {
       }
   };
 
-                return (
+  return (
       <div className="relative h-screen w-full bg-[#091428] font-sans select-none overflow-hidden">
-          <AudioPlayer src={bgmStarted || view !== 'MENU' ? getCurrentBgm() : null} />
-          {/* 被动技能生效提示Toast */}
-          {passiveSkillToast && (
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[200] animate-in slide-in-from-top fade-in duration-300">
-              <div className={`px-6 py-4 rounded-lg shadow-lg border-2 ${
-                passiveSkillToast.type === 'strength' ? 'bg-red-900/90 border-red-500 text-red-100' :
-                passiveSkillToast.type === 'maxHp' ? 'bg-green-900/90 border-green-500 text-green-100' :
-                'bg-yellow-900/90 border-yellow-500 text-yellow-100'
-              }`}>
-                <div className="flex items-center gap-3">
-                  <div className="text-2xl font-bold">✨</div>
-                  <div className="font-bold text-lg">{passiveSkillToast.message}</div>
-                </div>
-              </div>
-            </div>
-          )}
+          <AudioPlayer src={getCurrentBgm()} />
           {view !== 'GAMEOVER' && view !== 'VICTORY_ALL' && view !== 'MENU' && view !== 'CHAMPION_SELECT' && champion && (
               <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black to-transparent z-50 flex items-center justify-between px-8 pointer-events-none">
                   <div className="flex items-center gap-6 pointer-events-auto">
                       <div className="relative group">
                           <img src={champion.avatar} className="w-12 h-12 rounded-full border-2 border-[#C8AA6E] shadow-lg" />
                           <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-xs font-bold text-[#C8AA6E]">{currentFloor+1}F</div>
-                        </div>
+                      </div>
                       <div className="flex flex-col">
                           <span className="text-[#F0E6D2] font-bold text-lg shadow-black drop-shadow-md flex items-center gap-2">
                             {champion.name}
@@ -1358,32 +995,25 @@ export default function LegendsOfTheSpire() {
                                      className="w-6 h-6 rounded border border-yellow-400 bg-black/50 cursor-help hover:scale-110 transition-transform" 
                                 />
                             </RelicTooltip>
-                            {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
-                                const relic = RELIC_DATABASE[rid];
-                                return (
-                                    <RelicTooltip key={i} relic={relic}>
-                                        <img src={relic.img} 
-                                             className="w-6 h-6 rounded border border-[#C8AA6E]/50 bg-black/50 cursor-help hover:scale-110 transition-transform" 
-                                        />
-                                    </RelicTooltip>
-                                );
-                            })}
                           </span>
                           <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
-                        </div>
-                    </div>
-        </div>
+                      </div>
+                  </div>
+                  <div className="flex gap-2 pointer-events-auto mr-4">
+                      {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
+                          const relic = RELIC_DATABASE[rid];
+                          return (
+                              <RelicTooltip key={i} relic={relic}>
+                                  <div className="w-10 h-10 rounded border border-[#C8AA6E]/50 bg-black/50 relative group cursor-help hover:scale-110 transition-transform">
+                                      <img src={relic.img} className="w-full h-full object-cover" />
+                                  </div>
+                              </RelicTooltip>
+                          );
+                      })}
+                  </div>
+              </div>
           )}
           {renderView()}
-          {showRelicReward && (
-            <RelicRewardView 
-              relic={showRelicReward} 
-              onClose={() => {
-                setShowRelicReward(null);
-                completeNode();
-              }} 
-            />
-          )}
-    </div>
+      </div>
   );
 }

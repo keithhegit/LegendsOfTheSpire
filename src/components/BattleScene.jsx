@@ -33,6 +33,11 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   const [enemyAnim, setEnemyAnim] = useState("");
   const [playerStatus, setPlayerStatus] = useState({ strength: heroData.baseStr || 0, weak: 0, vulnerable: 0 });
   const [enemyStatus, setEnemyStatus] = useState({ strength: 0, weak: 0, vulnerable: 0 });
+  const [cardsPlayedThisTurn, setCardsPlayedThisTurn] = useState(0); // 本回合打出的卡牌数量（SonaPassive）
+  const [attackCardsPlayed, setAttackCardsPlayed] = useState(0); // 本回合打出的攻击牌数量（RivenPassive, KatarinaPassive）
+  const [lastSkillCardPlayed, setLastSkillCardPlayed] = useState(false); // 上一张是否是技能牌（LeeSinPassive）
+  const [vayneHitCount, setVayneHitCount] = useState(0); // Vayne被动：连续伤害计数
+  const [isFirstAttackCard, setIsFirstAttackCard] = useState(true); // Zed被动：第一张攻击牌
 
   useEffect(() => {
     // 战斗开始时播放英雄语音
@@ -72,7 +77,8 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   const startTurnLogic = () => {
     setGameState('PLAYER_TURN'); 
     setPlayerMana(initialMana + (heroData.relicId === "LuxPassive" ? 1 : 0)); 
-    setPlayerBlock(0);
+    // 护甲不再清零，保留上一回合剩余的护甲（可以叠加）
+    // setPlayerBlock(0); // 移除这行，让护甲可以叠加
     let drawCount = 5; if (heroData.relicId === "JinxPassive") drawCount = 6; 
     drawCards(drawCount);
     if (heroData.relicId === "ViktorPassive" && Math.random() < 0.5) {
@@ -83,6 +89,16 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
     }
     setNextEnemyAction(enemyConfig.actions[Math.floor(Math.random()*enemyConfig.actions.length)]);
     heroData.relics.forEach(rid => { const relic = RELIC_DATABASE[rid]; if(relic.onTurnStart) { const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp }); setPlayerHp(pState.hp); setEnemyHp(eState.hp); } });
+    // TeemoPassive: 回合开始时，随机给一名敌人施加 2 层虚弱
+    if (heroData.relicId === "TeemoPassive") {
+      setEnemyStatus(s => ({ ...s, weak: s.weak + 2 }));
+    }
+    // 重置回合计数
+    setCardsPlayedThisTurn(0);
+    setAttackCardsPlayed(0);
+    setLastSkillCardPlayed(false);
+    setIsFirstAttackCard(true);
+    setVayneHitCount(0);
   };
 
   const playCard = (index) => {
@@ -90,8 +106,15 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       const { hand, discardPile } = deckRef.current;
       const cardId = hand[index];
       const card = CARD_DATABASE[cardId];
-      if(playerMana < card.cost) return;
-      setPlayerMana(p => p - card.cost);
+      
+      // LeeSinPassive: 打出技能牌后，下一张攻击牌费用-1
+      let actualCost = card.cost;
+      if (card.type === 'ATTACK' && lastSkillCardPlayed && heroData.relicId === "LeeSinPassive") {
+        actualCost = Math.max(0, card.cost - 1);
+      }
+      
+      if(playerMana < actualCost) return;
+      setPlayerMana(p => p - actualCost);
       const newHand = [...hand]; newHand.splice(index, 1);
       if(!card.exhaust) { deckRef.current = { ...deckRef.current, hand: newHand, discardPile: [...discardPile, cardId] }; } 
       else { deckRef.current = { ...deckRef.current, hand: newHand }; }
@@ -103,6 +126,17 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       const upgradedBlock = (card.block || 0) + (upgrade.block || 0);
       const upgradedEffectValue = (card.effectValue || 0) + (upgrade.effectValue || 0);
       
+      // 更新卡牌计数（用于被动技能）
+      const newCardsPlayed = cardsPlayedThisTurn + 1;
+      setCardsPlayedThisTurn(newCardsPlayed);
+      
+      // LeeSinPassive: 打出技能牌后，标记下一张攻击牌费用-1
+      if (card.type === 'SKILL') {
+        setLastSkillCardPlayed(true);
+      } else if (card.type === 'ATTACK') {
+        setLastSkillCardPlayed(false); // 攻击牌使用后重置
+      }
+      
       if(card.effect === 'DRAW') drawCards(upgradedEffectValue || card.effectValue);
       if(card.exhaust && heroData.relicId === "EkkoPassive") setPlayerStatus(s => ({ ...s, strength: s.strength + 1 }));
       if(card.type === 'SKILL' && heroData.relicId === "SylasPassive") setPlayerHp(h => Math.min(heroData.maxHp, h + 3)); 
@@ -111,7 +145,28 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       if(card.effect === 'STRENGTH') setPlayerStatus(s => ({ ...s, strength: s.strength + (upgradedEffectValue || card.effectValue) }));
       if(card.effect === 'CLEANSE') setPlayerStatus(s => ({ ...s, weak: 0, vulnerable: 0 }));
       if(card.effect === 'HEAL') setPlayerHp(h => Math.min(heroData.maxHp, h + (upgradedEffectValue || card.effectValue)));
+      
+      // SonaPassive: 每回合打出第三张卡时，获得 3 点临时护甲
+      if (newCardsPlayed === 3 && heroData.relicId === "SonaPassive") {
+        setPlayerBlock(b => b + 3);
+      }
+      
       if(card.type === 'ATTACK') {
+          // 更新攻击牌计数
+          const newAttackCount = attackCardsPlayed + 1;
+          setAttackCardsPlayed(newAttackCount);
+          
+          // RivenPassive: 每打出3张攻击牌，获得1点能量
+          if (heroData.relicId === "RivenPassive" && newAttackCount % 3 === 0) {
+            setPlayerMana(p => p + 1);
+          }
+          
+          // KatarinaPassive: 每回合打出的每第 4 张攻击牌伤害翻倍
+          const isKatarina4thAttack = heroData.relicId === "KatarinaPassive" && newAttackCount % 4 === 0;
+          
+          // ZedPassive: 每回合第一张攻击牌会重复施放一次(50%伤害)
+          const isZedFirstAttack = heroData.relicId === "ZedPassive" && isFirstAttackCard;
+          setIsFirstAttackCard(false);
           // 播放攻击挥击音效
           playSfx('ATTACK_SWING');
           triggerAnim('HERO', 'attack'); 
@@ -122,13 +177,28 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           }, 200);
           let dmg = upgradedValue + playerStatus.strength;
           if (playerStatus.weak > 0) dmg = Math.floor(dmg * 0.75);
+          
+          // KatarinaPassive: 每回合打出的每第 4 张攻击牌伤害翻倍
+          if (isKatarina4thAttack) {
+            dmg = dmg * 2;
+          }
+          
           const hits = card.isMultiHit ? card.hits : 1;
           let total = 0;
+          
           for(let i=0; i<hits; i++) {
               let finalDmg = dmg;
               if (enemyStatus.vulnerable > 0) finalDmg = Math.floor(finalDmg * 1.5);
               if (heroData.relicId === "YasuoPassive" && Math.random() < 0.1) finalDmg = Math.floor(finalDmg * 2);
               if (heroData.relics.includes("InfinityEdge")) finalDmg = Math.floor(finalDmg * 1.5);
+              
+              // VaynePassive: 对同一目标连续造成3次伤害时，额外造成10伤
+              const newVayneCount = vayneHitCount + 1;
+              if (heroData.relicId === "VaynePassive" && newVayneCount % 3 === 0) {
+                finalDmg += 10;
+              }
+              setVayneHitCount(newVayneCount);
+              
               let dmgToHp = finalDmg;
               if (enemyBlock > 0) { 
                   // 敌人格挡时播放格挡音效
@@ -139,10 +209,56 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                   // 敌人受击时播放受击音效
                   setTimeout(() => playSfx('HIT_TAKEN'), 250);
               }
-              setEnemyHp(h => Math.max(0, h - dmgToHp)); total += dmgToHp;
+              
+              // 应用伤害并检测击杀（在setEnemyHp回调中直接触发被动技能）
+              setEnemyHp(h => {
+                const newHp = Math.max(0, h - dmgToHp);
+                const wasKilled = h > 0 && newHp <= 0;
+                
+                // 如果击杀敌人，立即触发被动技能
+                if (wasKilled) {
+                  // 内瑟斯被动：用攻击牌击杀敌人，永久+1力量
+                  if (heroData.relicId === "NasusPassive" && heroData.onKillEnemy) {
+                    heroData.onKillEnemy({ type: 'strength', value: 1 });
+                  }
+                  // 艾瑞莉娅被动：击杀敌人，恢复1点能量并抽1张牌
+                  if (heroData.relicId === "IreliaPassive") {
+                    setPlayerMana(p => p + 1);
+                    drawCards(1);
+                  }
+                  // 锤石被动：敌人死亡增加2最大生命值
+                  if (heroData.relicId === "ThreshPassive" && heroData.onKillEnemy) {
+                    heroData.onKillEnemy({ type: 'maxHp', value: 2 });
+                  }
+                  // Vayne被动：击杀后重置计数
+                  if (heroData.relicId === "VaynePassive") {
+                    setVayneHitCount(0);
+                  }
+                }
+                
+                return newHp;
+              });
+              
+              total += dmgToHp;
               if(heroData.relics.includes("VampiricScepter")) setPlayerHp(h => Math.min(heroData.maxHp, h + 1));
               if(heroData.relicId === "DariusPassive") setEnemyStatus(s => ({ ...s, weak: s.weak + 1 }));
           }
+          
+          // ZedPassive: 每回合第一张攻击牌会重复施放一次(50%伤害)
+          if (isZedFirstAttack) {
+            setTimeout(() => {
+              let zedDmg = Math.floor((upgradedValue + playerStatus.strength) * 0.5);
+              if (playerStatus.weak > 0) zedDmg = Math.floor(zedDmg * 0.75);
+              if (enemyStatus.vulnerable > 0) zedDmg = Math.floor(zedDmg * 1.5);
+              let zedDmgToHp = zedDmg;
+              if (enemyBlock > 0) {
+                if (enemyBlock >= zedDmg) { setEnemyBlock(b => b - zedDmg); zedDmgToHp = 0; }
+                else { zedDmgToHp = zedDmg - enemyBlock; setEnemyBlock(0); }
+              }
+              setEnemyHp(h => Math.max(0, h - zedDmgToHp));
+            }, 400);
+          }
+          
           setDmgOverlay({val: total, target: 'ENEMY'}); setTimeout(()=>setDmgOverlay(null), 800);
       }
       if(card.block || upgradedBlock > 0) {

@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { CARD_DATABASE } from '../../data/cards';
 
 const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
   const card = CARD_DATABASE[cardId];
+  const [showDetail, setShowDetail] = useState(false);
+  const lastTapRef = useRef(0);
+  const touchStartYRef = useRef(0);
   
   // 堆叠逻辑计算
   const overlap = totalCards > 5 ? -40 : 10; 
@@ -14,6 +17,38 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
   const handleClick = (e) => {
     e.stopPropagation();
     if (canPlay) {
+      onPlay(index);
+    }
+  };
+  
+  // 处理双击查看详情
+  const handleDoubleTap = (e) => {
+    e.stopPropagation();
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    
+    if (lastTapRef.current && (now - lastTapRef.current) < DOUBLE_TAP_DELAY) {
+      setShowDetail(true);
+      setTimeout(() => setShowDetail(false), 2000);
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+    }
+  };
+  
+  // 处理触摸开始（用于滑动出牌）
+  const handleTouchStart = (e) => {
+    touchStartYRef.current = e.touches[0].clientY;
+  };
+  
+  // 处理触摸结束（检测滑动）
+  const handleTouchEnd = (e) => {
+    if (!canPlay) return;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchStartYRef.current - touchEndY;
+    
+    // 向上滑动超过100px时出牌
+    if (deltaY > 100) {
       onPlay(index);
     }
   };
@@ -41,13 +76,38 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
       } : {}}
       // 点击事件
       onClick={handleClick}
+      // 触摸事件（移动端支持）
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onDoubleClick={handleDoubleTap}
+      // 拖拽支持（滑动出牌）
+      drag={canPlay ? "y" : false}
+      dragConstraints={{ top: -300, bottom: 0 }}
+      dragSnapToOrigin={true}
+      onDragEnd={(event, info) => { 
+        if (info.offset.y < -150 && canPlay) { 
+          onPlay(index); 
+        } 
+      }}
       
       className={`
         w-40 h-60 bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
         transition-all duration-200
-        ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)]' : 'border-slate-700 opacity-60 cursor-not-allowed'}
+        ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)] active:cursor-grabbing' : 'border-slate-700 opacity-60 cursor-not-allowed'}
       `}
     >
+      {/* 卡牌详情弹窗 */}
+      {showDetail && (
+        <div className="absolute inset-0 z-50 bg-black/95 border-4 border-[#C8AA6E] rounded-lg p-4 flex flex-col items-center justify-center">
+          <div className="text-2xl font-bold text-[#C8AA6E] mb-2">{card.name}</div>
+          <div className="text-sm text-[#A09B8C] mb-4 text-center">{card.description}</div>
+          <div className="flex gap-4 text-sm">
+            {card.value && <div className="text-red-400">攻击: {card.value}</div>}
+            {card.block && <div className="text-blue-400">防御: {card.block}</div>}
+            {card.effectValue && <div className="text-purple-400">效果: {card.effectValue}</div>}
+          </div>
+        </div>
+      )}
       {/* 卡牌图片 */}
       <div className="w-full h-40 bg-black overflow-hidden relative pointer-events-none">
         <img src={card.img} className="w-full h-full object-cover opacity-90" alt={card.name} />
