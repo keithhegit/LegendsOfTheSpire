@@ -14,23 +14,19 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
   const displayBlock = card.block ? (card.block + (upgrade.block || 0)) : null;
   const displayEffectValue = card.effectValue ? (card.effectValue + (upgrade.effectValue || 0)) : null;
   
-  // 堆叠逻辑计算（移动端优化）
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  // 简单的移动端检测 (用于 JS 计算逻辑)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
-  React.useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // 移动端堆叠更紧密，PC 端较宽松
+  const overlap = (i) => {
+    if (i === 0) return 0;
+    const mobileGap = totalCards > 4 ? -35 : -10;
+    const desktopGap = totalCards > 5 ? -50 : 10;
+    return isMobile ? mobileGap : desktopGap;
+  };
   
-  // 优化叠加效果：支持5-6张卡牌都能看到
-  const overlap = isMobile 
-    ? (totalCards > 4 ? -12 : totalCards > 3 ? -10 : 2)  // 移动端：4张以上时重叠更多
-    : (totalCards > 5 ? -35 : totalCards > 4 ? -30 : 10); // 桌面端：5张以上时重叠更多
-  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 1.2 : 2.5); // 扇形展开角度
-  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 1.5 : 4); // 扇形弧度
+  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 2 : 3); // 移动端旋转角度小一点
+  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 3 : 6);
   
   // 处理点击事件
   const handleClick = (e) => {
@@ -113,18 +109,24 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
       exit={{ y: -100, opacity: 0, scale: 0.5 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       style={{ 
-        marginLeft: index === 0 ? 0 : `${overlap}px`, 
+        marginLeft: `${overlap(index)}px`, 
         zIndex: index,
         transformOrigin: "bottom center",
-        position: 'relative'
+        position: 'relative',
+        touchAction: 'none' // 关键：防止移动端拖拽时触发页面滚动
       }}
       // 悬停特效：放大、上移、高亮边框
       whileHover={canPlay ? { 
-        scale: 1.25, 
-        y: -60, 
+        scale: 1.1, 
+        y: -50, 
         zIndex: 100, 
-        rotate: 0,
-        boxShadow: "0 0 30px rgba(200, 170, 110, 0.8)"
+        rotate: 0
+      } : {}}
+      whileTap={canPlay ? { 
+        scale: 1.1, 
+        y: -50, 
+        zIndex: 100, 
+        rotate: 0 
       } : {}}
       // 点击事件
       onClick={handleClick}
@@ -144,19 +146,19 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
         rotate: 0 // 拖拽时取消旋转
       }}
       onDragEnd={(event, info) => { 
-        if (info.offset.y < -120 && canPlay) { // 降低阈值，更容易触发
+        // 移动端判定阈值更小 (-80px), PC 端 (-150px)
+        const threshold = isMobile ? -80 : -150;
+        if (info.offset.y < threshold && canPlay) { 
           onPlay(index); 
         } 
       }}
       
       className={`
-        ${isMobile ? 'w-12 h-16' : 'w-16 h-24'} sm:w-20 sm:h-28 md:w-24 md:h-36 lg:w-40 lg:h-60 bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
+        w-28 h-40 md:w-40 md:h-60 
+        bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
         transition-all duration-200
-        ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)] active:cursor-grabbing active:scale-110' : 'border-slate-700 opacity-60 cursor-not-allowed'}
+        ${canPlay ? 'border-[#C8AA6E] cursor-grab active:cursor-grabbing' : 'border-slate-700 opacity-60 cursor-not-allowed'}
       `}
-      style={{
-        touchAction: 'pan-y', // 允许垂直拖拽，防止误触
-      }}
     >
       {/* 卡牌详情弹窗 */}
       {showDetail && (
@@ -171,17 +173,18 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
         </div>
       )}
       {/* 卡牌图片 */}
-      <div className={`w-full ${isMobile ? 'h-8' : 'h-12'} sm:h-16 md:h-24 lg:h-40 bg-black overflow-hidden relative pointer-events-none`}>
+      <div className="w-full h-24 md:h-36 bg-black overflow-hidden relative pointer-events-none">
         <img src={card.img} className="w-full h-full object-cover opacity-90" alt={card.name} />
-        <div className={`absolute top-0.5 sm:top-1 md:top-2 left-0.5 sm:left-1 md:left-2 ${isMobile ? 'w-2 h-2' : 'w-3 h-3'} sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-8 lg:h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold ${isMobile ? 'text-[6px]' : 'text-[8px]'} sm:text-[10px] md:text-xs lg:text-lg shadow-md`}>
+        <div className="absolute top-1 left-1 w-5 h-5 md:w-6 md:h-6 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-xs md:text-sm shadow-md">
           {card.cost}
         </div>
       </div>
       
       {/* 卡牌文本 */}
-      <div className={`flex-1 ${isMobile ? 'p-0.5' : 'p-0.5'} sm:p-1 md:p-1.5 lg:p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]`}>
-        <div className={`${isMobile ? 'text-[7px]' : 'text-[9px]'} sm:text-[10px] md:text-xs lg:text-sm font-bold text-[#F0E6D2] mb-0.5 md:mb-1 line-clamp-1`}>{card.name}</div>
-        <div className={`${isMobile ? 'text-[5px]' : 'text-[6px]'} sm:text-[7px] md:text-[8px] lg:text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2`}>
+      <div className="flex-1 p-1 md:p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]">
+        <div className="text-[10px] md:text-xs font-bold text-[#F0E6D2] mb-0.5 line-clamp-1">{card.name}</div>
+        {/* 移动端隐藏详细描述，防止拥挤，或者只显示极简信息 */}
+        <div className="text-[8px] md:text-[9px] text-[#A09B8C] leading-tight font-medium line-clamp-2 scale-90 md:scale-100 origin-top">
           {(() => {
             let desc = card.description;
             // 替换攻击卡牌的伤害值
@@ -202,9 +205,7 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
             return desc;
           })()}
         </div>
-        <div className={`mt-auto ${isMobile ? 'text-[4px]' : 'text-[5px]'} sm:text-[6px] md:text-[7px] lg:text-[9px] text-slate-500 uppercase font-bold tracking-wider`}>
-          {card.type}
-        </div>
+        <div className="mt-auto text-[8px] text-slate-500 uppercase font-bold tracking-wider hidden md:block">{card.type}</div>
       </div>
     </motion.div>
   );
