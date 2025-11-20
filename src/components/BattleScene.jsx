@@ -379,23 +379,23 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
         <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
         
         {/* 上方：英雄和敌人的立绘和状态栏 */}
-        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none pt-4 md:pt-8 px-4 md:px-10">
-             {/* 玩家 (左) */}
+        <div className="absolute inset-0 flex items-start justify-center z-10 pointer-events-none pt-2 md:pt-8 px-2 md:px-10">
+             {/* 玩家 (左) - 移动端缩小立绘 */}
              <div className={`
                 absolute transition-all duration-200 
-                left-4 md:left-10 bottom-[50%] md:bottom-[42%]
-                w-32 h-48 md:w-64 md:h-[500px]
-                ${heroAnim === 'attack' ? 'translate-x-8 md:translate-x-32' : ''} 
-                ${heroAnim === 'hit' ? 'translate-x-[-8px] md:translate-x-[-10px] brightness-50 bg-red-500/30' : ''}
+                left-2 md:left-10 top-2 md:top-8
+                w-24 h-36 md:w-64 md:h-[500px]
+                ${heroAnim === 'attack' ? 'translate-x-4 md:translate-x-32' : ''} 
+                ${heroAnim === 'hit' ? 'translate-x-[-4px] md:translate-x-[-10px] brightness-50 bg-red-500/30' : ''}
              `}>
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-lg md:rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.8)] border border-[#C8AA6E]" />
                  {/* 玩家状态栏 */}
-                 <div className="absolute -bottom-12 md:-bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-1.5 md:p-2 rounded flex flex-col gap-1 shadow-lg z-40">
-                     <div className="flex justify-between text-xs md:text-sm text-[#C8AA6E] font-bold">
+                 <div className="absolute -bottom-10 md:-bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-1 md:p-2 rounded flex flex-col gap-0.5 md:gap-1 shadow-lg z-40">
+                     <div className="flex justify-between text-[10px] md:text-sm text-[#C8AA6E] font-bold">
                          <span>HP {playerHp}/{heroData.maxHp}</span>
-                         {playerBlock > 0 && <span className="text-blue-400 flex items-center gap-1"><Shield size={10} className="md:w-3 md:h-3"/>{playerBlock}</span>}
+                         {playerBlock > 0 && <span className="text-blue-400 flex items-center gap-0.5"><Shield size={8} className="md:w-3 md:h-3"/>{playerBlock}</span>}
                      </div>
-                     <div className="w-full h-1.5 md:h-2 bg-slate-800 rounded-full overflow-hidden">
+                     <div className="w-full h-1 md:h-2 bg-slate-800 rounded-full overflow-hidden">
                          <div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div>
                      </div>
                      {renderStatus(playerStatus)}
@@ -403,32 +403,32 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
              </div>
              
              {/* VS */}
-             <div className="text-4xl md:text-6xl font-black text-[#C8AA6E]/20 italic">VS</div>
+             <div className="text-2xl md:text-6xl font-black text-[#C8AA6E]/20 italic mt-8 md:mt-0">VS</div>
              
-             {/* 敌人 (右) */}
+             {/* 敌人 (右) - 移动端缩小立绘 */}
              <div className={`
                 absolute transition-all duration-200
-                right-4 md:right-10 bottom-[50%] md:bottom-[42%]
-                w-32 h-48 md:w-64 md:h-[500px]
-                ${enemyAnim === 'attack' ? '-translate-x-8 md:-translate-x-32' : ''} 
-                ${enemyAnim === 'hit' ? 'translate-x-[8px] md:translate-x-[10px] brightness-50 bg-red-500/30' : ''}
+                right-2 md:right-10 top-2 md:top-8
+                w-24 h-36 md:w-64 md:h-[500px]
+                ${enemyAnim === 'attack' ? '-translate-x-4 md:-translate-x-32' : ''} 
+                ${enemyAnim === 'hit' ? 'translate-x-[4px] md:translate-x-[10px] brightness-50 bg-red-500/30' : ''}
              `}>
                  {/* 意图图标 */}
-                 <div className="absolute -top-6 md:-top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-2 py-1 md:px-3 md:py-1 rounded flex items-center gap-1 md:gap-2 animate-bounce z-50">
+                 <div className="absolute -top-4 md:-top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-1.5 py-0.5 md:px-3 md:py-1 rounded flex items-center gap-0.5 md:gap-2 animate-bounce z-50">
                       <IntentIcon />
-                      <span className="text-white font-bold text-xs md:text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span>
+                      <span className="text-white font-bold text-[10px] md:text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span>
                  </div>
                  <img src={enemyConfig.img} className="w-full h-full object-cover object-top rounded-lg md:rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.8)] border border-red-800" />
                  {/* 敌人状态栏 */}
-                 <div className="absolute -bottom-12 md:-bottom-24 w-full bg-black/80 border border-red-800 p-1.5 md:p-2 rounded flex flex-col gap-1 shadow-lg z-40">
-                     <div className="flex justify-between text-xs md:text-sm text-red-500 font-bold">
+                 <div className="absolute -bottom-10 md:-bottom-24 w-full bg-black/80 border border-red-800 p-1 md:p-2 rounded flex flex-col gap-0.5 md:gap-1 shadow-lg z-40">
+                     <div className="flex justify-between text-[10px] md:text-sm text-red-500 font-bold">
                          <span className="truncate">{enemyConfig.name}</span>
                          <span>{enemyHp}/{enemyConfig.maxHp}</span>
                      </div>
-                     <div className="w-full h-1.5 md:h-2 bg-slate-800 rounded-full overflow-hidden">
+                     <div className="w-full h-1 md:h-2 bg-slate-800 rounded-full overflow-hidden">
                          <div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div>
                      </div>
-                     {enemyBlock > 0 && <div className="text-blue-400 text-xs md:text-sm font-bold flex items-center gap-1"><Shield size={10} className="md:w-2.5 md:h-2.5"/> {enemyBlock}</div>}
+                     {enemyBlock > 0 && <div className="text-blue-400 text-[10px] md:text-sm font-bold flex items-center gap-0.5"><Shield size={8} className="md:w-2.5 md:h-2.5"/> {enemyBlock}</div>}
                      {renderStatus(enemyStatus)}
                  </div>
              </div>
@@ -442,8 +442,8 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
         )}
         
         {/* 中部：卡牌区域 - 支持5-6张卡叠加显示 */}
-        <div className="absolute left-0 right-0 bottom-20 md:bottom-24 h-[140px] md:h-[240px] bg-gradient-to-t from-black/60 via-transparent to-transparent z-20 flex items-end justify-center pointer-events-none">
-            <div className="flex items-end justify-center px-2" style={{ width: '100%', maxWidth: '800px', height: '100%', position: 'relative' }}>
+        <div className="absolute left-0 right-0 bottom-20 md:bottom-24 h-[120px] md:h-[240px] bg-gradient-to-t from-black/60 via-transparent to-transparent z-20 flex items-end justify-center">
+            <div className="flex items-end justify-center px-2 pointer-events-auto" style={{ width: '100%', maxWidth: '800px', height: '100%', position: 'relative' }}>
                 <AnimatePresence>
                     {hand.map((cid, i) => {
                         const canPlay = playerMana >= CARD_DATABASE[cid].cost && gameState === 'PLAYER_TURN';

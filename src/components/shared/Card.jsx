@@ -20,11 +20,11 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {}, i
   // 移动端堆叠算法优化：大幅增加负边距，确保6张牌能塞进手机屏幕
   const overlap = (i) => {
     if (i === 0) return 0;
-    // 移动端：根据卡牌数量动态调整重叠距离
+    // 移动端：根据卡牌数量动态调整重叠距离，确保5-6张卡都能看到
     if (isMobile) {
-      if (totalCards >= 6) return -40; // 6张牌时重叠更多
-      if (totalCards >= 5) return -35; // 5张牌
-      if (totalCards >= 4) return -30; // 4张牌
+      if (totalCards >= 6) return -32; // 6张牌时重叠更多
+      if (totalCards >= 5) return -28; // 5张牌
+      if (totalCards >= 4) return -24; // 4张牌
       return -15; // 3张以下
     }
     // 桌面端：较宽松
