@@ -1348,6 +1348,45 @@ export default function LegendsOfTheSpire() {
       completeNode();
     }
   };
+  const handleShopCardUpgrade = () => {
+    // 随机选择一张已有卡牌进行升级
+    const upgradeableCards = masterDeck.filter(cardId => {
+      const card = CARD_DATABASE[cardId];
+      if (!card) return false;
+      // 可以升级攻击、防御或抓牌效果
+      return (card.type === 'ATTACK' && card.value) || 
+             (card.type === 'SKILL' && card.block) || 
+             (card.effect === 'DRAW' && card.effectValue);
+    });
+    if (upgradeableCards.length > 0) {
+      const targetCardId = shuffle(upgradeableCards)[0];
+      const card = CARD_DATABASE[targetCardId];
+      const upgrade = { ...cardUpgrades[targetCardId] || {} };
+      // 随机选择升级类型
+      const upgradeTypes = [];
+      if (card.type === 'ATTACK' && card.value) upgradeTypes.push('value');
+      if (card.type === 'SKILL' && card.block) upgradeTypes.push('block');
+      if (card.effect === 'DRAW' && card.effectValue) upgradeTypes.push('effectValue');
+      if (upgradeTypes.length > 0) {
+        const upgradeType = shuffle(upgradeTypes)[0];
+        upgrade[upgradeType] = (upgrade[upgradeType] || 0) + 1;
+        setCardUpgrades(prev => ({ ...prev, [targetCardId]: upgrade }));
+        setGold(prev => prev - 200);
+        
+        // 显示升级提示
+        const upgradeTypeNames = {
+          'value': '攻击',
+          'block': '防御',
+          'effectValue': '抓牌'
+        };
+        setPassiveSkillToast({
+          message: `${card.name} 已升级！${upgradeTypeNames[upgradeType]} +1`,
+          type: 'upgrade'
+        });
+        setTimeout(() => setPassiveSkillToast(null), 3000);
+      }
+    }
+  };
   const handleCardReward = (cardId) => { setMasterDeck([...masterDeck, cardId]); setGold(gold + 50); completeNode(); };
   const handleSkipReward = () => { setGold(gold + 50); completeNode(); };
   const handleRest = () => { setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.3))); completeNode(); };

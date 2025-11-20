@@ -421,7 +421,8 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                                 index={i} 
                                 totalCards={hand.length} 
                                 canPlay={canPlay} 
-                                onPlay={playCard} 
+                                onPlay={playCard}
+                                cardUpgrades={heroData.cardUpgrades || {}}
                             />
                         )
                     })}

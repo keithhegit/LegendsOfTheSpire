@@ -2,11 +2,17 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { CARD_DATABASE } from '../../data/cards';
 
-const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
+const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} }) => {
   const card = CARD_DATABASE[cardId];
   const [showDetail, setShowDetail] = useState(false);
   const lastTapRef = useRef(0);
   const touchStartYRef = useRef(0);
+  
+  // 应用卡牌升级效果
+  const upgrade = cardUpgrades[cardId] || {};
+  const displayValue = card.value ? (card.value + (upgrade.value || 0)) : null;
+  const displayBlock = card.block ? (card.block + (upgrade.block || 0)) : null;
+  const displayEffectValue = card.effectValue ? (card.effectValue + (upgrade.effectValue || 0)) : null;
   
   // 堆叠逻辑计算（移动端优化）
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
@@ -158,9 +164,9 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
           <div className="text-2xl font-bold text-[#C8AA6E] mb-2">{card.name}</div>
           <div className="text-sm text-[#A09B8C] mb-4 text-center">{card.description}</div>
           <div className="flex gap-4 text-sm">
-            {card.value && <div className="text-red-400">攻击: {card.value}</div>}
-            {card.block && <div className="text-blue-400">防御: {card.block}</div>}
-            {card.effectValue && <div className="text-purple-400">效果: {card.effectValue}</div>}
+            {displayValue !== null && <div className="text-red-400">攻击: {displayValue}</div>}
+            {displayBlock !== null && <div className="text-blue-400">防御: {displayBlock}</div>}
+            {displayEffectValue !== null && <div className="text-purple-400">效果: {displayEffectValue}</div>}
           </div>
         </div>
       )}
@@ -176,7 +182,19 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
       <div className={`flex-1 ${isMobile ? 'p-0.5' : 'p-0.5'} sm:p-1 md:p-1.5 lg:p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]`}>
         <div className={`${isMobile ? 'text-[7px]' : 'text-[9px]'} sm:text-[10px] md:text-xs lg:text-sm font-bold text-[#F0E6D2] mb-0.5 md:mb-1 line-clamp-1`}>{card.name}</div>
         <div className={`${isMobile ? 'text-[5px]' : 'text-[6px]'} sm:text-[7px] md:text-[8px] lg:text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2`}>
-          {card.description}
+          {card.description.replace(/\d+/, (match) => {
+            // 替换描述中的数值为升级后的数值
+            if (card.type === 'ATTACK' && card.value && match === String(card.value)) {
+              return String(displayValue);
+            }
+            if (card.type === 'SKILL' && card.block && match === String(card.block)) {
+              return String(displayBlock);
+            }
+            if (card.effect === 'DRAW' && card.effectValue && match === String(card.effectValue)) {
+              return String(displayEffectValue);
+            }
+            return match;
+          })}
         </div>
         <div className={`mt-auto ${isMobile ? 'text-[4px]' : 'text-[5px]'} sm:text-[6px] md:text-[7px] lg:text-[9px] text-slate-500 uppercase font-bold tracking-wider`}>
           {card.type}
