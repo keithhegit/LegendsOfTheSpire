@@ -383,73 +383,22 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   return (
     <div className="w-full h-full relative flex flex-col overflow-hidden bg-black">
         <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
-        
-        {/* 上方：英雄和敌人的立绘和状态栏 */}
-        <div className="absolute inset-0 flex items-start justify-center z-10 pointer-events-none pt-2 md:pt-8 px-2 md:px-10">
-             {/* 玩家 (左) - 移动端缩小立绘 */}
-             <div className={`
-                absolute transition-all duration-200 
-                left-2 md:left-10 top-2 md:top-8
-                w-24 h-36 md:w-64 md:h-[500px]
-                ${heroAnim === 'attack' ? 'translate-x-4 md:translate-x-32' : ''} 
-                ${heroAnim === 'hit' ? 'translate-x-[-4px] md:translate-x-[-10px] brightness-50 bg-red-500/30' : ''}
-             `}>
-                 <img src={heroData.img} className="w-full h-full object-cover object-top rounded-lg md:rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.8)] border border-[#C8AA6E]" />
-                 {/* 玩家状态栏 */}
-                 <div className="absolute -bottom-10 md:-bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-1 md:p-2 rounded flex flex-col gap-0.5 md:gap-1 shadow-lg z-40">
-                     <div className="flex justify-between text-[10px] md:text-sm text-[#C8AA6E] font-bold">
-                         <span>HP {playerHp}/{heroData.maxHp}</span>
-                         {playerBlock > 0 && <span className="text-blue-400 flex items-center gap-0.5"><Shield size={8} className="md:w-3 md:h-3"/>{playerBlock}</span>}
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+             <div className={`absolute left-10 bottom-[42%] w-64 h-[500px] transition-all duration-200 ${heroAnim === 'attack' ? 'translate-x-32' : ''} ${heroAnim === 'hit' ? 'translate-x-[-10px] brightness-50 bg-red-500/30' : ''}`}>
+                 <img src={heroData.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-[#C8AA6E]" />
+                 <div className="absolute -bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-2 rounded flex flex-col gap-1 shadow-lg z-40"><div className="flex justify-between text-xs text-[#C8AA6E] font-bold"><span>HP {playerHp}/{heroData.maxHp}</span>{playerBlock > 0 && <span className="text-blue-400 flex items-center gap-1"><Shield size={12}/>{playerBlock}</span>}</div><div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div></div>{renderStatus(playerStatus)}</div>
                      </div>
-                     <div className="w-full h-1 md:h-2 bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div>
+             <div className="text-6xl font-black text-[#C8AA6E]/20 italic">VS</div>
+             <div className={`absolute right-10 bottom-[42%] w-64 h-[500px] transition-all duration-200 ${enemyAnim === 'attack' ? '-translate-x-32' : ''} ${enemyAnim === 'hit' ? 'translate-x-[10px] brightness-50 bg-red-500/30' : ''}`}>
+                 <img src={enemyConfig.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-red-800" />
+                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-3 py-1 rounded flex items-center gap-2 animate-bounce"><IntentIcon /><span className="text-white font-bold text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span></div>
+                 <div className="absolute -bottom-24 w-full bg-black/80 border border-red-800 p-2 rounded flex flex-col gap-1 shadow-lg z-40"><div className="flex justify-between text-xs text-red-500 font-bold"><span>{enemyConfig.name}</span><span>{enemyHp}/{enemyConfig.maxHp}</span></div><div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div></div>{enemyBlock > 0 && <div className="text-blue-400 text-xs font-bold flex items-center gap-1"><Shield size={10}/> 格挡 {enemyBlock}</div>}{renderStatus(enemyStatus)}</div>
                      </div>
-                     {renderStatus(playerStatus)}
                  </div>
-             </div>
-             
-             {/* VS */}
-             <div className="text-2xl md:text-6xl font-black text-[#C8AA6E]/20 italic mt-8 md:mt-0">VS</div>
-             
-             {/* 敌人 (右) - 移动端缩小立绘 */}
-             <div className={`
-                absolute transition-all duration-200
-                right-2 md:right-10 top-2 md:top-8
-                w-24 h-36 md:w-64 md:h-[500px]
-                ${enemyAnim === 'attack' ? '-translate-x-4 md:-translate-x-32' : ''} 
-                ${enemyAnim === 'hit' ? 'translate-x-[4px] md:translate-x-[10px] brightness-50 bg-red-500/30' : ''}
-             `}>
-                 {/* 意图图标 */}
-                 <div className="absolute -top-4 md:-top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-1.5 py-0.5 md:px-3 md:py-1 rounded flex items-center gap-0.5 md:gap-2 animate-bounce z-50">
-                      <IntentIcon />
-                      <span className="text-white font-bold text-[10px] md:text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span>
-                 </div>
-                 <img src={enemyConfig.img} className="w-full h-full object-cover object-top rounded-lg md:rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.8)] border border-red-800" />
-                 {/* 敌人状态栏 */}
-                 <div className="absolute -bottom-10 md:-bottom-24 w-full bg-black/80 border border-red-800 p-1 md:p-2 rounded flex flex-col gap-0.5 md:gap-1 shadow-lg z-40">
-                     <div className="flex justify-between text-[10px] md:text-sm text-red-500 font-bold">
-                         <span className="truncate">{enemyConfig.name}</span>
-                         <span>{enemyHp}/{enemyConfig.maxHp}</span>
-                     </div>
-                     <div className="w-full h-1 md:h-2 bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div>
-                     </div>
-                     {enemyBlock > 0 && <div className="text-blue-400 text-[10px] md:text-sm font-bold flex items-center gap-0.5"><Shield size={8} className="md:w-2.5 md:h-2.5"/> {enemyBlock}</div>}
-                     {renderStatus(enemyStatus)}
-                 </div>
-             </div>
-        </div>
-        
-        {/* 伤害飘字 */}
-        {dmgOverlay && (
-            <div className={`absolute top-1/2 ${dmgOverlay.target==='ENEMY'?'right-[25%]':'left-[25%]'} -translate-y-1/2 text-6xl md:text-8xl font-black text-white drop-shadow-[0_0_10px_red] animate-ping z-50`}>
-                {dmgOverlay.val}
-            </div>
-        )}
-        
-        {/* 中部：卡牌区域 - 支持5-6张卡叠加显示 */}
-        <div className="absolute left-0 right-0 bottom-20 md:bottom-24 h-[120px] md:h-[240px] bg-gradient-to-t from-black/60 via-transparent to-transparent z-20 flex items-end justify-center">
-            <div className="flex items-end justify-center px-2 pointer-events-auto" style={{ width: '100%', maxWidth: '800px', height: '100%', position: 'relative' }}>
+        {dmgOverlay && (<div className={`absolute top-1/2 ${dmgOverlay.target==='ENEMY'?'right-1/4':'left-1/4'} -translate-y-1/2 text-8xl font-black text-white drop-shadow-[0_0_10px_red] animate-ping z-50`}>{dmgOverlay.val}</div>)}
+        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black via-black/80 to-transparent z-20 flex items-end justify-center pb-6 gap-4 pointer-events-none">
+            <div className="absolute left-8 bottom-8 w-24 h-24 rounded-full bg-[#091428] border-4 border-[#C8AA6E] flex items-center justify-center shadow-[0_0_30px_#0066FF] pointer-events-auto text-center"><span className="text-4xl font-bold text-white block">{playerMana}</span><span className="text-[10px] text-[#C8AA6E] block">MANA</span><div className="text-[8px] text-gray-400 mt-1">{currentDrawPile.length}/{currentDiscardPile.length}</div></div>
+            <div className="flex items-end justify-center pointer-events-auto px-2" style={{ width: '100%', maxWidth: '600px', height: '100px', position: 'relative' }}>
                 <AnimatePresence>
                     {hand.filter(cid => CARD_DATABASE[cid]).map((cid, i) => {
                         const card = CARD_DATABASE[cid];
@@ -464,33 +413,12 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                                 canPlay={canPlay} 
                                 onPlay={playCard}
                                 cardUpgrades={heroData.cardUpgrades || {}}
-                                isMobile={isMobile}
                             />
                         )
                     })}
                 </AnimatePresence>
             </div>
-        </div>
-        
-        {/* 下方：MANA 和 回合结束按钮 */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black via-black/90 to-transparent z-30 flex items-center justify-between px-4 md:px-8 pb-2 md:pb-4">
-            {/* Mana 球 */}
-            <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-[#091428] border-2 md:border-4 border-[#C8AA6E] flex items-center justify-center shadow-[0_0_30px_#0066FF] pointer-events-auto text-center z-40">
-                <div className="flex flex-col items-center">
-                    <span className="text-2xl md:text-4xl font-bold text-white">{playerMana}</span>
-                    <span className="text-[8px] md:text-[10px] text-[#C8AA6E]">MANA</span>
-                    <div className="text-[6px] md:text-[8px] text-gray-400 mt-0.5">{currentDrawPile.length}/{currentDiscardPile.length}</div>
-                </div>
-            </div>
-            
-            {/* 结束回合按钮 */}
-            <button 
-                onClick={endTurn} 
-                disabled={gameState!=='PLAYER_TURN'} 
-                className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-[#C8AA6E] border-2 md:border-4 border-[#F0E6D2] flex items-center justify-center font-bold text-[#091428] shadow-lg hover:scale-105 hover:bg-white active:scale-95 transition-all pointer-events-auto z-40 text-xs md:text-base"
-            >
-                结束<br/>回合
-            </button>
+            <button onClick={endTurn} disabled={gameState!=='PLAYER_TURN'} className="absolute right-8 bottom-8 w-24 h-24 rounded-full bg-[#C8AA6E] border-4 border-[#F0E6D2] flex items-center justify-center font-bold text-[#091428] shadow-lg hover:scale-105 hover:bg-white active:scale-95 transition-all pointer-events-auto">结束<br/>回合</button>
         </div>
     </div>
   );
