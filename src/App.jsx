@@ -442,9 +442,10 @@ const MapView = ({ mapData, onNodeSelect, act }) => {
   )
 };
 
-const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, championName }) => {
+const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, gold, deck, relics, championName }) => {
     const cardStock = useMemo(() => shuffle(Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC' && (c.hero === 'Neutral' || c.hero === championName))).slice(0, 5), [championName]);
     const relicStock = useMemo(() => Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)).slice(0, 3), [relics]);
+    const showManaUpgrade = useMemo(() => Math.random() < 0.2, []); // 20%概率
     const [purchasedItems, setPurchasedItems] = useState([]);
     const handleBuy = (item, type) => { if (gold >= item.price && !purchasedItems.includes(item.id)) { setPurchasedItems([...purchasedItems, item.id]); if (type === 'CARD') onBuyCard(item); if (type === 'RELIC') onBuyRelic(item); } };
     return (
@@ -488,6 +489,27 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, champion
                                 )
                             })}
                         </div>
+                        {showManaUpgrade && (
+                            <div className="mt-6">
+                                <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-yellow-500 pl-3">特殊强化</h3>
+                                <button 
+                                    onClick={() => { if (gold >= 200 && !purchasedItems.includes('MANA_UPGRADE')) { setPurchasedItems([...purchasedItems, 'MANA_UPGRADE']); onBuyMana(); } }}
+                                    disabled={gold < 200 || purchasedItems.includes('MANA_UPGRADE')}
+                                    className={`p-4 w-full bg-slate-800 hover:bg-yellow-900/50 border rounded transition-all flex items-center gap-4 text-left ${
+                                        gold >= 200 && !purchasedItems.includes('MANA_UPGRADE') 
+                                            ? 'border-yellow-600 hover:border-yellow-500 cursor-pointer' 
+                                            : 'border-slate-600 opacity-50 cursor-not-allowed'
+                                    }`}
+                                >
+                                    <div className="p-3 bg-black rounded border border-slate-700"><Zap className="text-yellow-500" /></div>
+                                    <div className="flex-1">
+                                        <div className="font-bold text-[#F0E6D2]">能量上限+1</div>
+                                        <div className="text-sm text-slate-400">永久增加 <span className="text-yellow-400">1 点能量上限</span></div>
+                                    </div>
+                                    <div className="text-yellow-400 font-bold">200 G</div>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="mt-auto flex justify-end pt-6 border-t border-[#C8AA6E]/30"><button onClick={onLeave} className="px-8 py-3 bg-[#C8AA6E] hover:bg-[#F0E6D2] text-black font-bold uppercase tracking-widest rounded transition-colors flex items-center gap-2">离开 <ChevronRight /></button></div>
@@ -610,6 +632,7 @@ const EventView = ({ onLeave, onReward }) => (
             <div className="grid grid-cols-1 gap-4">
                 <button onClick={() => { onReward({ type: 'BUFF', stat: 'strength', value: 2 }); }} className="p-4 bg-slate-800 hover:bg-red-900/50 border border-slate-600 hover:border-red-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-red-500"><Sword className="text-red-500" /></div><div><div className="font-bold text-[#F0E6D2]">训练</div><div className="text-sm text-slate-400">永久获得 <span className="text-red-400">+2 力量</span></div></div></button>
                 <button onClick={() => { onReward({ type: 'RELIC_RANDOM' }); }} className="p-4 bg-slate-800 hover:bg-purple-900/50 border border-slate-600 hover:border-purple-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-purple-500"><Gift className="text-purple-500" /></div><div><div className="font-bold text-[#F0E6D2]">搜寻</div><div className="text-sm text-slate-400">获得一件 <span className="text-purple-400">随机装备</span></div></div></button>
+                <button onClick={() => { onReward({ type: 'CARD_UPGRADE' }); }} className="p-4 bg-slate-800 hover:bg-blue-900/50 border border-slate-600 hover:border-blue-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-blue-500"><Star className="text-blue-500" /></div><div><div className="font-bold text-[#F0E6D2]">强化</div><div className="text-sm text-slate-400">随机一张已有卡牌 <span className="text-blue-400">属性+1</span> (攻击/防御/抓牌)</div></div></button>
             </div>
         </div>
     </div>
@@ -970,6 +993,9 @@ export default function LegendsOfTheSpire() {
   const [gold, setGold] = useState(100);
   const [relics, setRelics] = useState([]);
   const [baseStr, setBaseStr] = useState(0);
+  const [maxMana, setMaxMana] = useState(3);
+  const [cardUpgrades, setCardUpgrades] = useState({}); // {cardId: {value: +1, block: +1, effectValue: +1}}
+  const [showRelicReward, setShowRelicReward] = useState(null); // 显示遗物奖励UI
   const [activeNode, setActiveNode] = useState(null);
   const [usedEnemies, setUsedEnemies] = useState([]); 
   
@@ -985,7 +1011,7 @@ export default function LegendsOfTheSpire() {
 
   useEffect(() => {
       if (view !== 'MENU' && view !== 'CHAMPION_SELECT' && view !== 'GAMEOVER' && view !== 'VICTORY_ALL') {
-          localStorage.setItem(SAVE_KEY, JSON.stringify({ view, mapData, currentFloor, currentAct, masterDeck, champion, currentHp, maxHp, gold, relics, baseStr, activeNode, usedEnemies }));
+          localStorage.setItem(SAVE_KEY, JSON.stringify({ view, mapData, currentFloor, currentAct, masterDeck, champion, currentHp, maxHp, gold, relics, baseStr, maxMana, cardUpgrades, activeNode, usedEnemies }));
       }
   }, [view, currentHp, gold, currentFloor, currentAct]);
 
@@ -993,7 +1019,7 @@ export default function LegendsOfTheSpire() {
       const s = localStorage.getItem(SAVE_KEY);
       if (s) {
           const data = JSON.parse(s);
-          setMapData(data.mapData); setCurrentFloor(data.currentFloor); setCurrentAct(data.currentAct || 1); setMasterDeck(data.masterDeck); setChampion(data.champion); setCurrentHp(data.currentHp); setMaxHp(data.maxHp); setGold(data.gold); setRelics(data.relics); setBaseStr(data.baseStr); setActiveNode(data.activeNode); setUsedEnemies(data.usedEnemies); setView(data.view);
+          setMapData(data.mapData); setCurrentFloor(data.currentFloor); setCurrentAct(data.currentAct || 1); setMasterDeck(data.masterDeck); setChampion(data.champion); setCurrentHp(data.currentHp); setMaxHp(data.maxHp); setGold(data.gold); setRelics(data.relics); setBaseStr(data.baseStr); setMaxMana(data.maxMana || 3); setCardUpgrades(data.cardUpgrades || {}); setActiveNode(data.activeNode); setUsedEnemies(data.usedEnemies); setView(data.view);
       }
   };
 
@@ -1003,8 +1029,10 @@ export default function LegendsOfTheSpire() {
     // 播放英雄语音
     playChampionVoice(selectedChamp.id);
     setChampion(selectedChamp); setMaxHp(selectedChamp.maxHp); setCurrentHp(selectedChamp.maxHp);
+    setMaxMana(selectedChamp.maxMana);
     setMasterDeck([...STARTING_DECK_BASIC, ...selectedChamp.initialCards]);
     setRelics([RELIC_DATABASE[selectedChamp.relicId].id]);
+    setCardUpgrades({});
     const { map: newMap } = generateMap(usedEnemies, 1);
     setMapData(newMap); setCurrentFloor(0); setCurrentAct(1); setView('MAP');
   };
@@ -1077,9 +1105,71 @@ export default function LegendsOfTheSpire() {
       setView('REWARD'); 
   };
   const handleBuyCard = (card) => { setGold(prev => prev - card.price); setMasterDeck(prev => [...prev, card.id]); };
-  const handleRelicReward = (relic) => { setRelics(prev => [...prev, relic.id]); if (relic.onPickup) { const ns = relic.onPickup({ maxHp, currentHp }); setMaxHp(ns.maxHp); setCurrentHp(ns.currentHp); } completeNode(); };
+  const handleRelicReward = (relic, showUI = false) => { 
+    setRelics(prev => [...prev, relic.id]); 
+    if (relic.onPickup) { 
+      const ns = relic.onPickup({ maxHp, currentHp }); 
+      setMaxHp(ns.maxHp); 
+      setCurrentHp(ns.currentHp); 
+    }
+    if (showUI) {
+      setShowRelicReward(relic);
+    } else {
+      completeNode();
+    }
+  };
   const handleBuyRelic = (relic) => { setGold(prev => prev - relic.price); handleRelicReward(relic); };
-  const handleEventReward = (reward) => { if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value); if (reward.type === 'RELIC_RANDOM') { const pool = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)); if (pool.length > 0) handleRelicReward(shuffle(pool)[0]); } completeNode(); };
+  const handleEventReward = (reward) => { 
+    if (reward.type === 'BUFF' && reward.stat === 'strength') {
+      setBaseStr(prev => prev + reward.value);
+      completeNode();
+    } else if (reward.type === 'RELIC_RANDOM') { 
+      // 根据当前章节过滤遗物
+      const pool = Object.values(RELIC_DATABASE).filter(r => {
+        if (r.rarity === 'PASSIVE' || relics.includes(r.id)) return false;
+        // 章节专属遗物检查
+        if (r.id === 'Cull' || r.id === 'DarkSeal') return currentAct === 1;
+        if (r.id === 'QSS' || r.id === 'Executioner') return currentAct >= 2;
+        if (r.id === 'Nashor') return currentAct >= 3;
+        return true; // 通用遗物
+      });
+      if (pool.length > 0) {
+        const randomRelic = shuffle(pool)[0];
+        handleRelicReward(randomRelic, true); // 显示UI
+      } else {
+        completeNode();
+      }
+    } else if (reward.type === 'CARD_UPGRADE') {
+      // 随机选择一张已有卡牌进行升级
+      const upgradeableCards = masterDeck.filter(cardId => {
+        const card = CARD_DATABASE[cardId];
+        if (!card) return false;
+        // 可以升级攻击、防御或抓牌效果
+        return (card.type === 'ATTACK' && card.value) || 
+               (card.type === 'SKILL' && card.block) || 
+               (card.effect === 'DRAW' && card.effectValue);
+      });
+      if (upgradeableCards.length > 0) {
+        const targetCardId = shuffle(upgradeableCards)[0];
+        const card = CARD_DATABASE[targetCardId];
+        const upgrade = { ...cardUpgrades[targetCardId] || {} };
+        // 随机选择升级类型
+        const upgradeTypes = [];
+        if (card.type === 'ATTACK' && card.value) upgradeTypes.push('value');
+        if (card.type === 'SKILL' && card.block) upgradeTypes.push('block');
+        if (card.effect === 'DRAW' && card.effectValue) upgradeTypes.push('effectValue');
+        if (upgradeTypes.length > 0) {
+          const upgradeType = shuffle(upgradeTypes)[0];
+          upgrade[upgradeType] = (upgrade[upgradeType] || 0) + 1;
+          setCardUpgrades(prev => ({ ...prev, [targetCardId]: upgrade }));
+        }
+      }
+      completeNode();
+    } else if (reward.type === 'MANA_UPGRADE') {
+      setMaxMana(prev => prev + 1);
+      completeNode();
+    }
+  };
   const handleCardReward = (cardId) => { setMasterDeck([...masterDeck, cardId]); setGold(gold + 50); completeNode(); };
   const handleSkipReward = () => { setGold(gold + 50); completeNode(); };
   const handleRest = () => { setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.3))); completeNode(); };
@@ -1164,10 +1254,10 @@ export default function LegendsOfTheSpire() {
           );
           case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
           case 'MAP': return <MapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} />;
-          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} championName={champion.name} />;
+          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} onBuyMana={() => { setGold(prev => prev - 200); setMaxMana(prev => prev + 1); }} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
           case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} act={currentAct} />;
-          case 'COMBAT': return <BattleScene heroData={{...champion, maxHp, currentHp, relics, baseStr}} enemyId={activeNode.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => { localStorage.removeItem(SAVE_KEY); setView('GAMEOVER'); }} floorIndex={currentFloor} act={currentAct} />;
+          case 'COMBAT': return <BattleScene heroData={{...champion, maxHp, currentHp, maxMana, relics, baseStr, cardUpgrades}} enemyId={activeNode.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => { localStorage.removeItem(SAVE_KEY); setView('GAMEOVER'); }} floorIndex={currentFloor} act={currentAct} />;
           case 'REWARD': return <RewardView goldReward={50} onCardSelect={handleCardReward} onSkip={handleSkipReward} championName={champion.name} />;
           case 'REST': return <RestView onRest={handleRest} />;
           case 'VICTORY_ALL': return <div className="h-screen w-full bg-[#0AC8B9]/20 flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-[#0AC8B9]">传奇永不熄灭！</h1><button onClick={() => setView('MENU')} className="mt-8 px-8 py-3 bg-[#0AC8B9] text-black font-bold rounded">回到菜单</button></div>;
@@ -1208,9 +1298,18 @@ export default function LegendsOfTheSpire() {
                           <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
                         </div>
                     </div>
-              </div>
+        </div>
           )}
           {renderView()}
-    </div>
+          {showRelicReward && (
+            <RelicRewardView 
+              relic={showRelicReward} 
+              onClose={() => {
+                setShowRelicReward(null);
+                completeNode();
+              }} 
+            />
+          )}
+      </div>
   );
 }

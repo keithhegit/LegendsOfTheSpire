@@ -97,14 +97,20 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       else { deckRef.current = { ...deckRef.current, hand: newHand }; }
       forceUpdate();
       
-      if(card.effect === 'DRAW') drawCards(card.effectValue);
+      // 应用卡牌升级效果
+      const upgrade = heroData.cardUpgrades?.[cardId] || {};
+      const upgradedValue = (card.value || 0) + (upgrade.value || 0);
+      const upgradedBlock = (card.block || 0) + (upgrade.block || 0);
+      const upgradedEffectValue = (card.effectValue || 0) + (upgrade.effectValue || 0);
+      
+      if(card.effect === 'DRAW') drawCards(upgradedEffectValue || card.effectValue);
       if(card.exhaust && heroData.relicId === "EkkoPassive") setPlayerStatus(s => ({ ...s, strength: s.strength + 1 }));
-      if(card.type === 'SKILL' && heroData.relicId === "SylasPassive") setPlayerHp(h => Math.min(heroData.maxHp, h + 3));
-      if(card.effect === 'VULNERABLE') setEnemyStatus(s => ({ ...s, vulnerable: s.vulnerable + card.effectValue }));
-      if(card.effect === 'WEAK') setEnemyStatus(s => ({ ...s, weak: s.weak + card.effectValue }));
-      if(card.effect === 'STRENGTH') setPlayerStatus(s => ({ ...s, strength: s.strength + card.effectValue }));
+      if(card.type === 'SKILL' && heroData.relicId === "SylasPassive") setPlayerHp(h => Math.min(heroData.maxHp, h + 3)); 
+      if(card.effect === 'VULNERABLE') setEnemyStatus(s => ({ ...s, vulnerable: s.vulnerable + (upgradedEffectValue || card.effectValue) }));
+      if(card.effect === 'WEAK') setEnemyStatus(s => ({ ...s, weak: s.weak + (upgradedEffectValue || card.effectValue) }));
+      if(card.effect === 'STRENGTH') setPlayerStatus(s => ({ ...s, strength: s.strength + (upgradedEffectValue || card.effectValue) }));
       if(card.effect === 'CLEANSE') setPlayerStatus(s => ({ ...s, weak: 0, vulnerable: 0 }));
-      if(card.effect === 'HEAL') setPlayerHp(h => Math.min(heroData.maxHp, h + card.effectValue));
+      if(card.effect === 'HEAL') setPlayerHp(h => Math.min(heroData.maxHp, h + (upgradedEffectValue || card.effectValue)));
       if(card.type === 'ATTACK') {
           // 播放攻击挥击音效
           playSfx('ATTACK_SWING');
@@ -114,7 +120,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
               // 延迟播放攻击命中音效
               playSfx('ATTACK_HIT');
           }, 200);
-          let dmg = card.value + playerStatus.strength;
+          let dmg = upgradedValue + playerStatus.strength;
           if (playerStatus.weak > 0) dmg = Math.floor(dmg * 0.75);
           const hits = card.isMultiHit ? card.hits : 1;
           let total = 0;
@@ -139,10 +145,11 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           }
           setDmgOverlay({val: total, target: 'ENEMY'}); setTimeout(()=>setDmgOverlay(null), 800);
       }
-      if(card.block) {
+      if(card.block || upgradedBlock > 0) {
           // 玩家获得格挡时播放格挡音效
           playSfx('BLOCK_SHIELD');
-          setPlayerBlock(b => b + card.block);
+          const finalBlock = upgradedBlock || card.block;
+          setPlayerBlock(b => b + finalBlock);
       }
   };
 
