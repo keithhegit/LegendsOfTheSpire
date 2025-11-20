@@ -1,6 +1,6 @@
 ﻿@import "tailwindcss";
 
-/* 闅愯棌婊氬姩鏉′絾鍏佽婊氬姩 */
+/* 隐藏滚动条但允许滚动 */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -8,4 +8,37 @@
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  /* 防止移动端双击缩放 */
+  * {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* 优化卡牌大小 */
+  .card-mobile {
+    width: 6rem !important;
+    height: 9rem !important;
+  }
+  
+  /* 优化角色立绘大小 */
+  .hero-portrait-mobile {
+    width: 8rem !important;
+    height: 12rem !important;
+  }
+  
+  /* 优化按钮大小 */
+  .button-mobile {
+    width: 4rem !important;
+    height: 4rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  /* 优化文本大小 */
+  .text-mobile {
+    font-size: 0.75rem !important;
+  }
 }

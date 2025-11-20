@@ -1,6 +1,6 @@
 {
   "name": "峡谷尖塔",
-  "short_name": "尖塔",
+  "short_name": "峡谷尖塔",
   "description": "符文之地的卡牌冒险游戏",
   "start_url": "/",
   "display": "standalone",
@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "https://ddragon.leagueoflegends.com/cdn/13.1.1/img/champion/Garen.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "https://ddragon.leagueoflegends.com/cdn/13.1.1/img/champion/Garen.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
