@@ -1428,7 +1428,11 @@ export default function LegendsOfTheSpire() {
         )}
             </div>
           );
-          case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
+          case 'CHAMPION_SELECT': return (
+            <LandscapeChecker>
+              <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />
+            </LandscapeChecker>
+          );
           case 'MAP': return <MapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} />;
           case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} cardUpgrades={cardUpgrades} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} onBuyMana={() => { setGold(prev => prev - 200); setMaxMana(prev => prev + 1); setPassiveSkillToast({ message: '能量上限 +1', type: 'upgrade' }); setTimeout(() => setPassiveSkillToast(null), 3000); }} onBuyCardUpgrade={handleShopCardUpgrade} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
