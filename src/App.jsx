@@ -147,46 +147,65 @@ const CARD_DATABASE = {
   
   "GarenQ": { id: "GarenQ", hero: "Garen", name: "致命打击", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "VULNERABLE", effectValue: 2, description: "造成 8 点伤害。给予 2 层易伤。", img: `${SPELL_URL}/GarenQ.png`, rarity: "COMMON" },
   "GarenW": { id: "GarenW", hero: "Garen", name: "勇气", price: 50, type: "SKILL", cost: 1, block: 12, effect: "CLEANSE", description: "获得 12 点护甲。净化。", img: `${SPELL_URL}/GarenW.png`, rarity: "UNCOMMON" },
+  "GarenR": { id: "GarenR", hero: "Garen", name: "德玛西亚之力", price: 200, type: "ATTACK", cost: 3, value: 30, description: "造成 30 点伤害。", img: `${SPELL_URL}/GarenR.png`, rarity: "RARE" },
   "DariusW": { id: "DariusW", hero: "Darius", name: "致残打击", price: 60, type: "ATTACK", cost: 1, value: 10, effect: "WEAK", effectValue: 1, description: "造成 10 点伤害。给予 1 层虚弱。", img: `${SPELL_URL}/DariusNoxianTacticsONH.png`, rarity: "COMMON" },
   "DariusE": { id: "DariusE", hero: "Darius", name: "无情铁手", price: 80, type: "SKILL", cost: 2, effect: "DRAW", effectValue: 1, description: "抓取 1 张牌。给予 3 层易伤。", img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "UNCOMMON" },
+  "DariusR": { id: "DariusR", hero: "Darius", name: "诺克萨斯断头台", price: 200, type: "ATTACK", cost: 3, value: 35, description: "造成 35 点伤害。", img: `${SPELL_URL}/DariusR.png`, rarity: "RARE" },
   "LuxQ": { id: "LuxQ", hero: "Lux", name: "光之束缚", price: 70, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 3, description: "给予 3 层易伤。", img: `${SPELL_URL}/LuxLightBinding.png`, rarity: "COMMON" },
   "LuxE": { id: "LuxE", hero: "Lux", name: "透光奇点", price: 120, type: "ATTACK", cost: 2, value: 15, exhaust: true, description: "造成 15 点伤害。消耗。", img: `${SPELL_URL}/LuxLightStrikeKage.png`, rarity: "UNCOMMON" },
+  "LuxR": { id: "LuxR", hero: "Lux", name: "终极闪光", price: 200, type: "ATTACK", cost: 3, value: 40, description: "造成 40 点伤害。", img: `${SPELL_URL}/LuxR.png`, rarity: "RARE" },
   "JinxQ": { id: "JinxQ", hero: "Jinx", name: "切自动挡", price: 40, type: "ATTACK", cost: 0, value: 4, isMultiHit: true, hits: 2, description: "造成 2 次 4 点伤害。", img: `${SPELL_URL}/JinxQ.png`, rarity: "COMMON" },
   "JinxW": { id: "JinxW", hero: "Jinx", name: "震荡电磁波", price: 90, type: "ATTACK", cost: 2, value: 20, effect: "WEAK", effectValue: 2, description: "造成 20 点伤害。给予 2 层虚弱。", img: `${SPELL_URL}/JinxW.png`, rarity: "UNCOMMON" },
+  "JinxR": { id: "JinxR", hero: "Jinx", name: "超究极死神飞弹", price: 200, type: "ATTACK", cost: 3, value: 35, description: "造成 35 点伤害。", img: `${SPELL_URL}/JinxR.png`, rarity: "RARE" },
   "YasuoQ": { id: "YasuoQ", hero: "Yasuo", name: "斩钢闪", price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。", img: `${SPELL_URL}/YasuoQ1Wrapper.png`, rarity: "COMMON" },
   "YasuoE": { id: "YasuoE", hero: "Yasuo", name: "踏前斩", price: 70, type: "ATTACK", cost: 1, value: 8, effect: "STRENGTH", effectValue: 1, description: "造成 8 点伤害。获得 1 点力量。", img: `${SPELL_URL}/YasuoDashWrapper.png`, rarity: "UNCOMMON" },
+  "YasuoR": { id: "YasuoR", hero: "Yasuo", name: "狂风绝息斩", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "VULNERABLE", effectValue: 3, description: "造成 30 点伤害。给予 3 层易伤。", img: `${SPELL_URL}/YasuoR.png`, rarity: "RARE" },
   "SonaQ": { id: "SonaQ", hero: "Sona", name: "英勇赞美诗", price: 50, type: "ATTACK", cost: 1, value: 7, effect: "HEAL", effectValue: 3, description: "造成 7 点伤害，回复 3 点生命。", img: `${SPELL_URL}/SonaHymnofValor.png`, rarity: "COMMON" },
   "SonaW": { id: "SonaW", hero: "Sona", name: "坚毅咏叹调", price: 80, type: "SKILL", cost: 1, block: 8, effect: "HEAL", effectValue: 5, description: "获得 8 点护甲，回复 5 点生命。", img: `${SPELL_URL}/SonaAriaofPerseverance.png`, rarity: "UNCOMMON" },
+  "SonaR": { id: "SonaR", hero: "Sona", name: "狂舞终乐章", price: 200, type: "SKILL", cost: 3, effect: "VULNERABLE", effectValue: 5, block: 15, description: "获得 15 点护甲。给予 5 层易伤。", img: `${SPELL_URL}/SonaR.png`, rarity: "RARE" },
   "EkkoQ": { id: "EkkoQ", hero: "Ekko", name: "时间卷曲器", price: 50, type: "ATTACK", cost: 1, value: 12, exhaust: true, description: "造成 12 点伤害。消耗。", img: `${SPELL_URL}/EkkoQ.png`, rarity: "COMMON" },
   "EkkoE": { id: "EkkoE", hero: "Ekko", name: "相位俯冲", price: 90, type: "SKILL", cost: 0, block: 5, exhaust: true, description: "获得 5 点护甲。", img: `${SPELL_URL}/EkkoE.png`, rarity: "UNCOMMON" },
+  "EkkoR": { id: "EkkoR", hero: "Ekko", name: "时空断裂", price: 200, type: "SKILL", cost: 3, effect: "HEAL", effectValue: 30, block: 20, description: "获得 20 点护甲，回复 30 点生命。", img: `${SPELL_URL}/EkkoR.png`, rarity: "RARE" },
   "SylasQ": { id: "SylasQ", hero: "Sylas", name: "锁链鞭击", price: 50, type: "ATTACK", cost: 1, value: 7, isMultiHit: true, hits: 2, description: "造成 2 次 7 点伤害。", img: `${SPELL_URL}/SylasQ.png`, rarity: "COMMON" },
   "SylasW": { id: "SylasW", hero: "Sylas", name: "弑君突刺", price: 90, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 15, description: "回复 15 点生命。", img: `${SPELL_URL}/SylasW.png`, rarity: "UNCOMMON" },
+  "SylasR": { id: "SylasR", hero: "Sylas", name: "其人之道", price: 200, type: "ATTACK", cost: 3, value: 25, effect: "DRAW", effectValue: 2, description: "造成 25 点伤害。抓取 2 张牌。", img: `${SPELL_URL}/SylasR.png`, rarity: "RARE" },
   "UrgotQ": { id: "UrgotQ", hero: "Urgot", name: "腐蚀电荷", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "WEAK", effectValue: 1, description: "造成 8 点伤害，给予 1 层虚弱。", img: `${SPELL_URL}/UrgotQ.png`, rarity: "COMMON" },
   "UrgotW": { id: "UrgotW", hero: "Urgot", name: "净除", price: 90, type: "SKILL", cost: 1, block: 8, effect: "VULNERABLE", effectValue: 1, description: "获得 8 点护甲，给予 1 层易伤。", img: `${SPELL_URL}/UrgotW.png`, rarity: "UNCOMMON" },
+  "UrgotR": { id: "UrgotR", hero: "Urgot", name: "超越死亡的恐惧", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "WEAK", effectValue: 3, description: "造成 30 点伤害。给予 3 层虚弱。", img: `${SPELL_URL}/UrgotR.png`, rarity: "RARE" },
   "ViktorQ": { id: "ViktorQ", hero: "Viktor", name: "能量转移", price: 40, type: "ATTACK", cost: 0, value: 3, block: 3, description: "造成 3 点伤害，获得 3 点护甲。", img: `${SPELL_URL}/ViktorPowerTransfer.png`, rarity: "COMMON" },
   "ViktorE": { id: "ViktorE", hero: "Viktor", name: "死亡射线", price: 100, type: "ATTACK", cost: 2, value: 18, description: "造成 18 点伤害。", img: `${SPELL_URL}/ViktorDeathRay.png`, rarity: "UNCOMMON" },
+  "ViktorR": { id: "ViktorR", hero: "Viktor", name: "混乱风暴", price: 200, type: "ATTACK", cost: 3, value: 18, isMultiHit: true, hits: 2, description: "造成 2 次 18 点伤害。", img: `${SPELL_URL}/ViktorR.png`, rarity: "RARE" },
 
   // 新储备英雄技能 (Placeholder icons until updated)
   "RivenQ": { id: "RivenQ", hero: "Riven", name: "折翼之舞", price: 50, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。", img: `${SPELL_URL}/RivenTriCleave.png`, rarity: "COMMON" },
   "RivenE": { id: "RivenE", hero: "Riven", name: "勇往直前", price: 80, type: "SKILL", cost: 1, block: 5, effect: "DRAW", effectValue: 1, description: "获得 5 点护甲。抓取 1 张牌。", img: `${SPELL_URL}/RivenFeint.png`, rarity: "UNCOMMON" },
+  "RivenR": { id: "RivenR", hero: "Riven", name: "放逐之锋", price: 200, type: "ATTACK", cost: 3, value: 32, effect: "STRENGTH", effectValue: 3, description: "造成 32 点伤害。获得 3 点力量。", img: `${SPELL_URL}/RivenR.png`, rarity: "RARE" },
   "TwistedFateW": { id: "TwistedFateW", hero: "TwistedFate", name: "选牌", price: 60, type: "SKILL", cost: 1, description: "获得随机一张红/黄/蓝牌 (简化: 抽2张)", effect: "DRAW", effectValue: 2, img: `${SPELL_URL}/PickACard.png`, rarity: "COMMON" },
   "TwistedFateQ": { id: "TwistedFateQ", hero: "TwistedFate", name: "万能牌", price: 90, type: "ATTACK", cost: 2, value: 8, description: "造成 8 点伤害 (群攻简化为单体)。", img: `${SPELL_URL}/WildCards.png`, rarity: "COMMON" },
+  "TwistedFateR": { id: "TwistedFateR", hero: "TwistedFate", name: "命运", price: 200, type: "SKILL", cost: 3, effect: "DRAW", effectValue: 3, description: "抓取 3 张牌。", img: `${SPELL_URL}/TwistedFateR.png`, rarity: "RARE" },
   "LeeSinQ": { id: "LeeSinQ", hero: "LeeSin", name: "天音波", price: 50, type: "ATTACK", cost: 1, value: 6, effect: "VULNERABLE", effectValue: 1, description: "造成 6 点伤害。给予 1 层易伤。", img: `${SPELL_URL}/BlindMonkQOne.png`, rarity: "COMMON" },
   "LeeSinW": { id: "LeeSinW", hero: "LeeSin", name: "金钟罩", price: 80, type: "SKILL", cost: 1, block: 8, description: "获得 8 点护甲。", img: `${SPELL_URL}/BlindMonkWOne.png`, rarity: "UNCOMMON" },
+  "LeeSinR": { id: "LeeSinR", hero: "LeeSin", name: "神龙摆尾", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "VULNERABLE", effectValue: 5, description: "造成 30 点伤害。给予 5 层易伤。", img: `${SPELL_URL}/LeeSinR.png`, rarity: "RARE" },
   "VayneQ": { id: "VayneQ", hero: "Vayne", name: "闪避突袭", price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。", img: `${SPELL_URL}/VayneTumble.png`, rarity: "COMMON" },
   "VayneE": { id: "VayneE", hero: "Vayne", name: "恶魔审判", price: 90, type: "ATTACK", cost: 2, value: 12, effect: "WEAK", effectValue: 2, description: "造成 12 点伤害。给予 2 层虚弱。", img: `${SPELL_URL}/VayneCondemn.png`, rarity: "UNCOMMON" },
+  "VayneR": { id: "VayneR", hero: "Vayne", name: "终极时刻", price: 200, type: "ATTACK", cost: 3, value: 25, effect: "STRENGTH", effectValue: 5, description: "造成 25 点伤害。获得 5 点力量。", img: `${SPELL_URL}/VayneR.png`, rarity: "RARE" },
   "TeemoQ": { id: "TeemoQ", hero: "Teemo", name: "致盲吹箭", price: 50, type: "ATTACK", cost: 1, value: 5, effect: "WEAK", effectValue: 2, description: "造成 5 点伤害。给予 2 层虚弱。", img: `${SPELL_URL}/BlindingDart.png`, rarity: "COMMON" },
   "TeemoR": { id: "TeemoR", hero: "Teemo", name: "种蘑菇", price: 80, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 4, exhaust: true, description: "给予 4 层易伤。消耗。", img: `${SPELL_URL}/TeemoRCast.png`, rarity: "UNCOMMON" },
   "ZedQ": { id: "ZedQ", hero: "Zed", name: "影奥义！诸刃", price: 50, type: "ATTACK", cost: 1, value: 8, description: "造成 8 点伤害。", img: `${SPELL_URL}/ZedQ.png`, rarity: "COMMON" },
   "ZedE": { id: "ZedE", hero: "Zed", name: "影奥义！鬼斩", price: 80, type: "ATTACK", cost: 1, value: 4, effect: "DRAW", effectValue: 1, description: "造成 4 点伤害。抓取 1 张牌。", img: `${SPELL_URL}/ZedE.png`, rarity: "UNCOMMON" },
+  "ZedR": { id: "ZedR", hero: "Zed", name: "禁奥义！瞬狱影杀阵", price: 200, type: "ATTACK", cost: 3, value: 18, isMultiHit: true, hits: 2, description: "造成 2 次 18 点伤害。", img: `${SPELL_URL}/ZedR.png`, rarity: "RARE" },
   "NasusQ": { id: "NasusQ", hero: "Nasus", name: "汲魂痛击", price: 50, type: "ATTACK", cost: 1, value: 6, description: "造成 6 点伤害。", img: `${SPELL_URL}/NasusQ.png`, rarity: "COMMON" },
   "NasusW": { id: "NasusW", hero: "Nasus", name: "枯萎", price: 80, type: "SKILL", cost: 1, effect: "WEAK", effectValue: 3, description: "给予 3 层虚弱。", img: `${SPELL_URL}/NasusW.png`, rarity: "UNCOMMON" },
+  "NasusR": { id: "NasusR", hero: "Nasus", name: "死神降临", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "STRENGTH", effectValue: 5, block: 15, description: "造成 30 点伤害。获得 5 点力量和 15 点护甲。", img: `${SPELL_URL}/NasusR.png`, rarity: "RARE" },
   "IreliaQ": { id: "IreliaQ", hero: "Irelia", name: "利刃冲击", price: 50, type: "ATTACK", cost: 1, value: 8, description: "造成 8 点伤害。", img: `${SPELL_URL}/IreliaQ.png`, rarity: "COMMON" },
   "IreliaE": { id: "IreliaE", hero: "Irelia", name: "比翼双刃", price: 80, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 2, description: "给予 2 层易伤。", img: `${SPELL_URL}/IreliaE.png`, rarity: "UNCOMMON" },
+  "IreliaR": { id: "IreliaR", hero: "Irelia", name: "先锋之刃", price: 200, type: "ATTACK", cost: 3, value: 12, isMultiHit: true, hits: 3, description: "造成 3 次 12 点伤害。", img: `${SPELL_URL}/IreliaR.png`, rarity: "RARE" },
   "ThreshQ": { id: "ThreshQ", hero: "Thresh_Hero", name: "死亡判决", price: 80, type: "ATTACK", cost: 2, value: 10, effect: "VULNERABLE", effectValue: 1, description: "造成 10 点伤害。给予 1 层易伤。", img: `${SPELL_URL}/ThreshQ.png`, rarity: "COMMON" },
   "ThreshW": { id: "ThreshW", hero: "Thresh_Hero", name: "魂引之灯", price: 70, type: "SKILL", cost: 1, block: 10, effect: "DRAW", effectValue: 1, description: "获得 10 点护甲。抓取 1 张牌。", img: `${SPELL_URL}/ThreshW.png`, rarity: "UNCOMMON" },
+  "ThreshR": { id: "ThreshR", hero: "Thresh_Hero", name: "幽冥监牢", price: 200, type: "SKILL", cost: 3, effect: "VULNERABLE", effectValue: 5, block: 20, description: "获得 20 点护甲。给予 5 层易伤。", img: `${SPELL_URL}/ThreshR.png`, rarity: "RARE" },
   "KatarinaQ": { id: "KatarinaQ", hero: "Katarina_Hero", name: "弹射之刃", price: 50, type: "ATTACK", cost: 1, value: 4, isMultiHit: true, hits: 3, description: "造成 3 次 4 点伤害。", img: `${SPELL_URL}/KatarinaQ.png`, rarity: "COMMON" },
   "KatarinaE": { id: "KatarinaE", hero: "Katarina_Hero", name: "瞬步", price: 40, type: "ATTACK", cost: 0, value: 3, effect: "DRAW", effectValue: 1, description: "造成 3 点伤害。抓取 1 张牌。", img: `${SPELL_URL}/KatarinaE.png`, rarity: "UNCOMMON" },
+  "KatarinaR": { id: "KatarinaR", hero: "Katarina_Hero", name: "死亡莲华", price: 200, type: "ATTACK", cost: 3, value: 8, isMultiHit: true, hits: 5, description: "造成 5 次 8 点伤害。", img: `${SPELL_URL}/KatarinaR.png`, rarity: "RARE" },
 };
 
 // --- Utils ---
@@ -249,7 +268,7 @@ const generateMap = (usedEnemyIds, act) => {
     const nodeType2 = shuffle(nodeType2Pool)[0];
     const nodes = [createNode(`${i}-0`, nodeType1), createNode(`${i}-1`, nodeType2)];
     const nextFloorIndex = i + 1;
-    if (nextFloorIndex <= 9) { 
+    if (nextFloorIndex <= 9) {
         nodes[0].next = [`${nextFloorIndex}-0`, `${nextFloorIndex}-1`]; 
         nodes[1].next = [`${nextFloorIndex}-0`, `${nextFloorIndex}-1`]; 
     }
@@ -291,9 +310,9 @@ const AudioPlayer = ({ src }) => {
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(true);
     const [volume, setVolume] = useState(0.3);
-    useEffect(() => { 
+    useEffect(() => {
         if(audioRef.current && src) { 
-            audioRef.current.volume = volume; 
+            audioRef.current.volume = volume;
             audioRef.current.load(); // 重新加载音频
             const p = audioRef.current.play(); 
             if(p !== undefined) {
@@ -301,7 +320,7 @@ const AudioPlayer = ({ src }) => {
             }
         } 
     }, [src, volume]);
-    const togglePlay = () => { 
+    const togglePlay = () => {
         if (isPlaying) { 
             audioRef.current?.pause(); 
             setIsPlaying(false); 
@@ -436,9 +455,9 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, champion
                     <div className="flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full border-2 border-[#C8AA6E] overflow-hidden bg-black"><img src={`${ITEM_URL}/3400.png`} className="w-full h-full object-cover" /></div>
                         <div><h2 className="text-3xl font-bold text-[#C8AA6E]">黑市商人</h2><p className="text-[#A09B8C] italic">"只要给钱，什么都卖。"</p></div>
-                    </div>
+                        </div>
                     <div className="flex items-center gap-2 text-4xl font-bold text-yellow-400 bg-black/50 px-6 py-2 rounded-lg border border-yellow-600"><Coins size={32} /> {gold}</div>
-                </div>
+                        </div>
                 <div className="grid grid-cols-2 gap-12 flex-1 overflow-y-auto">
                     <div>
                         <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-blue-500 pl-3">技能卷轴</h3>
@@ -529,7 +548,7 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
         setDisplayChamps(shuffled.slice(0, 3));
         setRefreshCount(prev => prev + 1);
     };
-    
+
     return (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95">
             <h1 className="text-5xl font-bold text-[#C8AA6E] mb-4 uppercase tracking-widest">选择你的英雄</h1>
@@ -557,12 +576,12 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
                             <div className="mb-2 flex items-center gap-2 text-xs">
                                 <span className="text-red-400 flex items-center gap-1"><Heart size={12} /> {c.maxHp} HP</span>
                                 <span className="text-blue-400 flex items-center gap-1"><Zap size={12} /> {c.maxMana} 能量</span>
-                            </div>
-                            <p className="text-xs text-gray-300 mt-2 mb-3 line-clamp-2">{c.description}</p>
+                        </div>
+                            <p className="text-xs text-gray-300 mt-2 mb-3 line-clamp-2 overflow-hidden">{c.description}</p>
                             <div className="border-t border-[#C8AA6E]/30 pt-2 mt-2">
                                 <div className="text-xs text-blue-400 font-bold mb-1">专属被动</div>
-                                <div className="text-xs text-[#A09B8C]">{c.passive}</div>
-                            </div>
+                                <div className="text-xs text-[#A09B8C] line-clamp-2 overflow-hidden">{c.passive}</div>
+            </div>
                             <div className="border-t border-[#C8AA6E]/30 pt-2 mt-2">
                                 <div className="text-xs text-purple-400 font-bold mb-1">初始卡组</div>
                                 <div className="text-xs text-[#A09B8C] flex flex-wrap gap-1">
@@ -570,7 +589,7 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
                                         const card = CARD_DATABASE[cardId];
                                         return card ? <span key={cardId} className="px-1 bg-black/50 rounded">{card.name}</span> : null;
                                     })}
-                                </div>
+        </div>
                             </div>
                         </button>
                     ) 
@@ -596,7 +615,24 @@ const EventView = ({ onLeave, onReward }) => (
 );
 
 const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
-  const rewards = useMemo(() => { const all = Object.values(CARD_DATABASE).filter(c => c.rarity!=='BASIC'&&c.rarity!=='PASSIVE'&&(c.hero==='Neutral'||c.hero===championName)); return shuffle(all).slice(0,3); }, [championName]);
+  const rewards = useMemo(() => {
+    // 优先获取该英雄的R技能（大招）
+    const championR = Object.values(CARD_DATABASE).find(c => c.hero === championName && c.id.endsWith('R'));
+    // 获取其他符合条件的卡牌（排除BASIC和PASSIVE，且属于该英雄或中立）
+    const otherCards = Object.values(CARD_DATABASE).filter(c => 
+      c.rarity !== 'BASIC' && 
+      c.rarity !== 'PASSIVE' && 
+      (c.hero === 'Neutral' || c.hero === championName) &&
+      c.id !== championR?.id
+    );
+    const shuffled = shuffle(otherCards);
+    // 如果存在R技能，确保它出现在奖励中
+    if (championR) {
+      return [championR, ...shuffled.slice(0, 2)];
+    }
+    // 如果没有R技能，返回随机3张
+    return shuffled.slice(0, 3);
+  }, [championName]);
   return (
     <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center">
       <div className="max-w-4xl bg-[#091428]/90 border-2 border-[#C8AA6E] p-10 text-center rounded-xl shadow-[0_0_50px_#C8AA6E]">
@@ -620,10 +656,10 @@ const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
                 <div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{c.name}</div>
                 <div className="text-[10px] text-[#A09B8C] leading-tight line-clamp-2">{c.description}</div>
                 <div className="mt-auto text-[8px] text-slate-500 uppercase font-bold">{c.type}</div>
-              </div>
-            </div>
+                </div>
+             </div>
           ))}
-        </div>
+       </div>
         <button onClick={onSkip} className="mt-6 px-8 py-3 border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest transition-all">跳过</button>
       </div>
     </div>
@@ -737,12 +773,12 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
     setPlayerBlock(0);
     let drawCount = 5; if (heroData.relicId === "JinxPassive") drawCount = 6; 
     drawCards(drawCount);
-    if (heroData.relicId === "ViktorPassive" && Math.random() < 0.5) {
-         const basicCard = shuffle(['Strike', 'Defend'])[0];
+        if (heroData.relicId === "ViktorPassive" && Math.random() < 0.5) {
+             const basicCard = shuffle(['Strike', 'Defend'])[0];
          let { hand } = deckRef.current;
          hand.push(basicCard);
          forceUpdate();
-    }
+        }
     setNextEnemyAction(enemyConfig.actions[Math.floor(Math.random()*enemyConfig.actions.length)]);
     heroData.relics.forEach(rid => { const relic = RELIC_DATABASE[rid]; if(relic.onTurnStart) { const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp }); setPlayerHp(pState.hp); setEnemyHp(eState.hp); } });
   };
@@ -772,7 +808,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       if(card.type === 'ATTACK') {
           // 播放攻击挥击音效
           playSfx('ATTACK_SWING');
-          triggerAnim('HERO', 'attack'); 
+          triggerAnim('HERO', 'attack');
           setTimeout(() => {
               triggerAnim('ENEMY', 'hit');
               // 延迟播放攻击命中音效
@@ -788,11 +824,11 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
               if (heroData.relicId === "YasuoPassive" && Math.random() < 0.1) finalDmg = Math.floor(finalDmg * 2);
               if (heroData.relics.includes("InfinityEdge")) finalDmg = Math.floor(finalDmg * 1.5);
               let dmgToHp = finalDmg;
-              if (enemyBlock > 0) { 
+              if (enemyBlock > 0) {
                   // 敌人格挡时播放格挡音效
                   playSfx('BLOCK_SHIELD');
-                  if (enemyBlock >= finalDmg) { setEnemyBlock(b => b - finalDmg); dmgToHp = 0; } 
-                  else { dmgToHp = finalDmg - enemyBlock; setEnemyBlock(0); } 
+                  if (enemyBlock >= finalDmg) { setEnemyBlock(b => b - finalDmg); dmgToHp = 0; }
+                  else { dmgToHp = finalDmg - enemyBlock; setEnemyBlock(0); }
               } else if (dmgToHp > 0) {
                   // 敌人受击时播放受击音效
                   setTimeout(() => playSfx('HIT_TAKEN'), 250);
@@ -812,14 +848,14 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
 
   useEffect(() => { if(enemyHp<=0) { playSfx('WIN'); setTimeout(()=>onWin(playerHp), 1000); } }, [enemyHp]);
   useEffect(() => { if(playerHp<=0) setTimeout(onLose, 1000); }, [playerHp]);
-  const endTurn = () => { 
+  const endTurn = () => {
       const { hand, discardPile } = deckRef.current;
       deckRef.current = { ...deckRef.current, discardPile: [...discardPile, ...hand], hand: [] };
       forceUpdate();
       setGameState('ENEMY_TURN'); 
-      setPlayerStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)})); 
-      setEnemyStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)})); 
-      setTimeout(enemyAction, 1000); 
+      setPlayerStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)}));
+      setEnemyStatus(s => ({...s, weak: Math.max(0, s.weak-1), vulnerable: Math.max(0, s.vulnerable-1)}));
+      setTimeout(enemyAction, 1000);
   };
   const enemyAction = () => {
       if(enemyHp<=0) return;
@@ -885,14 +921,14 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
              <div className={`absolute left-10 bottom-[42%] w-64 h-[500px] transition-all duration-200 ${heroAnim === 'attack' ? 'translate-x-32' : ''} ${heroAnim === 'hit' ? 'translate-x-[-10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-[#C8AA6E]" />
                  <div className="absolute -bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-2 rounded flex flex-col gap-1 shadow-lg z-40"><div className="flex justify-between text-xs text-[#C8AA6E] font-bold"><span>HP {playerHp}/{heroData.maxHp}</span>{playerBlock > 0 && <span className="text-blue-400 flex items-center gap-1"><Shield size={12}/>{playerBlock}</span>}</div><div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div></div>{renderStatus(playerStatus)}</div>
-             </div>
+                     </div>
              <div className="text-6xl font-black text-[#C8AA6E]/20 italic">VS</div>
              <div className={`absolute right-10 bottom-[42%] w-64 h-[500px] transition-all duration-200 ${enemyAnim === 'attack' ? '-translate-x-32' : ''} ${enemyAnim === 'hit' ? 'translate-x-[10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={enemyConfig.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-red-800" />
                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-3 py-1 rounded flex items-center gap-2 animate-bounce"><IntentIcon /><span className="text-white font-bold text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span></div>
                  <div className="absolute -bottom-24 w-full bg-black/80 border border-red-800 p-2 rounded flex flex-col gap-1 shadow-lg z-40"><div className="flex justify-between text-xs text-red-500 font-bold"><span>{enemyConfig.name}</span><span>{enemyHp}/{enemyConfig.maxHp}</span></div><div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div></div>{enemyBlock > 0 && <div className="text-blue-400 text-xs font-bold flex items-center gap-1"><Shield size={10}/> 格挡 {enemyBlock}</div>}{renderStatus(enemyStatus)}</div>
-             </div>
-        </div>
+                     </div>
+                 </div>
         {dmgOverlay && (<div className={`absolute top-1/2 ${dmgOverlay.target==='ENEMY'?'right-1/4':'left-1/4'} -translate-y-1/2 text-8xl font-black text-white drop-shadow-[0_0_10px_red] animate-ping z-50`}>{dmgOverlay.val}</div>)}
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black via-black/80 to-transparent z-20 flex items-end justify-center pb-6 gap-4 pointer-events-none">
             <div className="absolute left-8 bottom-8 w-24 h-24 rounded-full bg-[#091428] border-4 border-[#C8AA6E] flex items-center justify-center shadow-[0_0_30px_#0066FF] pointer-events-auto text-center"><span className="text-4xl font-bold text-white block">{playerMana}</span><span className="text-[10px] text-[#C8AA6E] block">MANA</span><div className="text-[8px] text-gray-400 mt-1">{currentDrawPile.length}/{currentDiscardPile.length}</div></div>
@@ -910,7 +946,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                         )
                     })}
                 </AnimatePresence>
-            </div>
+             </div>
             <button onClick={endTurn} disabled={gameState!=='PLAYER_TURN'} className="absolute right-8 bottom-8 w-24 h-24 rounded-full bg-[#C8AA6E] border-4 border-[#F0E6D2] flex items-center justify-center font-bold text-[#091428] shadow-lg hover:scale-105 hover:bg-white active:scale-95 transition-all pointer-events-auto">结束<br/>回合</button>
         </div>
     </div>
@@ -1085,24 +1121,24 @@ export default function LegendsOfTheSpire() {
                                   <div className="border-l-4 border-green-500 pl-4">
                                       <div className="font-bold text-green-400 mb-1">[Feature] 全英雄实装</div>
                                       <div className="text-sm text-[#A09B8C]">英雄池扩充至 20 位，包含瑞文、卡牌、盲僧等新英雄，且每位英雄拥有独特的初始卡组和被动遗物。</div>
-                                  </div>
+                 </div>
                                   <div className="border-l-4 border-green-500 pl-4">
                                       <div className="font-bold text-green-400 mb-1">[Feature] 三章节系统</div>
                                       <div className="text-sm text-[#A09B8C]">正式实装 Act 1 (峡谷), Act 2 (暗影岛), Act 3 (虚空) 的完整流程，包含专属敌人和 Boss。</div>
-                                  </div>
+                     </div>
                                   <div className="border-l-4 border-green-500 pl-4">
                                       <div className="font-bold text-green-400 mb-1">[Feature] 章节专属遗物</div>
                                       <div className="text-sm text-[#A09B8C]">新增了只能在特定章节获取的强力遗物（如 Act 3 的纳什之牙）。</div>
-                                  </div>
+                     </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
                                       <div className="font-bold text-blue-400 mb-1">[Fix] 牌库打空 Bug</div>
-                                  </div>
+                 </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
                                       <div className="font-bold text-blue-400 mb-1">[Fix] 厄加特回血 Bug</div>
-                                  </div>
+             </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
                                       <div className="font-bold text-blue-400 mb-1">[Fix] 地图路径逻辑</div>
-                                  </div>
+        </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
                                       <div className="font-bold text-blue-400 mb-1">[Fix] 资源链接</div>
                                       <div className="text-sm text-[#A09B8C]">全面校对了 20 位英雄的技能图标、头像和 Loading 图，修复了所有 broken image。</div>
@@ -1119,9 +1155,9 @@ export default function LegendsOfTheSpire() {
                                   关闭
                               </button>
                           </div>
-                      </div>
-                  )}
-              </div>
+            </div>
+        )}
+            </div>
           );
           case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
           case 'MAP': return <MapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} />;
@@ -1137,7 +1173,7 @@ export default function LegendsOfTheSpire() {
       }
   };
 
-  return (
+                return (
       <div className="relative h-screen w-full bg-[#091428] font-sans select-none overflow-hidden">
           <AudioPlayer src={bgmStarted || view !== 'MENU' ? getCurrentBgm() : null} />
           {view !== 'GAMEOVER' && view !== 'VICTORY_ALL' && view !== 'MENU' && view !== 'CHAMPION_SELECT' && champion && (
@@ -1146,7 +1182,7 @@ export default function LegendsOfTheSpire() {
                       <div className="relative group">
                           <img src={champion.avatar} className="w-12 h-12 rounded-full border-2 border-[#C8AA6E] shadow-lg" />
                           <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-xs font-bold text-[#C8AA6E]">{currentFloor+1}F</div>
-                      </div>
+                        </div>
                       <div className="flex flex-col">
                           <span className="text-[#F0E6D2] font-bold text-lg shadow-black drop-shadow-md flex items-center gap-2">
                             {champion.name}
@@ -1157,9 +1193,9 @@ export default function LegendsOfTheSpire() {
                             </RelicTooltip>
                           </span>
                           <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
-                      </div>
-                  </div>
-                  <div className="flex gap-2 pointer-events-auto mr-4 flex-wrap max-w-md justify-end">
+                        </div>
+                    </div>
+                  <div className="flex items-center gap-2 pointer-events-auto">
                       {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
                           const relic = RELIC_DATABASE[rid];
                           return (
@@ -1170,10 +1206,10 @@ export default function LegendsOfTheSpire() {
                               </RelicTooltip>
                           );
                       })}
-                  </div>
+        </div>
               </div>
           )}
           {renderView()}
-      </div>
+    </div>
   );
 }
