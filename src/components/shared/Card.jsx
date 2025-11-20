@@ -1,26 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { CARD_DATABASE } from '../../data/cards';
-import { useIsMobile } from '../../hooks/useIsMobile';
 
 const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} }) => {
   const card = CARD_DATABASE[cardId];
   if (!card) return null;
-  
-  const [showDetail, setShowDetail] = useState(false);
-  const lastTapRef = useRef(0);
-  const touchStartYRef = useRef(0);
-  
-  // 移动端检测（使用内部状态，不依赖外部 prop）
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
-  
-  React.useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   
   // 应用卡牌升级效果
   const upgrade = cardUpgrades[cardId] || {};
@@ -28,12 +12,12 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
   const displayBlock = card.block ? (card.block + (upgrade.block || 0)) : null;
   const displayEffectValue = card.effectValue ? (card.effectValue + (upgrade.effectValue || 0)) : null;
   
-  // 堆叠逻辑（恢复6c5d6fc版本的简单逻辑）
-  const overlap = isMobile ? (totalCards > 3 ? -15 : 3) : (totalCards > 5 ? -40 : 10); 
-  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 1.5 : 3);
-  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 2 : 5);
+  // 堆叠逻辑（参考 c8d0950，简单逻辑）
+  const overlap = totalCards > 5 ? -40 : 10; 
+  const rotation = (index - (totalCards - 1) / 2) * 3;
+  const yOffset = Math.abs(index - (totalCards - 1) / 2) * 5;
   
-  // 处理点击事件
+  // 处理点击事件（参考 c8d0950，只有点击，没有拖拽）
   const handleClick = (e) => {
     e.stopPropagation();
     if (canPlay) {
@@ -41,74 +25,9 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
     }
   };
   
-  // 处理双击查看详情
-  const handleDoubleTap = (e) => {
-    e.stopPropagation();
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
-    
-    if (lastTapRef.current && (now - lastTapRef.current) < DOUBLE_TAP_DELAY) {
-      setShowDetail(true);
-      setTimeout(() => setShowDetail(false), 2000);
-      lastTapRef.current = 0;
-    } else {
-      lastTapRef.current = now;
-    }
-  };
-  
-  // 长按查看详情
-  const longPressTimerRef = useRef(null);
-  const isLongPressRef = useRef(false);
-  
-  // 处理触摸开始（用于滑动出牌和长按）
-  const handleTouchStart = (e) => {
-    touchStartYRef.current = e.touches[0].clientY;
-    isLongPressRef.current = false;
-    
-    // 长按计时器（500ms）
-    longPressTimerRef.current = setTimeout(() => {
-      isLongPressRef.current = true;
-      setShowDetail(true);
-      setTimeout(() => setShowDetail(false), 3000);
-    }, 500);
-  };
-  
-  // 处理触摸结束（检测滑动）
-  const handleTouchEnd = (e) => {
-    // 清除长按计时器
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-    
-    // 如果是长按，不触发出牌
-    if (isLongPressRef.current) {
-      isLongPressRef.current = false;
-      return;
-    }
-    
-    if (!canPlay) return;
-    const touchEndY = e.changedTouches[0].clientY;
-    const deltaY = touchStartYRef.current - touchEndY;
-    
-    // 向上滑动超过80px时出牌（降低阈值，更容易触发）
-    if (deltaY > 80) {
-      onPlay(index);
-    }
-  };
-  
-  // 处理触摸取消
-  const handleTouchCancel = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-    isLongPressRef.current = false;
-  };
-  
   return (
     <motion.div
-      layout // 自动处理布局变化动画
+      layout
       initial={{ y: 100, opacity: 0, scale: 0.5 }}
       animate={{ y: yOffset, opacity: 1, scale: 1, rotate: rotation }}
       exit={{ y: -100, opacity: 0, scale: 0.5 }}
@@ -117,10 +36,9 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
         marginLeft: index === 0 ? 0 : `${overlap}px`, 
         zIndex: index,
         transformOrigin: "bottom center",
-        position: 'relative',
-        touchAction: 'pan-y' // 允许垂直拖拽，防止误触
+        position: 'relative'
       }}
-      // 悬停特效：放大、上移、高亮边框
+      // 悬停特效（参考 c8d0950）
       whileHover={canPlay ? { 
         scale: 1.25, 
         y: -60, 
@@ -130,46 +48,14 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
       } : {}}
       // 点击事件
       onClick={handleClick}
-      // 触摸事件（移动端支持）
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
-      onDoubleClick={handleDoubleTap}
-      // 拖拽支持（滑动出牌）- 优化触控体验
-      drag={canPlay ? "y" : false}
-      dragConstraints={{ top: -300, bottom: 0 }}
-      dragSnapToOrigin={true}
-      dragElastic={0.2} // 取消惯性，让拖拽手感更"跟手"
-      whileDrag={{ 
-        scale: 1.2, // 拖拽时明显放大
-        zIndex: 100, // 提高层级，防止被其他牌遮挡
-        rotate: 0 // 拖拽时取消旋转
-      }}
-      onDragEnd={(event, info) => { 
-        if (info.offset.y < -120 && canPlay) { // 降低阈值，更容易触发
-          onPlay(index); 
-        } 
-      }}
       
       className={`
         w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-36 lg:w-40 lg:h-60 
         bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
         transition-all duration-200
-        ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)] active:cursor-grabbing active:scale-110' : 'border-slate-700 opacity-60 cursor-not-allowed'}
+        ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)]' : 'border-slate-700 opacity-60 cursor-not-allowed'}
       `}
     >
-      {/* 卡牌详情弹窗 */}
-      {showDetail && (
-        <div className="absolute inset-0 z-50 bg-black/95 border-4 border-[#C8AA6E] rounded-lg p-4 flex flex-col items-center justify-center">
-          <div className="text-2xl font-bold text-[#C8AA6E] mb-2">{card.name}</div>
-          <div className="text-sm text-[#A09B8C] mb-4 text-center">{card.description}</div>
-          <div className="flex gap-4 text-sm">
-            {displayValue !== null && <div className="text-red-400">攻击: {displayValue}</div>}
-            {displayBlock !== null && <div className="text-blue-400">防御: {displayBlock}</div>}
-            {displayEffectValue !== null && <div className="text-purple-400">效果: {displayEffectValue}</div>}
-          </div>
-        </div>
-      )}
       {/* 卡牌图片 */}
       <div className="w-full h-12 sm:h-16 md:h-24 lg:h-40 bg-black overflow-hidden relative pointer-events-none">
         <img src={card.img} className="w-full h-full object-cover opacity-90" alt={card.name} />

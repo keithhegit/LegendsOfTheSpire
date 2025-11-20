@@ -36,5 +36,9 @@ export const CARD_DATABASE = {
   // 维克托
   "ViktorQ": { id: "ViktorQ", hero: "Viktor", name: "能量转移", price: 40, type: "ATTACK", cost: 0, value: 3, block: 3, description: "造成 3 点伤害，获得 3 点护甲。", img: `${SPELL_URL}/ViktorPowerTransfer.png`, rarity: "COMMON" },
   "ViktorE": { id: "ViktorE", hero: "Viktor", name: "死亡射线", price: 100, type: "ATTACK", cost: 2, value: 18, description: "造成 18 点伤害。", img: `${SPELL_URL}/ViktorDeathRay.png`, rarity: "UNCOMMON" },
+  // 盲僧
+  "LeeSinQ": { id: "LeeSinQ", hero: "LeeSin", name: "天音波", price: 50, type: "ATTACK", cost: 1, value: 6, effect: "VULNERABLE", effectValue: 1, description: "造成 6 点伤害。给予 1 层易伤。", img: `${SPELL_URL}/BlindMonkQOne.png`, rarity: "COMMON" },
+  "LeeSinW": { id: "LeeSinW", hero: "LeeSin", name: "金钟罩", price: 80, type: "SKILL", cost: 1, block: 8, description: "获得 8 点护甲。", img: `${SPELL_URL}/BlindMonkWOne.png`, rarity: "UNCOMMON" },
+  "LeeSinR": { id: "LeeSinR", hero: "LeeSin", name: "神龙摆尾", price: 200, type: "ATTACK", cost: 3, value: 30, effect: "VULNERABLE", effectValue: 5, description: "造成 30 点伤害。给予 5 层易伤。", img: `${SPELL_URL}/LeeSinR.png`, rarity: "RARE" },
 };
 
