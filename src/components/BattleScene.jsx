@@ -5,17 +5,23 @@ import { CARD_DATABASE } from '../data/cards';
 import { RELIC_DATABASE } from '../data/relics';
 import { ENEMY_POOL } from '../data/enemies';
 import { scaleEnemyStats, shuffle } from '../utils/gameLogic';
-import { SPLASH_URL } from '../data/constants';
 import { playSfx, playChampionVoice } from '../utils/audioManager';
 import Card from './shared/Card';
 
-const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex }) => { 
-  const getScaledEnemy = (enemyId, floor) => {
+// 背景图配置 (按章节)
+const ACT_BACKGROUNDS = {
+    1: "https://i.17173cdn.com/2fhnvk/YWxqaGBf/cms3/JfEzktbjDoBxmzd.jpg", // 召唤师峡谷
+    2: "https://images.17173cdn.com/2014/lol/2014/08/22/Shadow_Isles_10.jpg", // 暗影之地
+    3: "https://pic.upmedia.mg/uploads/content/20220519/EV220519112427593030.webp"  // 虚空之地
+};
+
+const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex, act }) => { 
+  const getScaledEnemy = (enemyId, floor, currentAct) => {
     const baseEnemy = ENEMY_POOL[enemyId];
-    const { maxHp, actions } = scaleEnemyStats(baseEnemy, floor);
+    const { maxHp, actions } = scaleEnemyStats(baseEnemy, floor, currentAct);
     return { ...baseEnemy, maxHp, actions };
   };
-  const enemyConfig = getScaledEnemy(enemyId, floorIndex); 
+  const enemyConfig = getScaledEnemy(enemyId, floorIndex, act); 
   const initialMana = heroData.maxMana || 3; 
   const [gameState, setGameState] = useState('PLAYER_TURN');
   const [playerHp, setPlayerHp] = useState(heroData.currentHp);
@@ -224,7 +230,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
 
   return (
     <div className="w-full h-full relative flex flex-col overflow-hidden bg-black">
-        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${SPLASH_URL}/SummonersRift_1.jpg)`}}></div>
+        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
         
         {/* 上方：英雄和敌人的立绘和状态栏 - 移动端优化布局 */}
         <div className="relative z-10 flex items-start justify-between px-2 md:px-10 pt-2 md:pt-4 pointer-events-none">
