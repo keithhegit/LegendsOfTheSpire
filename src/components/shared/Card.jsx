@@ -182,19 +182,25 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
       <div className={`flex-1 ${isMobile ? 'p-0.5' : 'p-0.5'} sm:p-1 md:p-1.5 lg:p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]`}>
         <div className={`${isMobile ? 'text-[7px]' : 'text-[9px]'} sm:text-[10px] md:text-xs lg:text-sm font-bold text-[#F0E6D2] mb-0.5 md:mb-1 line-clamp-1`}>{card.name}</div>
         <div className={`${isMobile ? 'text-[5px]' : 'text-[6px]'} sm:text-[7px] md:text-[8px] lg:text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2`}>
-          {card.description.replace(/\d+/, (match) => {
-            // 替换描述中的数值为升级后的数值
-            if (card.type === 'ATTACK' && card.value && match === String(card.value)) {
-              return String(displayValue);
+          {(() => {
+            let desc = card.description;
+            // 替换攻击卡牌的伤害值
+            if (card.type === 'ATTACK' && card.value && displayValue !== null && displayValue !== card.value) {
+              desc = desc.replace(new RegExp(`造成${card.value}点伤害`), `造成${displayValue}点伤害`);
+              desc = desc.replace(new RegExp(`${card.value}点伤害`), `${displayValue}点伤害`);
             }
-            if (card.type === 'SKILL' && card.block && match === String(card.block)) {
-              return String(displayBlock);
+            // 替换技能卡牌的护甲值
+            if (card.type === 'SKILL' && card.block && displayBlock !== null && displayBlock !== card.block) {
+              desc = desc.replace(new RegExp(`获得${card.block}点护甲`), `获得${displayBlock}点护甲`);
+              desc = desc.replace(new RegExp(`${card.block}点护甲`), `${displayBlock}点护甲`);
             }
-            if (card.effect === 'DRAW' && card.effectValue && match === String(card.effectValue)) {
-              return String(displayEffectValue);
+            // 替换抓牌效果
+            if (card.effect === 'DRAW' && card.effectValue && displayEffectValue !== null && displayEffectValue !== card.effectValue) {
+              desc = desc.replace(new RegExp(`抓${card.effectValue}张牌`), `抓${displayEffectValue}张牌`);
+              desc = desc.replace(new RegExp(`${card.effectValue}张`), `${displayEffectValue}张`);
             }
-            return match;
-          })}
+            return desc;
+          })()}
         </div>
         <div className={`mt-auto ${isMobile ? 'text-[4px]' : 'text-[5px]'} sm:text-[6px] md:text-[7px] lg:text-[9px] text-slate-500 uppercase font-bold tracking-wider`}>
           {card.type}
