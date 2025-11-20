@@ -566,21 +566,22 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
                         <button 
                             key={c.id} 
                             onClick={() => onChampionSelect(c)} 
-                            className="w-72 h-96 border-2 border-[#C8AA6E] p-4 text-left relative group transition-all hover:scale-105 cursor-pointer bg-[#091428]/80"
+                            className="w-72 border-2 border-[#C8AA6E] p-4 text-left relative group transition-all hover:scale-105 cursor-pointer bg-[#091428]/80 flex flex-col"
+                            style={{ minHeight: '28rem', maxHeight: '28rem' }}
                         >
-                            <img src={c.img} className="w-full h-56 object-cover mb-4 rounded border border-[#C8AA6E]/50" />
-                            <div className="mb-2">
-                                <h2 className="text-2xl text-[#C8AA6E] font-bold">{c.name}</h2>
-                                <p className="text-sm text-[#A09B8C] italic">{c.title}</p>
+                            <img src={c.img} className="w-full h-48 object-cover mb-3 rounded border border-[#C8AA6E]/50 flex-shrink-0" />
+                            <div className="mb-2 flex-shrink-0">
+                                <h2 className="text-xl text-[#C8AA6E] font-bold">{c.name}</h2>
+                                <p className="text-xs text-[#A09B8C] italic">{c.title}</p>
                             </div>
-                            <div className="mb-2 flex items-center gap-2 text-xs">
+                            <div className="mb-2 flex items-center gap-2 text-xs flex-shrink-0">
                                 <span className="text-red-400 flex items-center gap-1"><Heart size={12} /> {c.maxHp} HP</span>
                                 <span className="text-blue-400 flex items-center gap-1"><Zap size={12} /> {c.maxMana} 能量</span>
                         </div>
-                            <p className="text-xs text-gray-300 mt-2 mb-3 line-clamp-2 overflow-hidden">{c.description}</p>
-                            <div className="border-t border-[#C8AA6E]/30 pt-2 mt-2">
+                            <p className="text-xs text-gray-300 mb-2 line-clamp-2 overflow-hidden flex-shrink-0" style={{ maxHeight: '2.5rem' }}>{c.description}</p>
+                            <div className="border-t border-[#C8AA6E]/30 pt-2 mt-auto">
                                 <div className="text-xs text-blue-400 font-bold mb-1">专属被动</div>
-                                <div className="text-xs text-[#A09B8C] line-clamp-2 overflow-hidden">{c.passive}</div>
+                                <div className="text-xs text-[#A09B8C] line-clamp-2 overflow-hidden" style={{ maxHeight: '2.5rem' }}>{c.passive}</div>
             </div>
                             <div className="border-t border-[#C8AA6E]/30 pt-2 mt-2">
                                 <div className="text-xs text-purple-400 font-bold mb-1">初始卡组</div>
@@ -616,13 +617,15 @@ const EventView = ({ onLeave, onReward }) => (
 
 const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
   const rewards = useMemo(() => {
+    // championName是中文名（如"盖伦"），需要找到对应的英文id（如"Garen"）
+    const championId = Object.keys(CHAMPION_POOL).find(id => CHAMPION_POOL[id].name === championName);
     // 优先获取该英雄的R技能（大招）
-    const championR = Object.values(CARD_DATABASE).find(c => c.hero === championName && c.id.endsWith('R'));
+    const championR = championId ? Object.values(CARD_DATABASE).find(c => c.hero === championId && c.id.endsWith('R')) : null;
     // 获取其他符合条件的卡牌（排除BASIC和PASSIVE，且属于该英雄或中立）
     const otherCards = Object.values(CARD_DATABASE).filter(c => 
       c.rarity !== 'BASIC' && 
       c.rarity !== 'PASSIVE' && 
-      (c.hero === 'Neutral' || c.hero === championName) &&
+      (c.hero === 'Neutral' || (championId && c.hero === championId)) &&
       c.id !== championR?.id
     );
     const shuffled = shuffle(otherCards);
@@ -1191,22 +1194,20 @@ export default function LegendsOfTheSpire() {
                                      className="w-6 h-6 rounded border border-yellow-400 bg-black/50 cursor-help hover:scale-110 transition-transform" 
                                 />
                             </RelicTooltip>
+                            {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
+                                const relic = RELIC_DATABASE[rid];
+                                return (
+                                    <RelicTooltip key={i} relic={relic}>
+                                        <img src={relic.img} 
+                                             className="w-6 h-6 rounded border border-[#C8AA6E]/50 bg-black/50 cursor-help hover:scale-110 transition-transform" 
+                                        />
+                                    </RelicTooltip>
+                                );
+                            })}
                           </span>
                           <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
                         </div>
                     </div>
-                  <div className="flex items-center gap-2 pointer-events-auto">
-                      {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
-                          const relic = RELIC_DATABASE[rid];
-                          return (
-                              <RelicTooltip key={i} relic={relic}>
-                                  <div className="w-10 h-10 rounded border border-[#C8AA6E]/50 bg-black/50 relative group cursor-help hover:scale-110 transition-transform">
-                                      <img src={relic.img} className="w-full h-full object-cover" />
-                                  </div>
-                              </RelicTooltip>
-                          );
-                      })}
-        </div>
               </div>
           )}
           {renderView()}
