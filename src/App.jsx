@@ -563,6 +563,52 @@ const ChestView = ({ onLeave, onRelicReward, relics, act }) => {
     );
 };
 
+// 横屏检测组件
+const LandscapeChecker = ({ children, onLandscape }) => {
+  const [isLandscape, setIsLandscape] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.innerWidth > window.innerHeight;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const landscape = window.innerWidth > window.innerHeight;
+      setIsLandscape(landscape);
+      if (onLandscape) onLandscape(landscape);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    
+    // 初始检查
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, [onLandscape]);
+
+  if (!isLandscape && typeof window !== 'undefined' && window.innerWidth < 768) {
+    return (
+      <div className="h-screen w-full bg-[#091428] flex flex-col items-center justify-center text-white p-8">
+        <div className="text-center max-w-md">
+          <div className="text-6xl mb-8">📱</div>
+          <h2 className="text-3xl font-bold text-[#C8AA6E] mb-4">请横屏游玩</h2>
+          <p className="text-lg text-[#A09B8C] mb-2">为了获得最佳游戏体验，</p>
+          <p className="text-lg text-[#A09B8C] mb-6">请将设备横屏后继续游戏。</p>
+          <div className="text-sm text-slate-500 mt-4">
+            <p>提示：如果屏幕锁定已开启，</p>
+            <p>请在控制中心关闭屏幕锁定。</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+};
+
 const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
     const allChamps = Object.values(CHAMPION_POOL);
     const [refreshCount, setRefreshCount] = useState(0);

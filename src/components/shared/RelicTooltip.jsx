@@ -52,22 +52,31 @@ const RelicTooltip = ({ relic, children }) => {
             {children}
             {(showTooltip || (typeof window !== 'undefined' && window.innerWidth >= 768 && 'group-hover:block')) && (
                 <div 
-                    className={`absolute top-full left-0 mt-2 w-56 bg-black/95 border border-[#C8AA6E] p-3 z-[110] text-left pointer-events-none rounded-lg shadow-xl ${
-                        typeof window !== 'undefined' && window.innerWidth >= 768 ? 'hidden group-hover:block' : showTooltip ? 'block' : 'hidden'
+                    className={`absolute top-full left-0 mt-2 w-56 bg-black/95 border border-[#C8AA6E] p-3 z-[110] text-left rounded-lg shadow-xl ${
+                        typeof window !== 'undefined' && window.innerWidth >= 768 
+                            ? 'hidden group-hover:block pointer-events-none' 
+                            : showTooltip 
+                                ? 'block pointer-events-auto' 
+                                : 'hidden pointer-events-none'
                     }`}
                     onClick={(e) => {
                         // 点击关闭（移动端）
                         if (typeof window !== 'undefined' && window.innerWidth < 768) {
                             e.stopPropagation();
+                            e.preventDefault();
                             setShowTooltip(false);
                         }
+                    }}
+                    onTouchStart={(e) => {
+                        // 防止触摸事件冒泡
+                        e.stopPropagation();
                     }}
                 >
                     <div className="font-bold text-[#F0E6D2] mb-1">{relic.name}</div>
                     <div className="text-xs text-[#A09B8C] leading-relaxed whitespace-normal">{relic.description}</div>
                     {relic.charges !== undefined && <div className="text-xs text-red-400 mt-1">剩余次数: {relic.charges}</div>}
                     {typeof window !== 'undefined' && window.innerWidth < 768 && (
-                        <div className="text-[10px] text-slate-500 mt-2 text-center">点击关闭</div>
+                        <div className="text-[10px] text-slate-500 mt-2 text-center cursor-pointer">点击关闭</div>
                     )}
                 </div>
             )}
