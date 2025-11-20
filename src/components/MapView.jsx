@@ -8,7 +8,7 @@ const MapView = ({ mapData, onNodeSelect }) => {
       if (node.type === 'REST') return `${ITEM_URL}/2003.png`; 
       if (node.type === 'SHOP') return `${ITEM_URL}/3400.png`; 
       if (node.type === 'EVENT') return `${ITEM_URL}/3340.png`; 
-      if (node.type === 'CHEST') return `${PROFILEICON_URL}/2065.png`; 
+      if (node.type === 'CHEST') return `${ITEM_URL}/3400.png`; 
       if (node.type === 'BATTLE' && node.enemyId) return ENEMY_POOL[node.enemyId]?.avatar || `${PROFILEICON_URL}/29.png`; 
       return null;
   };

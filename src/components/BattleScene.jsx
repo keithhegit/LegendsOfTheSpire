@@ -9,7 +9,14 @@ import { SPLASH_URL } from '../data/constants';
 import { playSfx, playChampionVoice } from '../utils/audioManager';
 import Card from './shared/Card';
 
-const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex }) => { 
+// 背景图配置 (按章节)
+const ACT_BACKGROUNDS = {
+    1: "https://i.17173cdn.com/2fhnvk/YWxqaGBf/cms3/JfEzktbjDoBxmzd.jpg", // 召唤师峡谷
+    2: "https://images.17173cdn.com/2014/lol/2014/08/22/Shadow_Isles_10.jpg", // 暗影之地
+    3: "https://pic.upmedia.mg/uploads/content/20220519/EV220519112427593030.webp"  // 虚空之地
+};
+
+const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex, act }) => { 
   const getScaledEnemy = (enemyId, floor) => {
     const baseEnemy = ENEMY_POOL[enemyId];
     const { maxHp, actions } = scaleEnemyStats(baseEnemy, floor);
@@ -156,6 +163,9 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           const newAttackCount = attackCardsPlayed + 1;
           setAttackCardsPlayed(newAttackCount);
           
+          // 标记这是攻击牌，用于内瑟斯被动检测
+          const isAttackCard = true;
+          
           // RivenPassive: 每打出3张攻击牌，获得1点能量
           if (heroData.relicId === "RivenPassive" && newAttackCount % 3 === 0) {
             setPlayerMana(p => p + 1);
@@ -211,14 +221,16 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
               }
               
               // 应用伤害并检测击杀（在setEnemyHp回调中直接触发被动技能）
-              setEnemyHp(h => {
-                const newHp = Math.max(0, h - dmgToHp);
-                const wasKilled = h > 0 && newHp <= 0;
-                
-                // 如果击杀敌人，立即触发被动技能
-                if (wasKilled) {
-                  // 内瑟斯被动：用攻击牌击杀敌人，永久+1力量
-                  if (heroData.relicId === "NasusPassive" && heroData.onKillEnemy) {
+              const currentEnemyHp = enemyHp;
+              const willKill = currentEnemyHp > 0 && currentEnemyHp <= dmgToHp;
+              
+              setEnemyHp(h => Math.max(0, h - dmgToHp));
+              
+              // 如果击杀敌人，立即触发被动技能（使用setTimeout确保状态更新后执行）
+              if (willKill) {
+                setTimeout(() => {
+                  // 内瑟斯被动：用攻击牌击杀敌人，永久+1力量（只在攻击牌块内触发）
+                  if (isAttackCard && heroData.relicId === "NasusPassive" && heroData.onKillEnemy) {
                     heroData.onKillEnemy({ type: 'strength', value: 1 });
                   }
                   // 艾瑞莉娅被动：击杀敌人，恢复1点能量并抽1张牌
@@ -234,10 +246,8 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                   if (heroData.relicId === "VaynePassive") {
                     setVayneHitCount(0);
                   }
-                }
-                
-                return newHp;
-              });
+                }, 100);
+              }
               
               total += dmgToHp;
               if(heroData.relics.includes("VampiricScepter")) setPlayerHp(h => Math.min(heroData.maxHp, h + 1));
@@ -347,7 +357,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
 
   return (
     <div className="w-full h-full relative flex flex-col overflow-hidden bg-black">
-        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${SPLASH_URL}/SummonersRift_1.jpg)`}}></div>
+        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
              <div className={`absolute left-2 md:left-10 bottom-[42%] w-32 h-48 md:w-64 md:h-[500px] transition-all duration-200 ${heroAnim === 'attack' ? 'translate-x-8 md:translate-x-32' : ''} ${heroAnim === 'hit' ? 'translate-x-[-5px] md:translate-x-[-10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-[#C8AA6E]" />
@@ -367,7 +377,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                 <span className="text-[8px] md:text-[10px] text-[#C8AA6E] block">MANA</span>
                 <div className="text-[6px] md:text-[8px] text-gray-400 mt-0.5 md:mt-1">{currentDrawPile.length}/{currentDiscardPile.length}</div>
             </div>
-            <div className="flex items-end justify-center pointer-events-auto" style={{ width: '100%', maxWidth: '600px', height: '180px', position: 'relative' }}>
+            <div className="flex items-end justify-center pointer-events-auto" style={{ width: '100%', maxWidth: '600px', height: '140px', position: 'relative' }}>
                 <AnimatePresence>
                     {hand.map((cid, i) => {
                         const canPlay = playerMana >= CARD_DATABASE[cid].cost && gameState === 'PLAYER_TURN';

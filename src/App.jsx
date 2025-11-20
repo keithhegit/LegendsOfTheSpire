@@ -33,7 +33,7 @@ const SFX_NEW_URL = "https://pub-4785f27b55bc484db8005d5841a1735a.r2.dev";
 const SFX = {
     ATTACK: `${SFX_BASE_URL}/attack.mp3`, 
     BLOCK: `${SFX_BASE_URL}/block.mp3`,
-    DRAW: `${SFX_BASE_URL}/draw.mp3`,
+    DRAW: `${SFX_BASE_URL}/card_draw.mp3`,
     WIN: `${SFX_BASE_URL}/win.mp3`,
     // 增强音效 - 独立的攻击、格挡、受击音效
     ATTACK_SWING: `${SFX_NEW_URL}/attack_swing.mp3`,
@@ -89,7 +89,7 @@ const RELIC_DATABASE = {
   "UrgotPassive": { id: "UrgotPassive", name: "回火", description: "战斗开始时获得 15 点临时护甲", rarity: "PASSIVE", img: `${PASSIVE_URL}/Urgot_Passive.png` },
   "ViktorPassive": { id: "ViktorPassive", name: "光荣进化", description: "回合开始时，50% 几率获得一张额外基础卡", rarity: "PASSIVE", img: `${PASSIVE_URL}/Viktor_Passive.png` },
   "RivenPassive": { id: "RivenPassive", name: "符文之刃", description: "每打出3张攻击牌，获得1点能量", rarity: "PASSIVE", img: `${PASSIVE_URL}/RivenRunicBlades.png` },
-  "TwistedFatePassive": { id: "TwistedFatePassive", name: "灌铅骰子", description: "战斗胜利额外获得 15 金币", rarity: "PASSIVE", img: `${PASSIVE_URL}/CardMaster_SealFate.png` },
+  "TwistedFatePassive": { id: "TwistedFatePassive", name: "灌铅骰子", description: "战斗胜利额外获得 15 金币", rarity: "PASSIVE", img: `${SPELL_URL}/PickACard.png` },
   "LeeSinPassive": { id: "LeeSinPassive", name: "疾风骤雨", description: "打出技能牌后，下一张攻击牌费用-1", rarity: "PASSIVE", img: `${PASSIVE_URL}/LeeSinPassive.png` },
   "VaynePassive": { id: "VaynePassive", name: "圣银弩箭", description: "对同一目标连续造成3次伤害时，额外造成10伤", rarity: "PASSIVE", img: `${PASSIVE_URL}/Vayne_SilveredBolts.png` },
   "TeemoPassive": { id: "TeemoPassive", name: "游击战", description: "回合开始时，随机给一名敌人施加 2 层虚弱", rarity: "PASSIVE", img: `${PASSIVE_URL}/Teemo_P.png` },
@@ -386,7 +386,7 @@ const MapView = ({ mapData, onNodeSelect, act }) => {
       if (node.type === 'REST') return `${ITEM_URL}/2003.png`; 
       if (node.type === 'SHOP') return `${ITEM_URL}/3400.png`; 
       if (node.type === 'EVENT') return `${ITEM_URL}/3340.png`; 
-      if (node.type === 'CHEST') return `${PROFILEICON_URL}/2065.png`; 
+      if (node.type === 'CHEST') return `${ITEM_URL}/3400.png`; 
       if (node.type === 'BATTLE' && node.enemyId) return ENEMY_POOL[node.enemyId]?.avatar || `${PROFILEICON_URL}/29.png`; 
       return null;
   };
@@ -942,7 +942,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
 
   return (
     <div className="w-full h-full relative flex flex-col overflow-hidden bg-black">
-        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${SPLASH_URL}/SummonersRift_1.jpg)`}}></div>
+        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
              <div className={`absolute left-10 bottom-[42%] w-64 h-[500px] transition-all duration-200 ${heroAnim === 'attack' ? 'translate-x-32' : ''} ${heroAnim === 'hit' ? 'translate-x-[-10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-[#C8AA6E]" />
@@ -1131,7 +1131,16 @@ export default function LegendsOfTheSpire() {
       
       // TwistedFatePassive: 战斗胜利额外获得 15 金币
       if (champion.relicId === "TwistedFatePassive") {
-        setGold(prev => prev + 15);
+        setGold(prev => {
+          const newGold = prev + 15;
+          // 显示被动技能生效提示
+          setPassiveSkillToast({
+            message: `被动技能生效！额外获得 15 金币`,
+            type: 'gold'
+          });
+          setTimeout(() => setPassiveSkillToast(null), 3000);
+          return newGold;
+        });
       }
       
       setView('REWARD'); 

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { PROFILEICON_URL } from '../data/constants';
+import { ITEM_URL } from '../data/constants';
 import { RELIC_DATABASE } from '../data/relics';
 import { shuffle } from '../utils/gameLogic';
 
@@ -11,7 +11,7 @@ const ChestView = ({ onLeave, onRelicReward, relics }) => {
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90">
             <div className="relative z-10 max-w-4xl bg-[#091428]/90 border-2 border-[#C8AA6E] p-10 text-center rounded-xl shadow-[0_0_50px_#C8AA6E]">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full border-4 border-[#C8AA6E] overflow-hidden"><img src={`${PROFILEICON_URL}/2065.png`} className="w-full h-full object-cover" /></div>
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full border-4 border-[#C8AA6E] overflow-hidden bg-black flex items-center justify-center"><img src={`${ITEM_URL}/3400.png`} className="w-full h-full object-cover" /></div>
                 <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">海克斯宝箱</h2>
                 <p className="text-[#F0E6D2] text-lg mb-8">打开宝箱，选择一件强大的装备来武装自己。</p>
                 <div className="flex justify-center gap-8">

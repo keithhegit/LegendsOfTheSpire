@@ -8,10 +8,11 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
   const lastTapRef = useRef(0);
   const touchStartYRef = useRef(0);
   
-  // 堆叠逻辑计算
-  const overlap = totalCards > 5 ? -40 : 10; 
-  const rotation = (index - (totalCards - 1) / 2) * 3; // 扇形展开角度
-  const yOffset = Math.abs(index - (totalCards - 1) / 2) * 5; // 扇形弧度
+  // 堆叠逻辑计算（移动端优化）
+  const isMobile = window.innerWidth < 768;
+  const overlap = isMobile ? (totalCards > 3 ? -20 : 5) : (totalCards > 5 ? -40 : 10); 
+  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 2 : 3); // 扇形展开角度
+  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 3 : 5); // 扇形弧度
   
   // 处理点击事件
   const handleClick = (e) => {
@@ -91,7 +92,7 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
       }}
       
       className={`
-        w-24 h-36 md:w-40 md:h-60 bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
+        w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-36 lg:w-40 lg:h-60 bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
         transition-all duration-200
         ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)] active:cursor-grabbing' : 'border-slate-700 opacity-60 cursor-not-allowed'}
       `}
@@ -109,20 +110,20 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
         </div>
       )}
       {/* 卡牌图片 */}
-      <div className="w-full h-24 md:h-40 bg-black overflow-hidden relative pointer-events-none">
+      <div className="w-full h-12 sm:h-16 md:h-24 lg:h-40 bg-black overflow-hidden relative pointer-events-none">
         <img src={card.img} className="w-full h-full object-cover opacity-90" alt={card.name} />
-        <div className="absolute top-1 md:top-2 left-1 md:left-2 w-5 h-5 md:w-8 md:h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-xs md:text-lg shadow-md">
+        <div className="absolute top-0.5 sm:top-1 md:top-2 left-0.5 sm:left-1 md:left-2 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-8 lg:h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-[8px] sm:text-[10px] md:text-xs lg:text-lg shadow-md">
           {card.cost}
         </div>
       </div>
       
       {/* 卡牌文本 */}
-      <div className="flex-1 p-1 md:p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]">
-        <div className="text-xs md:text-sm font-bold text-[#F0E6D2] mb-0.5 md:mb-1 line-clamp-1">{card.name}</div>
-        <div className="text-[8px] md:text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2">
+      <div className="flex-1 p-0.5 sm:p-1 md:p-1.5 lg:p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]">
+        <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm font-bold text-[#F0E6D2] mb-0.5 md:mb-1 line-clamp-1">{card.name}</div>
+        <div className="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2">
           {card.description}
         </div>
-        <div className="mt-auto text-[7px] md:text-[9px] text-slate-500 uppercase font-bold tracking-wider">
+        <div className="mt-auto text-[5px] sm:text-[6px] md:text-[7px] lg:text-[9px] text-slate-500 uppercase font-bold tracking-wider">
           {card.type}
         </div>
       </div>
