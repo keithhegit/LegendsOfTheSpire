@@ -126,6 +126,12 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       const cardId = hand[index];
       const card = CARD_DATABASE[cardId];
       
+      // 安全检查：如果卡牌不存在，直接返回
+      if (!card) {
+          console.warn(`Card not found: ${cardId}`);
+          return;
+      }
+      
       // LeeSinPassive: 打出技能牌后，下一张攻击牌费用-1
       let actualCost = card.cost;
       if (card.type === 'ATTACK' && lastSkillCardPlayed && heroData.relicId === "LeeSinPassive") {
