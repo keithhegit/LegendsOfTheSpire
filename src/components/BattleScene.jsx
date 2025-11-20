@@ -368,16 +368,22 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
         <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
         
         {/* 战斗区域：核心修复 - 移动端向上平移，为卡牌留出空间 */}
-        <div className={`absolute inset-0 flex items-center justify-between z-10 pointer-events-none ${isMobile ? '-top-[10%]' : ''} pt-2 md:pt-4 px-2 md:px-10`}>
+        <div 
+          className="absolute inset-0 flex items-center justify-between z-10 pointer-events-none pt-2 md:pt-4 px-2 md:px-10"
+          style={isMobile ? { top: '-10%', bottom: '45%' } : {}}
+        >
              
              {/* 玩家 (左) - 移动端 w-20 h-28 (80x112px) */}
-             <div className={`
+             <div 
+               className={`
                 absolute transition-all duration-200 
-                left-2 bottom-[45%] w-20 h-28
-                md:left-10 md:bottom-[42%] md:w-64 md:h-[500px]
+                left-2 w-20 h-28
+                md:left-10 md:w-64 md:h-[500px]
                 ${heroAnim === 'attack' ? 'translate-x-4 md:translate-x-32' : ''} 
                 ${heroAnim === 'hit' ? 'translate-x-[-5px] md:translate-x-[-10px] brightness-50 bg-red-500/30' : ''}
-             `}>
+             `}
+             style={isMobile ? { bottom: '45%' } : { bottom: '42%' }}
+             >
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-lg md:rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.8)] border border-[#C8AA6E]" />
                  {/* 玩家状态栏 - z-40 确保层级最高 */}
                  <div className="absolute -bottom-10 md:-bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-0.5 md:p-2 rounded flex flex-col gap-0.5 md:gap-1 shadow-lg z-40">
