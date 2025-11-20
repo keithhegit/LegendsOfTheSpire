@@ -281,13 +281,13 @@ const generateMap = (usedEnemyIds, act) => {
   }
   // 第9层固定为REST（Boss前）
   map.push([{ ...createNode('9-0', 'REST'), next: ['10-0'] }]);
-  
+
   let bossId = "Darius_BOSS";
   if (act === 2) bossId = "Viego_BOSS";
   if (act === 3) bossId = "BelVeth_BOSS";
-  
+
   map.push([{ id: '10-0', type: 'BOSS', enemyId: bossId, status: 'LOCKED', next: [] }]);
-  
+
   return { map };
 };
 
@@ -496,7 +496,7 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, onBuyCardUpgrade,
                                         <div className="flex-1">
                                             <div className="font-bold text-[#F0E6D2]">能量上限+1</div>
                                             <div className="text-sm text-slate-400">永久增加 <span className="text-yellow-400">1 点能量上限</span></div>
-                                        </div>
+                    </div>
                                         <div className="text-yellow-400 font-bold">200 G</div>
                                     </button>
                                 )}
@@ -514,11 +514,11 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, onBuyCardUpgrade,
                                         <div className="flex-1">
                                             <div className="font-bold text-[#F0E6D2]">随机升级卡牌</div>
                                             <div className="text-sm text-slate-400">随机一张已有卡牌 <span className="text-blue-400">属性+1</span> (攻击/防御/抓牌)</div>
-                                        </div>
+                </div>
                                         <div className="text-yellow-400 font-bold">200 G</div>
                                     </button>
                                 )}
-                            </div>
+                </div>
                         )}
                 </div>
                 </div>
@@ -563,7 +563,7 @@ const ChestView = ({ onLeave, onRelicReward, relics, act }) => {
     );
 };
 
-// 横屏检测组件
+// 横屏检测组件（仅用于检测，不再强制横屏）
 const LandscapeChecker = ({ children, onLandscape }) => {
   const [isLandscape, setIsLandscape] = useState(() => {
     if (typeof window === 'undefined') return true;
@@ -589,23 +589,7 @@ const LandscapeChecker = ({ children, onLandscape }) => {
     };
   }, [onLandscape]);
 
-  if (!isLandscape && typeof window !== 'undefined' && window.innerWidth < 768) {
-    return (
-      <div className="h-screen w-full bg-[#091428] flex flex-col items-center justify-center text-white p-8">
-        <div className="text-center max-w-md">
-          <div className="text-6xl mb-8">📱</div>
-          <h2 className="text-3xl font-bold text-[#C8AA6E] mb-4">请横屏游玩</h2>
-          <p className="text-lg text-[#A09B8C] mb-2">为了获得最佳游戏体验，</p>
-          <p className="text-lg text-[#A09B8C] mb-6">请将设备横屏后继续游戏。</p>
-          <div className="text-sm text-slate-500 mt-4">
-            <p>提示：如果屏幕锁定已开启，</p>
-            <p>请在控制中心关闭屏幕锁定。</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // 不再强制横屏，直接返回children
   return <>{children}</>;
 };
 
@@ -649,7 +633,7 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 overflow-y-auto py-2">
             {!isMobileLandscape && (
                 <>
-                    <h1 className="text-5xl font-bold text-[#C8AA6E] mb-4 uppercase tracking-widest">选择你的英雄</h1>
+            <h1 className="text-5xl font-bold text-[#C8AA6E] mb-4 uppercase tracking-widest">选择你的英雄</h1>
                     <p className="text-base text-[#F0E6D2] mb-4">选择一位英雄开始你的符文之地冒险</p>
                     <button 
                         onClick={handleRefresh} 
@@ -694,12 +678,12 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
                             <div className={`${isMobileLandscape ? 'mb-0.5' : 'mb-2'} flex items-center gap-0.5 ${isMobileLandscape ? 'text-[7px]' : 'text-xs'} flex-shrink-0`}>
                                 <span className="text-red-400 flex items-center gap-0.5"><Heart size={isMobileLandscape ? 6 : 12} /> {c.maxHp}</span>
                                 <span className="text-blue-400 flex items-center gap-0.5"><Zap size={isMobileLandscape ? 6 : 12} /> {c.maxMana}</span>
-                            </div>
+                        </div>
                             <p className={`${isMobileLandscape ? 'text-[7px] mb-0.5' : 'text-xs mb-2'} text-gray-300 line-clamp-2 overflow-hidden flex-shrink-0`} style={{ maxHeight: isMobileLandscape ? '1.2rem' : '2.5rem' }}>{c.description}</p>
                             <div className="border-t border-[#C8AA6E]/30 pt-0.5 mt-auto">
                                 <div className={`${isMobileLandscape ? 'text-[7px]' : 'text-xs'} text-blue-400 font-bold mb-0.5`}>专属被动</div>
                                 <div className={`${isMobileLandscape ? 'text-[7px]' : 'text-xs'} text-[#A09B8C] line-clamp-2 overflow-hidden`} style={{ maxHeight: isMobileLandscape ? '1.2rem' : '2.5rem' }}>{c.passive}</div>
-                            </div>
+            </div>
                             <div className="border-t border-[#C8AA6E]/30 pt-0.5 mt-0.5">
                                 <div className={`${isMobileLandscape ? 'text-[7px]' : 'text-xs'} text-purple-400 font-bold mb-0.5`}>初始卡组</div>
                                 <div className={`${isMobileLandscape ? 'text-[6px]' : 'text-xs'} text-[#A09B8C] flex flex-wrap gap-0.5`}>
@@ -707,7 +691,7 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
                                         const card = CARD_DATABASE[cardId];
                                         return card ? <span key={cardId} className="px-0.5 bg-black/50 rounded">{card.name}</span> : null;
                                     })}
-                                </div>
+        </div>
                             </div>
                         </button>
                     ) 
@@ -795,10 +779,10 @@ const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
                 <div className={`${isMobileLandscape ? 'text-[8px]' : 'text-sm'} font-bold text-[#F0E6D2] mb-0.5 line-clamp-1`}>{c.name}</div>
                 <div className={`${isMobileLandscape ? 'text-[6px]' : 'text-[10px]'} text-[#A09B8C] leading-tight line-clamp-2`}>{c.description}</div>
                 <div className={`mt-auto ${isMobileLandscape ? 'text-[5px]' : 'text-[8px]'} text-slate-500 uppercase font-bold`}>{c.type}</div>
-              </div>
-            </div>
+                </div>
+             </div>
           ))}
-        </div>
+       </div>
         <button onClick={onSkip} className={`${isMobileLandscape ? 'mt-2 px-4 py-1.5 text-xs' : 'mt-6 px-8 py-3'} border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest transition-all`}>跳过</button>
       </div>
     </div>

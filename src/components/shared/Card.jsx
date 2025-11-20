@@ -19,9 +19,12 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  const overlap = isMobile ? (totalCards > 3 ? -15 : 3) : (totalCards > 5 ? -40 : 10); 
-  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 1.5 : 3); // 扇形展开角度
-  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 2 : 5); // 扇形弧度
+  // 优化叠加效果：支持5-6张卡牌都能看到
+  const overlap = isMobile 
+    ? (totalCards > 4 ? -12 : totalCards > 3 ? -10 : 2)  // 移动端：4张以上时重叠更多
+    : (totalCards > 5 ? -35 : totalCards > 4 ? -30 : 10); // 桌面端：5张以上时重叠更多
+  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 1.2 : 2.5); // 扇形展开角度
+  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 1.5 : 4); // 扇形弧度
   
   // 处理点击事件
   const handleClick = (e) => {
