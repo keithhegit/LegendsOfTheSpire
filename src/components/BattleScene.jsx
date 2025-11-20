@@ -163,9 +163,6 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           const newAttackCount = attackCardsPlayed + 1;
           setAttackCardsPlayed(newAttackCount);
           
-          // 标记这是攻击牌，用于内瑟斯被动检测
-          const isAttackCard = true;
-          
           // RivenPassive: 每打出3张攻击牌，获得1点能量
           if (heroData.relicId === "RivenPassive" && newAttackCount % 3 === 0) {
             setPlayerMana(p => p + 1);
@@ -229,8 +226,8 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
               // 如果击杀敌人，立即触发被动技能（使用setTimeout确保状态更新后执行）
               if (willKill) {
                 setTimeout(() => {
-                  // 内瑟斯被动：用攻击牌击杀敌人，永久+1力量（只在攻击牌块内触发）
-                  if (isAttackCard && heroData.relicId === "NasusPassive" && heroData.onKillEnemy) {
+                  // 内瑟斯被动：用攻击牌击杀敌人，永久+1力量（在攻击牌块内，所以一定是攻击牌击杀）
+                  if (heroData.relicId === "NasusPassive" && heroData.onKillEnemy) {
                     heroData.onKillEnemy({ type: 'strength', value: 1 });
                   }
                   // 艾瑞莉娅被动：击杀敌人，恢复1点能量并抽1张牌

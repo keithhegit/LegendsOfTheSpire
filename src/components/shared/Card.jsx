@@ -9,10 +9,19 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
   const touchStartYRef = useRef(0);
   
   // 堆叠逻辑计算（移动端优化）
-  const isMobile = window.innerWidth < 768;
-  const overlap = isMobile ? (totalCards > 3 ? -20 : 5) : (totalCards > 5 ? -40 : 10); 
-  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 2 : 3); // 扇形展开角度
-  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 3 : 5); // 扇形弧度
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const overlap = isMobile ? (totalCards > 3 ? -15 : 3) : (totalCards > 5 ? -40 : 10); 
+  const rotation = (index - (totalCards - 1) / 2) * (isMobile ? 1.5 : 3); // 扇形展开角度
+  const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 2 : 5); // 扇形弧度
   
   // 处理点击事件
   const handleClick = (e) => {
