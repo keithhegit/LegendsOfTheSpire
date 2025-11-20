@@ -409,7 +409,7 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                 <div className={`${isMobileLandscape ? 'text-[5px]' : 'text-[6px]'} md:text-[8px] text-gray-400 mt-0.5 md:mt-1`}>{currentDrawPile.length}/{currentDiscardPile.length}</div>
             </div>
             {/* 卡牌区域 - 移动端横屏优化 */}
-            <div className={`flex items-end justify-center pointer-events-auto ${isMobileLandscape ? 'px-1' : 'px-2'}`} style={{ width: '100%', maxWidth: '600px', height: isMobileLandscape ? '80px' : '100px', position: 'relative' }}>
+            <div className={`flex items-end justify-center pointer-events-auto ${isMobileLandscape ? 'px-1' : 'px-2'}`} style={{ width: '100%', maxWidth: '600px', height: isMobileLandscape ? '60px' : '100px', position: 'relative' }}>
                 <AnimatePresence>
                     {hand.map((cid, i) => {
                         const canPlay = playerMana >= CARD_DATABASE[cid].cost && gameState === 'PLAYER_TURN';
