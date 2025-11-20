@@ -445,14 +445,16 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
         <div className="absolute left-0 right-0 bottom-20 md:bottom-24 h-[120px] md:h-[240px] bg-gradient-to-t from-black/60 via-transparent to-transparent z-20 flex items-end justify-center">
             <div className="flex items-end justify-center px-2 pointer-events-auto" style={{ width: '100%', maxWidth: '800px', height: '100%', position: 'relative' }}>
                 <AnimatePresence>
-                    {hand.map((cid, i) => {
-                        const canPlay = playerMana >= CARD_DATABASE[cid].cost && gameState === 'PLAYER_TURN';
+                    {hand.filter(cid => CARD_DATABASE[cid]).map((cid, i) => {
+                        const card = CARD_DATABASE[cid];
+                        if (!card) return null;
+                        const canPlay = playerMana >= card.cost && gameState === 'PLAYER_TURN';
                         return (
                             <Card 
                                 key={`${cid}-${i}`} 
                                 cardId={cid} 
                                 index={i} 
-                                totalCards={hand.length} 
+                                totalCards={hand.filter(cid => CARD_DATABASE[cid]).length} 
                                 canPlay={canPlay} 
                                 onPlay={playCard}
                                 cardUpgrades={heroData.cardUpgrades || {}}
