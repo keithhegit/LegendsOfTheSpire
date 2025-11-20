@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Sword, Shield, Zap, Skull, Heart, RefreshCw, AlertTriangle, Flame, XCircle, Activity, Map as MapIcon, Gift, Anchor, Coins, ShoppingBag, ChevronRight, Star, Play, Pause, Volume2, VolumeX, Landmark, Lock, RotateCcw, Save, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import RelicTooltip from './components/shared/RelicTooltip';
 
 // ==========================================
 // 1. 静态资源与全局配置
@@ -292,19 +293,7 @@ const generateMap = (usedEnemyIds, act) => {
 
 // --- Components ---
 
-const RelicTooltip = ({ relic, children }) => {
-    if (!relic) return children;
-    return (
-        <div className="relative group">
-            {children}
-            <div className="absolute top-full left-0 mt-2 w-56 bg-black/95 border border-[#C8AA6E] p-3 z-[110] hidden group-hover:block text-left pointer-events-none rounded-lg shadow-xl">
-                <div className="font-bold text-[#F0E6D2] mb-1">{relic.name}</div>
-                <div className="text-xs text-[#A09B8C] leading-relaxed whitespace-normal">{relic.description}</div>
-                {relic.charges !== undefined && <div className="text-xs text-red-400 mt-1">剩余次数: {relic.charges}</div>}
-            </div>
-        </div>
-    );
-};
+// RelicTooltip 已移至独立组件 src/components/shared/RelicTooltip.jsx，已在文件顶部导入
 
 const AudioPlayer = ({ src }) => {
     const audioRef = useRef(null);
