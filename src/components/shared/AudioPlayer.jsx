@@ -17,6 +17,7 @@ const AudioPlayer = ({ src }) => {
             
             if (isNewSrc) {
                 audioRef.current.src = src;
+                audioRef.current.load(); // 确保加载新音频
             }
             audioRef.current.volume = volume;
             
@@ -40,6 +41,7 @@ const AudioPlayer = ({ src }) => {
     useEffect(() => {
         if (audioRef.current && src && shouldAutoPlayRef.current) {
             audioRef.current.src = src;
+            audioRef.current.load(); // 确保加载音频
             audioRef.current.volume = volume;
             shouldAutoPlayRef.current = false;
             const playPromise = audioRef.current.play();
