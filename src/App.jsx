@@ -442,10 +442,11 @@ const MapView = ({ mapData, onNodeSelect, act }) => {
   )
 };
 
-const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, gold, deck, relics, championName }) => {
+const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, onBuyCardUpgrade, gold, deck, relics, championName, cardUpgrades }) => {
     const cardStock = useMemo(() => shuffle(Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC' && (c.hero === 'Neutral' || c.hero === championName))).slice(0, 5), [championName]);
     const relicStock = useMemo(() => Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)).slice(0, 3), [relics]);
     const showManaUpgrade = useMemo(() => Math.random() < 0.2, []); // 20%概率
+    const showCardUpgrade = useMemo(() => Math.random() < 0.2, []); // 20%概率
     const [purchasedItems, setPurchasedItems] = useState([]);
     const handleBuy = (item, type) => { if (gold >= item.price && !purchasedItems.includes(item.id)) { setPurchasedItems([...purchasedItems, item.id]); if (type === 'CARD') onBuyCard(item); if (type === 'RELIC') onBuyRelic(item); } };
     return (
@@ -489,26 +490,46 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, onBuyMana, gold, deck, relic
                                 )
                             })}
                         </div>
-                        {showManaUpgrade && (
+                        {(showManaUpgrade || showCardUpgrade) && (
                             <div className="mt-6">
                                 <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-yellow-500 pl-3">特殊强化</h3>
-                                <button 
-                                    onClick={() => { if (gold >= 200 && !purchasedItems.includes('MANA_UPGRADE')) { setPurchasedItems([...purchasedItems, 'MANA_UPGRADE']); onBuyMana(); } }}
-                                    disabled={gold < 200 || purchasedItems.includes('MANA_UPGRADE')}
-                                    className={`p-4 w-full bg-slate-800 hover:bg-yellow-900/50 border rounded transition-all flex items-center gap-4 text-left ${
-                                        gold >= 200 && !purchasedItems.includes('MANA_UPGRADE') 
-                                            ? 'border-yellow-600 hover:border-yellow-500 cursor-pointer' 
-                                            : 'border-slate-600 opacity-50 cursor-not-allowed'
-                                    }`}
-                                >
-                                    <div className="p-3 bg-black rounded border border-slate-700"><Zap className="text-yellow-500" /></div>
-                                    <div className="flex-1">
-                                        <div className="font-bold text-[#F0E6D2]">能量上限+1</div>
-                                        <div className="text-sm text-slate-400">永久增加 <span className="text-yellow-400">1 点能量上限</span></div>
-                    </div>
-                                    <div className="text-yellow-400 font-bold">200 G</div>
-                                </button>
-                </div>
+                                {showManaUpgrade && (
+                                    <button 
+                                        onClick={() => { if (gold >= 200 && !purchasedItems.includes('MANA_UPGRADE')) { setPurchasedItems([...purchasedItems, 'MANA_UPGRADE']); onBuyMana(); } }}
+                                        disabled={gold < 200 || purchasedItems.includes('MANA_UPGRADE')}
+                                        className={`p-4 w-full mb-3 bg-slate-800 hover:bg-yellow-900/50 border rounded transition-all flex items-center gap-4 text-left ${
+                                            gold >= 200 && !purchasedItems.includes('MANA_UPGRADE') 
+                                                ? 'border-yellow-600 hover:border-yellow-500 cursor-pointer' 
+                                                : 'border-slate-600 opacity-50 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        <div className="p-3 bg-black rounded border border-slate-700"><Zap className="text-yellow-500" /></div>
+                                        <div className="flex-1">
+                                            <div className="font-bold text-[#F0E6D2]">能量上限+1</div>
+                                            <div className="text-sm text-slate-400">永久增加 <span className="text-yellow-400">1 点能量上限</span></div>
+                                        </div>
+                                        <div className="text-yellow-400 font-bold">200 G</div>
+                                    </button>
+                                )}
+                                {showCardUpgrade && (
+                                    <button 
+                                        onClick={() => { if (gold >= 200 && !purchasedItems.includes('CARD_UPGRADE')) { setPurchasedItems([...purchasedItems, 'CARD_UPGRADE']); onBuyCardUpgrade(); } }}
+                                        disabled={gold < 200 || purchasedItems.includes('CARD_UPGRADE')}
+                                        className={`p-4 w-full bg-slate-800 hover:bg-blue-900/50 border rounded transition-all flex items-center gap-4 text-left ${
+                                            gold >= 200 && !purchasedItems.includes('CARD_UPGRADE') 
+                                                ? 'border-blue-600 hover:border-blue-500 cursor-pointer' 
+                                                : 'border-slate-600 opacity-50 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        <div className="p-3 bg-black rounded border border-slate-700"><Star className="text-blue-500" /></div>
+                                        <div className="flex-1">
+                                            <div className="font-bold text-[#F0E6D2]">随机升级卡牌</div>
+                                            <div className="text-sm text-slate-400">随机一张已有卡牌 <span className="text-blue-400">属性+1</span> (攻击/防御/抓牌)</div>
+                                        </div>
+                                        <div className="text-yellow-400 font-bold">200 G</div>
+                                    </button>
+                                )}
+                            </div>
                         )}
                 </div>
                 </div>
@@ -1122,10 +1143,28 @@ export default function LegendsOfTheSpire() {
       // 处理击杀奖励（内瑟斯、锤石等）
       if (killBonus) {
         if (killBonus.type === 'strength') {
-          setBaseStr(prev => prev + killBonus.value);
+          setBaseStr(prev => {
+            const newStr = prev + killBonus.value;
+            // 显示被动技能生效提示
+            setPassiveSkillToast({
+              message: `被动技能生效！永久获得 +${killBonus.value} 力量`,
+              type: 'strength'
+            });
+            setTimeout(() => setPassiveSkillToast(null), 3000);
+            return newStr;
+          });
         } else if (killBonus.type === 'maxHp') {
-          setMaxHp(prev => prev + killBonus.value);
-          setCurrentHp(prev => prev + killBonus.value); // 同时增加当前血量
+          setMaxHp(prev => {
+            const newMaxHp = prev + killBonus.value;
+            setCurrentHp(prevHp => prevHp + killBonus.value);
+            // 显示被动技能生效提示
+            setPassiveSkillToast({
+              message: `被动技能生效！永久获得 +${killBonus.value} 最大生命值`,
+              type: 'maxHp'
+            });
+            setTimeout(() => setPassiveSkillToast(null), 3000);
+            return newMaxHp;
+          });
         }
       }
       
@@ -1231,6 +1270,18 @@ export default function LegendsOfTheSpire() {
           const upgradeType = shuffle(upgradeTypes)[0];
           upgrade[upgradeType] = (upgrade[upgradeType] || 0) + 1;
           setCardUpgrades(prev => ({ ...prev, [targetCardId]: upgrade }));
+          
+          // 显示升级提示
+          const upgradeTypeNames = {
+            'value': '攻击',
+            'block': '防御',
+            'effectValue': '抓牌'
+          };
+          setPassiveSkillToast({
+            message: `${card.name} 已升级！${upgradeTypeNames[upgradeType]} +1`,
+            type: 'upgrade'
+          });
+          setTimeout(() => setPassiveSkillToast(null), 3000);
         }
       }
       completeNode();
@@ -1283,27 +1334,27 @@ export default function LegendsOfTheSpire() {
                                   <div className="border-l-4 border-green-500 pl-4">
                                       <div className="font-bold text-green-400 mb-1">✨ [新功能] 移动端与多端适配</div>
                                       <div className="text-sm text-[#A09B8C]">• PWA 支持：可添加到主屏幕，离线游玩<br/>• 触摸手势优化：滑动出牌、双击查看卡牌详情</div>
-                                  </div>
+                 </div>
                                   <div className="border-l-4 border-green-500 pl-4">
                                       <div className="font-bold text-green-400 mb-1">🎮 [游戏机制] 全英雄实装与平衡优化</div>
                                       <div className="text-sm text-[#A09B8C]">• 英雄池扩充至 20 位，每位英雄拥有独特的初始卡组和被动遗物<br/>• 修复护甲叠加机制，护甲可累积到下一回合<br/>• 完善所有 20 位英雄的被动技能实现（内瑟斯、锤石、艾瑞莉娅等）</div>
-                                  </div>
+                     </div>
                                   <div className="border-l-4 border-green-500 pl-4">
                                       <div className="font-bold text-green-400 mb-1">📖 [系统] 三章节系统与奖励机制</div>
                                       <div className="text-sm text-[#A09B8C]">• 正式实装 Act 1 (峡谷), Act 2 (暗影岛), Act 3 (虚空) 完整流程<br/>• 章节专属遗物系统（如 Act 3 的纳什之牙）<br/>• Event 新增卡牌升级选项（攻击+1/防御+1/抓牌+1）<br/>• 商店新增能量上限+1选项（20%概率，200金币）</div>
-                                  </div>
+                     </div>
                                   <div className="border-l-4 border-purple-500 pl-4">
                                       <div className="font-bold text-purple-400 mb-1">💎 [R技能] 终极技能系统</div>
                                       <div className="text-sm text-[#A09B8C]">• 所有 20 位英雄的 R 技能（终极技能）已实装<br/>• R 技能可在战斗胜利奖励中获取，或在商店购买（200金币）</div>
-                                  </div>
+                 </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
                                       <div className="font-bold text-blue-400 mb-1">🔧 [修复] Bug 修复与体验优化</div>
                                       <div className="text-sm text-[#A09B8C]">• 修复内瑟斯被动技能触发问题，添加被动生效提示<br/>• 修复地图路径锁定逻辑、Rest 节点生成规则<br/>• 修复遗物显示位置、英雄选择界面文本溢出<br/>• 优化英雄选择界面立绘显示（提升高度，避免遮挡）</div>
-                                  </div>
+             </div>
                                   <div className="border-l-4 border-yellow-500 pl-4">
                                       <div className="font-bold text-yellow-400 mb-1">🎨 [UI/UX] 界面优化</div>
                                       <div className="text-sm text-[#A09B8C]">• 新增被动技能生效 Toast 提示<br/>• Event 获取遗物时显示奖励 UI<br/>• 优化奖励界面，显示卡牌图片</div>
-                                  </div>
+        </div>
                               </div>
                               <button 
                                   onClick={() => {
@@ -1322,7 +1373,7 @@ export default function LegendsOfTheSpire() {
           );
           case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
           case 'MAP': return <MapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} />;
-          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} onBuyMana={() => { setGold(prev => prev - 200); setMaxMana(prev => prev + 1); }} championName={champion.name} />;
+          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} cardUpgrades={cardUpgrades} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} onBuyMana={() => { setGold(prev => prev - 200); setMaxMana(prev => prev + 1); setPassiveSkillToast({ message: '能量上限 +1', type: 'upgrade' }); setTimeout(() => setPassiveSkillToast(null), 3000); }} onBuyCardUpgrade={handleShopCardUpgrade} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
           case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} act={currentAct} />;
           case 'COMBAT': return <BattleScene heroData={{...champion, maxHp, currentHp, maxMana, relics, baseStr, cardUpgrades, onKillEnemy: handleKillEnemy}} enemyId={activeNode.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => { localStorage.removeItem(SAVE_KEY); setView('GAMEOVER'); }} floorIndex={currentFloor} act={currentAct} />;
@@ -1348,9 +1399,9 @@ export default function LegendsOfTheSpire() {
                 <div className="flex items-center gap-3">
                   <div className="text-2xl font-bold">✨</div>
                   <div className="font-bold text-lg">{passiveSkillToast.message}</div>
-                </div>
-              </div>
-            </div>
+                        </div>
+                        </div>
+                    </div>
           )}
           {view !== 'GAMEOVER' && view !== 'VICTORY_ALL' && view !== 'MENU' && view !== 'CHAMPION_SELECT' && champion && (
               <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black to-transparent z-50 flex items-center justify-between px-8 pointer-events-none">
@@ -1379,7 +1430,7 @@ export default function LegendsOfTheSpire() {
                             })}
                           </span>
                           <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
-                        </div>
+        </div>
                     </div>
         </div>
           )}
