@@ -646,51 +646,68 @@ const ChampionSelect = ({ onChampionSelect, unlockedIds }) => {
     };
 
     return (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 overflow-y-auto py-4">
-            <h1 className={`${isMobileLandscape ? 'text-2xl' : 'text-5xl'} font-bold text-[#C8AA6E] mb-2 ${isMobileLandscape ? 'mb-1' : 'mb-4'} uppercase tracking-widest`}>选择你的英雄</h1>
-            <p className={`${isMobileLandscape ? 'text-sm mb-1' : 'text-base mb-4'} text-[#F0E6D2]`}>选择一位英雄开始你的符文之地冒险</p>
-            <button 
-                onClick={handleRefresh} 
-                className={`${isMobileLandscape ? 'mb-2 px-3 py-1 text-xs' : 'mb-8 px-6 py-2'} bg-[#C8AA6E]/20 hover:bg-[#C8AA6E]/40 border border-[#C8AA6E] text-[#C8AA6E] rounded transition-all flex items-center gap-2`}
-            >
-                <RefreshCw size={isMobileLandscape ? 12 : 16} />
-                <span>刷新英雄 ({refreshCount}/3)</span>
-            </button>
-            <div className={`flex ${isMobileLandscape ? 'gap-2' : 'gap-8'} ${isMobileLandscape ? 'flex-row' : 'flex-row'} items-center justify-center w-full ${isMobileLandscape ? 'px-2' : 'px-4'}`}>
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 overflow-y-auto py-2">
+            {!isMobileLandscape && (
+                <>
+                    <h1 className="text-5xl font-bold text-[#C8AA6E] mb-4 uppercase tracking-widest">选择你的英雄</h1>
+                    <p className="text-base text-[#F0E6D2] mb-4">选择一位英雄开始你的符文之地冒险</p>
+                    <button 
+                        onClick={handleRefresh} 
+                        className="mb-8 px-6 py-2 bg-[#C8AA6E]/20 hover:bg-[#C8AA6E]/40 border border-[#C8AA6E] text-[#C8AA6E] rounded transition-all flex items-center gap-2"
+                    >
+                        <RefreshCw size={16} />
+                        <span>刷新英雄 ({refreshCount}/3)</span>
+                    </button>
+                </>
+            )}
+            {isMobileLandscape && (
+                <>
+                    <h1 className="text-lg font-bold text-[#C8AA6E] mb-1 uppercase tracking-widest">选择你的英雄</h1>
+                    <p className="text-xs text-[#F0E6D2] mb-1">选择一位英雄开始你的符文之地冒险</p>
+                    <button 
+                        onClick={handleRefresh} 
+                        className="mb-1 px-2 py-0.5 bg-[#C8AA6E]/20 hover:bg-[#C8AA6E]/40 border border-[#C8AA6E] text-[#C8AA6E] rounded transition-all flex items-center gap-1 text-[10px]"
+                    >
+                        <RefreshCw size={10} />
+                        <span>刷新 ({refreshCount}/3)</span>
+                    </button>
+                </>
+            )}
+            <div className={`flex ${isMobileLandscape ? 'gap-1' : 'gap-8'} flex-row items-center justify-center w-full ${isMobileLandscape ? 'px-1' : 'px-4'}`}>
                 {displayChamps.map(c => { 
                     return (
                         <button 
                             key={c.id} 
                             onClick={() => onChampionSelect(c)} 
-                            className={`${isMobileLandscape ? 'w-28' : 'w-72'} border-2 border-[#C8AA6E] ${isMobileLandscape ? 'p-2' : 'p-4'} text-left relative group transition-all hover:scale-105 cursor-pointer bg-[#091428]/80 flex flex-col`}
+                            className={`${isMobileLandscape ? 'w-20' : 'w-72'} border-2 border-[#C8AA6E] ${isMobileLandscape ? 'p-1' : 'p-4'} text-left relative group transition-all hover:scale-105 cursor-pointer bg-[#091428]/80 flex flex-col`}
                             style={{ 
                                 minHeight: isMobileLandscape ? 'auto' : '32rem', 
                                 maxHeight: isMobileLandscape ? 'none' : '32rem',
-                                maxWidth: isMobileLandscape ? '28%' : 'none'
+                                maxWidth: isMobileLandscape ? '32%' : 'none'
                             }}
                         >
-                            <img src={c.img} className={`w-full ${isMobileLandscape ? 'h-32' : 'h-64'} object-cover object-top ${isMobileLandscape ? 'mb-1' : 'mb-3'} rounded border border-[#C8AA6E]/50 flex-shrink-0`} />
-                            <div className={`${isMobileLandscape ? 'mb-1' : 'mb-2'} flex-shrink-0`}>
-                                <h2 className={`${isMobileLandscape ? 'text-xs' : 'text-xl'} text-[#C8AA6E] font-bold`}>{c.name}</h2>
-                                <p className={`${isMobileLandscape ? 'text-[8px]' : 'text-xs'} text-[#A09B8C] italic`}>{c.title}</p>
+                            <img src={c.img} className={`w-full ${isMobileLandscape ? 'h-20' : 'h-64'} object-cover object-top ${isMobileLandscape ? 'mb-0.5' : 'mb-3'} rounded border border-[#C8AA6E]/50 flex-shrink-0`} />
+                            <div className={`${isMobileLandscape ? 'mb-0.5' : 'mb-2'} flex-shrink-0`}>
+                                <h2 className={`${isMobileLandscape ? 'text-[10px]' : 'text-xl'} text-[#C8AA6E] font-bold`}>{c.name}</h2>
+                                <p className={`${isMobileLandscape ? 'text-[7px]' : 'text-xs'} text-[#A09B8C] italic`}>{c.title}</p>
                             </div>
-                            <div className={`${isMobileLandscape ? 'mb-1' : 'mb-2'} flex items-center gap-1 ${isMobileLandscape ? 'text-[8px]' : 'text-xs'} flex-shrink-0`}>
-                                <span className="text-red-400 flex items-center gap-0.5"><Heart size={isMobileLandscape ? 8 : 12} /> {c.maxHp} HP</span>
-                                <span className="text-blue-400 flex items-center gap-0.5"><Zap size={isMobileLandscape ? 8 : 12} /> {c.maxMana}</span>
+                            <div className={`${isMobileLandscape ? 'mb-0.5' : 'mb-2'} flex items-center gap-0.5 ${isMobileLandscape ? 'text-[7px]' : 'text-xs'} flex-shrink-0`}>
+                                <span className="text-red-400 flex items-center gap-0.5"><Heart size={isMobileLandscape ? 6 : 12} /> {c.maxHp}</span>
+                                <span className="text-blue-400 flex items-center gap-0.5"><Zap size={isMobileLandscape ? 6 : 12} /> {c.maxMana}</span>
                             </div>
-                            <p className={`${isMobileLandscape ? 'text-[8px] mb-1' : 'text-xs mb-2'} text-gray-300 line-clamp-2 overflow-hidden flex-shrink-0`} style={{ maxHeight: isMobileLandscape ? '1.5rem' : '2.5rem' }}>{c.description}</p>
-                            <div className="border-t border-[#C8AA6E]/30 pt-1 mt-auto">
-                                <div className={`${isMobileLandscape ? 'text-[8px]' : 'text-xs'} text-blue-400 font-bold mb-0.5`}>专属被动</div>
-                                <div className="text-xs text-[#A09B8C] line-clamp-2 overflow-hidden" style={{ maxHeight: '2.5rem' }}>{c.passive}</div>
-            </div>
-                            <div className="border-t border-[#C8AA6E]/30 pt-2 mt-2">
-                                <div className="text-xs text-purple-400 font-bold mb-1">初始卡组</div>
-                                <div className="text-xs text-[#A09B8C] flex flex-wrap gap-1">
+                            <p className={`${isMobileLandscape ? 'text-[7px] mb-0.5' : 'text-xs mb-2'} text-gray-300 line-clamp-2 overflow-hidden flex-shrink-0`} style={{ maxHeight: isMobileLandscape ? '1.2rem' : '2.5rem' }}>{c.description}</p>
+                            <div className="border-t border-[#C8AA6E]/30 pt-0.5 mt-auto">
+                                <div className={`${isMobileLandscape ? 'text-[7px]' : 'text-xs'} text-blue-400 font-bold mb-0.5`}>专属被动</div>
+                                <div className={`${isMobileLandscape ? 'text-[7px]' : 'text-xs'} text-[#A09B8C] line-clamp-2 overflow-hidden`} style={{ maxHeight: isMobileLandscape ? '1.2rem' : '2.5rem' }}>{c.passive}</div>
+                            </div>
+                            <div className="border-t border-[#C8AA6E]/30 pt-0.5 mt-0.5">
+                                <div className={`${isMobileLandscape ? 'text-[7px]' : 'text-xs'} text-purple-400 font-bold mb-0.5`}>初始卡组</div>
+                                <div className={`${isMobileLandscape ? 'text-[6px]' : 'text-xs'} text-[#A09B8C] flex flex-wrap gap-0.5`}>
                                     {c.initialCards.map(cardId => {
                                         const card = CARD_DATABASE[cardId];
-                                        return card ? <span key={cardId} className="px-1 bg-black/50 rounded">{card.name}</span> : null;
+                                        return card ? <span key={cardId} className="px-0.5 bg-black/50 rounded">{card.name}</span> : null;
                                     })}
-        </div>
+                                </div>
                             </div>
                         </button>
                     ) 
@@ -737,34 +754,52 @@ const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
     // 如果没有R技能，返回随机3张
     return shuffled.slice(0, 3);
   }, [championName]);
+  // 检测移动端横屏
+  const [isMobileLandscape, setIsMobileLandscape] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768 && window.innerWidth > window.innerHeight;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileLandscape(window.innerWidth < 768 && window.innerWidth > window.innerHeight);
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
   return (
-    <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center">
-      <div className="max-w-4xl bg-[#091428]/90 border-2 border-[#C8AA6E] p-10 text-center rounded-xl shadow-[0_0_50px_#C8AA6E]">
-        <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">奖励</h2>
-        <div className="text-2xl text-yellow-400 mb-8 flex items-center justify-center gap-2">
-          <Coins size={28} className="text-yellow-400" />
+    <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center overflow-y-auto py-4">
+      <div className={`${isMobileLandscape ? 'max-w-full px-2' : 'max-w-4xl'} bg-[#091428]/90 border-2 border-[#C8AA6E] ${isMobileLandscape ? 'p-4' : 'p-10'} text-center rounded-xl shadow-[0_0_50px_#C8AA6E]`}>
+        <h2 className={`${isMobileLandscape ? 'text-xl' : 'text-4xl'} font-bold text-[#C8AA6E] ${isMobileLandscape ? 'mb-2' : 'mb-6'}`}>奖励</h2>
+        <div className={`${isMobileLandscape ? 'text-base' : 'text-2xl'} text-yellow-400 ${isMobileLandscape ? 'mb-3' : 'mb-8'} flex items-center justify-center gap-2`}>
+          <Coins size={isMobileLandscape ? 16 : 28} className="text-yellow-400" />
           <span>金币 +{goldReward}</span>
         </div>
-        <div className="flex justify-center gap-6 my-8">
+        <div className={`flex justify-center ${isMobileLandscape ? 'gap-1' : 'gap-6'} ${isMobileLandscape ? 'my-2' : 'my-8'} ${isMobileLandscape ? 'flex-wrap' : ''}`}>
           {rewards.map(c => (
             <div 
               key={c.id} 
               onClick={() => onCardSelect(c.id)} 
-              className="w-48 h-64 bg-[#1E2328] border-2 border-[#C8AA6E] rounded-lg overflow-hidden cursor-pointer hover:scale-110 hover:shadow-[0_0_20px_#C8AA6E] transition-all group relative"
+              className={`${isMobileLandscape ? 'w-20 h-28' : 'w-48 h-64'} bg-[#1E2328] border-2 border-[#C8AA6E] rounded-lg overflow-hidden cursor-pointer hover:scale-110 hover:shadow-[0_0_20px_#C8AA6E] transition-all group relative`}
             >
-              <div className="w-full h-40 bg-black overflow-hidden relative">
+              <div className={`w-full ${isMobileLandscape ? 'h-16' : 'h-40'} bg-black overflow-hidden relative`}>
                 <img src={c.img} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" alt={c.name} />
-                <div className="absolute top-2 left-2 w-8 h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-sm">{c.cost}</div>
+                <div className={`absolute top-1 left-1 ${isMobileLandscape ? 'w-4 h-4' : 'w-8 h-8'} bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold ${isMobileLandscape ? 'text-[8px]' : 'text-sm'}`}>{c.cost}</div>
               </div>
-              <div className="p-3 flex flex-col h-24">
-                <div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{c.name}</div>
-                <div className="text-[10px] text-[#A09B8C] leading-tight line-clamp-2">{c.description}</div>
-                <div className="mt-auto text-[8px] text-slate-500 uppercase font-bold">{c.type}</div>
-                </div>
-             </div>
+              <div className={`${isMobileLandscape ? 'p-1' : 'p-3'} flex flex-col ${isMobileLandscape ? 'h-12' : 'h-24'}`}>
+                <div className={`${isMobileLandscape ? 'text-[8px]' : 'text-sm'} font-bold text-[#F0E6D2] mb-0.5 line-clamp-1`}>{c.name}</div>
+                <div className={`${isMobileLandscape ? 'text-[6px]' : 'text-[10px]'} text-[#A09B8C] leading-tight line-clamp-2`}>{c.description}</div>
+                <div className={`mt-auto ${isMobileLandscape ? 'text-[5px]' : 'text-[8px]'} text-slate-500 uppercase font-bold`}>{c.type}</div>
+              </div>
+            </div>
           ))}
-       </div>
-        <button onClick={onSkip} className="mt-6 px-8 py-3 border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest transition-all">跳过</button>
+        </div>
+        <button onClick={onSkip} className={`${isMobileLandscape ? 'mt-2 px-4 py-1.5 text-xs' : 'mt-6 px-8 py-3'} border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest transition-all`}>跳过</button>
       </div>
     </div>
   );

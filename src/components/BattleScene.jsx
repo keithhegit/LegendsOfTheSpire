@@ -374,42 +374,42 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
     <div className="w-full h-full relative flex flex-col overflow-hidden bg-black">
         <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-             {/* 英雄立绘 - 移动端横屏优化 */}
-             <div className={`absolute ${isMobileLandscape ? 'left-1' : 'left-2'} md:left-10 ${isMobileLandscape ? 'bottom-[35%]' : 'bottom-[42%]'} ${isMobileLandscape ? 'w-24 h-36' : 'w-32 h-48'} md:w-64 md:h-[500px] transition-all duration-200 ${heroAnim === 'attack' ? 'translate-x-8 md:translate-x-32' : ''} ${heroAnim === 'hit' ? 'translate-x-[-5px] md:translate-x-[-10px] brightness-50 bg-red-500/30' : ''}`}>
+             {/* 英雄立绘 - 移动端横屏优化（缩小50%） */}
+             <div className={`absolute ${isMobileLandscape ? 'left-1' : 'left-2'} md:left-10 ${isMobileLandscape ? 'bottom-[45%]' : 'bottom-[42%]'} ${isMobileLandscape ? 'w-12 h-18' : 'w-32 h-48'} md:w-64 md:h-[500px] transition-all duration-200 ${heroAnim === 'attack' ? 'translate-x-8 md:translate-x-32' : ''} ${heroAnim === 'hit' ? 'translate-x-[-5px] md:translate-x-[-10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-[#C8AA6E]" />
-                 <div className={`absolute ${isMobileLandscape ? '-bottom-12' : '-bottom-16'} md:-bottom-24 w-full bg-black/80 border border-[#C8AA6E] p-1 md:p-2 rounded flex flex-col gap-1 shadow-lg z-40`}>
-                     <div className="flex justify-between text-[9px] md:text-xs text-[#C8AA6E] font-bold"><span>HP {playerHp}/{heroData.maxHp}</span>{playerBlock > 0 && <span className="text-blue-400 flex items-center gap-1"><Shield size={8} className="md:w-3 md:h-3"/>{playerBlock}</span>}</div>
-                     <div className="w-full h-1 md:h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div></div>
+                 <div className={`absolute ${isMobileLandscape ? '-bottom-6' : '-bottom-16'} md:-bottom-24 w-full bg-black/80 border border-[#C8AA6E] ${isMobileLandscape ? 'p-0.5' : 'p-1'} md:p-2 rounded flex flex-col gap-0.5 shadow-lg z-40`}>
+                     <div className={`flex justify-between ${isMobileLandscape ? 'text-[7px]' : 'text-[9px]'} md:text-xs text-[#C8AA6E] font-bold`}><span>HP {playerHp}/{heroData.maxHp}</span>{playerBlock > 0 && <span className="text-blue-400 flex items-center gap-0.5"><Shield size={isMobileLandscape ? 4 : 8} className="md:w-3 md:h-3"/>{playerBlock}</span>}</div>
+                     <div className={`w-full ${isMobileLandscape ? 'h-0.5' : 'h-1'} md:h-2 bg-slate-800 rounded-full overflow-hidden`}><div className="h-full bg-green-600 transition-all duration-300" style={{width: `${(playerHp/heroData.maxHp)*100}%`}}></div></div>
                      {renderStatus(playerStatus)}
                  </div>
              </div>
-             <div className="text-2xl md:text-6xl font-black text-[#C8AA6E]/20 italic">VS</div>
-             {/* 敌人立绘 - 移动端横屏优化 */}
-             <div className={`absolute ${isMobileLandscape ? 'right-1' : 'right-2'} md:right-10 ${isMobileLandscape ? 'bottom-[35%]' : 'bottom-[42%]'} ${isMobileLandscape ? 'w-24 h-36' : 'w-32 h-48'} md:w-64 md:h-[500px] transition-all duration-200 ${enemyAnim === 'attack' ? '-translate-x-8 md:-translate-x-32' : ''} ${enemyAnim === 'hit' ? 'translate-x-[5px] md:translate-x-[10px] brightness-50 bg-red-500/30' : ''}`}>
+             <div className={`${isMobileLandscape ? 'text-lg' : 'text-2xl'} md:text-6xl font-black text-[#C8AA6E]/20 italic`}>VS</div>
+             {/* 敌人立绘 - 移动端横屏优化（缩小50%） */}
+             <div className={`absolute ${isMobileLandscape ? 'right-1' : 'right-2'} md:right-10 ${isMobileLandscape ? 'bottom-[45%]' : 'bottom-[42%]'} ${isMobileLandscape ? 'w-12 h-18' : 'w-32 h-48'} md:w-64 md:h-[500px] transition-all duration-200 ${enemyAnim === 'attack' ? '-translate-x-8 md:-translate-x-32' : ''} ${enemyAnim === 'hit' ? 'translate-x-[5px] md:translate-x-[10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={enemyConfig.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-red-800" />
-                 <div className={`absolute ${isMobileLandscape ? '-top-6' : '-top-8'} md:-top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 px-1.5 md:px-3 py-0.5 md:py-1 rounded flex items-center gap-1 md:gap-2 animate-bounce`}>
+                 <div className={`absolute ${isMobileLandscape ? '-top-3' : '-top-8'} md:-top-12 left-1/2 -translate-x-1/2 bg-black/80 border border-red-600 ${isMobileLandscape ? 'px-1 py-0.5' : 'px-1.5'} md:px-3 md:py-1 rounded flex items-center gap-0.5 md:gap-2 animate-bounce`}>
                      <IntentIcon />
-                     <span className="text-white font-bold text-xs md:text-lg">{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span>
+                     <span className={`text-white font-bold ${isMobileLandscape ? 'text-[8px]' : 'text-xs'} md:text-lg`}>{displayValue}{nextEnemyAction.count>1?`x${nextEnemyAction.count}`:''}</span>
                  </div>
-                 <div className={`absolute ${isMobileLandscape ? '-bottom-12' : '-bottom-16'} md:-bottom-24 w-full bg-black/80 border border-red-800 p-1 md:p-2 rounded flex flex-col gap-1 shadow-lg z-40`}>
-                     <div className="flex justify-between text-[9px] md:text-xs text-red-500 font-bold"><span>{enemyConfig.name}</span><span>{enemyHp}/{enemyConfig.maxHp}</span></div>
-                     <div className="w-full h-1 md:h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div></div>
-                     {enemyBlock > 0 && <div className="text-blue-400 text-[9px] md:text-xs font-bold flex items-center gap-1"><Shield size={6} className="md:w-2.5 md:h-2.5"/> 格挡 {enemyBlock}</div>}
+                 <div className={`absolute ${isMobileLandscape ? '-bottom-6' : '-bottom-16'} md:-bottom-24 w-full bg-black/80 border border-red-800 ${isMobileLandscape ? 'p-0.5' : 'p-1'} md:p-2 rounded flex flex-col gap-0.5 shadow-lg z-40`}>
+                     <div className={`flex justify-between ${isMobileLandscape ? 'text-[7px]' : 'text-[9px]'} md:text-xs text-red-500 font-bold`}><span>{enemyConfig.name}</span><span>{enemyHp}/{enemyConfig.maxHp}</span></div>
+                     <div className={`w-full ${isMobileLandscape ? 'h-0.5' : 'h-1'} md:h-2 bg-slate-800 rounded-full overflow-hidden`}><div className="h-full bg-red-600 transition-all duration-300" style={{width: `${(enemyHp/enemyConfig.maxHp)*100}%`}}></div></div>
+                     {enemyBlock > 0 && <div className={`text-blue-400 ${isMobileLandscape ? 'text-[7px]' : 'text-[9px]'} md:text-xs font-bold flex items-center gap-0.5`}><Shield size={isMobileLandscape ? 4 : 6} className="md:w-2.5 md:h-2.5"/> 格挡 {enemyBlock}</div>}
                      {renderStatus(enemyStatus)}
                  </div>
              </div>
         </div>
-        {dmgOverlay && (<div className={`absolute top-1/2 ${dmgOverlay.target==='ENEMY'?'right-1/4':'left-1/4'} -translate-y-1/2 text-3xl md:text-8xl font-black text-white drop-shadow-[0_0_10px_red] animate-ping z-50`}>{dmgOverlay.val}</div>)}
+        {dmgOverlay && (<div className={`absolute ${isMobileLandscape ? 'top-[20%]' : 'top-1/2'} ${dmgOverlay.target==='ENEMY'?'right-1/4':'left-1/4'} -translate-y-1/2 ${isMobileLandscape ? 'text-2xl' : 'text-3xl'} md:text-8xl font-black text-white drop-shadow-[0_0_10px_red] animate-ping z-50`}>{dmgOverlay.val}</div>)}
         {/* 底部UI - 移动端横屏优化 */}
-        <div className={`absolute bottom-0 left-0 right-0 ${isMobileLandscape ? 'h-[28%]' : 'h-1/3'} bg-gradient-to-t from-black via-black/80 to-transparent z-20 flex items-end justify-center ${isMobileLandscape ? 'pb-1' : 'pb-2'} md:pb-6 gap-1 md:gap-4 pointer-events-none`}>
+        <div className={`absolute bottom-0 left-0 right-0 ${isMobileLandscape ? 'h-[22%]' : 'h-1/3'} bg-gradient-to-t from-black via-black/80 to-transparent z-20 flex items-end justify-center ${isMobileLandscape ? 'pb-0.5' : 'pb-2'} md:pb-6 gap-1 md:gap-4 pointer-events-none`}>
             {/* Mana 显示 - 移动端横屏优化 */}
             <div className={`absolute ${isMobileLandscape ? 'left-1 bottom-1' : 'left-2 bottom-2'} md:left-8 md:bottom-8 ${isMobileLandscape ? 'w-12 h-12' : 'w-16 h-16'} md:w-24 md:h-24 rounded-full bg-[#091428] border-2 md:border-4 border-[#C8AA6E] flex items-center justify-center shadow-[0_0_30px_#0066FF] pointer-events-auto text-center`}>
                 <span className={`${isMobileLandscape ? 'text-lg' : 'text-2xl'} md:text-4xl font-bold text-white block`}>{playerMana}</span>
                 <span className={`${isMobileLandscape ? 'text-[6px]' : 'text-[8px]'} md:text-[10px] text-[#C8AA6E] block`}>MANA</span>
                 <div className={`${isMobileLandscape ? 'text-[5px]' : 'text-[6px]'} md:text-[8px] text-gray-400 mt-0.5 md:mt-1`}>{currentDrawPile.length}/{currentDiscardPile.length}</div>
             </div>
-            {/* 卡牌区域 - 移动端横屏优化 */}
-            <div className={`flex items-end justify-center pointer-events-auto ${isMobileLandscape ? 'px-1' : 'px-2'}`} style={{ width: '100%', maxWidth: '600px', height: isMobileLandscape ? '60px' : '100px', position: 'relative' }}>
+            {/* 卡牌区域 - 移动端横屏优化（缩小1/3高度） */}
+            <div className={`flex items-end justify-center pointer-events-auto ${isMobileLandscape ? 'px-1' : 'px-2'}`} style={{ width: '100%', maxWidth: '600px', height: isMobileLandscape ? '40px' : '100px', position: 'relative' }}>
                 <AnimatePresence>
                     {hand.map((cid, i) => {
                         const canPlay = playerMana >= CARD_DATABASE[cid].cost && gameState === 'PLAYER_TURN';
