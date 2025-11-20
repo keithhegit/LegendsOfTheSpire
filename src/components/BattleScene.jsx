@@ -352,8 +352,9 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   const IntentIcon = () => { const type = nextEnemyAction.type; const isAttack = type === 'ATTACK' || nextEnemyAction.actionType === 'Attack'; if (isAttack) return <Sword size={20} className="text-red-500"/>; if (type === 'BUFF') return <Shield size={20} className="text-blue-400"/>; if (type === 'DEBUFF') return <Skull size={20} className="text-purple-400"/>; return <AlertTriangle size={20} className="text-gray-400"/>; };
 
   const { hand, drawPile: currentDrawPile, discardPile: currentDiscardPile } = deckRef.current;
-
-  // 移除 isMobile 检测，完全使用 Tailwind 响应式类
+  
+  // 使用 useIsMobile Hook 进行 JS 级响应式检测
+  const isMobile = useIsMobile();
 
   return (
     <div className="w-full h-full relative flex flex-col overflow-hidden bg-black">
