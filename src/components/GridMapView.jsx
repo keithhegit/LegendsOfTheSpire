@@ -80,22 +80,24 @@ const GridMapView = ({ mapData, onNodeSelect, currentFloor, act, activeNode }) =
         const getNodeTypeColor = (node) => {
             if (!node) return 'border-slate-700';
             // 当前选中位置：红色边框（参考 mapsty: if((id-10) == player.map.x) return "#CE0000"）
+            // 注意：参考库中 id-10 是当前层，id-20 是下一层
             if (activeNode && node.row === activeNode.row && node.col === activeNode.col) {
                 return 'border-[#CE0000] bg-red-900/30';
             }
-            // 根据节点类型返回颜色
-            if (node.type === 'BOSS') return 'border-red-600 bg-red-900/30';
+            // 根据节点类型返回颜色（参考 mapsty）
+            // 精英怪(1): #801b1b, 商店(2): #fff200, 宝箱(3): #00ff88, 营火(4): #fe9750
+            if (node.type === 'BOSS') return 'border-[#801b1b] bg-red-900/30'; // 精英怪颜色
             if (node.type === 'BATTLE') return 'border-slate-500 bg-slate-800/50';
-            if (node.type === 'SHOP') return 'border-yellow-500 bg-yellow-900/30';
-            if (node.type === 'CHEST') return 'border-green-500 bg-green-900/30';
+            if (node.type === 'SHOP') return 'border-[#fff200] bg-yellow-900/30'; // 黄色
+            if (node.type === 'CHEST') return 'border-[#00ff88] bg-green-900/30'; // 绿色
             if (node.type === 'EVENT') return 'border-purple-500 bg-purple-900/30';
-            if (node.type === 'REST') return 'border-orange-500 bg-orange-900/30';
+            if (node.type === 'REST') return 'border-[#fe9750] bg-orange-900/30'; // 橙色
             // 可点击范围内的节点：白色边框（参考 mapsty: mapcan(...) ? '#FFFFFF' : '#666666'）
             if (isInClickableRange && !isFog) {
                 return 'border-white bg-white/10';
             }
             // 不可点击的节点：灰色边框
-            return 'border-slate-700';
+            return 'border-[#666666]';
         };
         const typeColor = getNodeTypeColor(node);
 
@@ -108,12 +110,12 @@ const GridMapView = ({ mapData, onNodeSelect, currentFloor, act, activeNode }) =
                     disabled={!isInClickableRange}
                     className={`
                         w-12 h-12 rounded-full border-2 flex items-center justify-center overflow-hidden shadow-lg transition-all relative
-                        ${isAvailable ? 'border-[#C8AA6E] ring-2 ring-[#C8AA6E]/50 z-20 cursor-pointer brightness-110' : typeColor}
+                        ${isAvailable ? 'border-[#C8AA6E] ring-2 ring-[#C8AA6E]/50 z-20 brightness-110' : typeColor}
                         ${isCompleted ? 'opacity-50 grayscale' : ''}
-                        ${isLocked && !isFog && isInClickableRange ? 'opacity-70 cursor-pointer' : ''}
-                        ${isFog ? 'opacity-30 brightness-50 cursor-not-allowed' : ''}
-                        ${!isInClickableRange && !isFog ? 'opacity-40 cursor-not-allowed' : ''}
-                        ${isInClickableRange && !isAvailable ? 'cursor-pointer' : ''}
+                        ${isLocked && !isFog && isInClickableRange ? 'opacity-80' : ''}
+                        ${isFog ? 'opacity-30 brightness-50' : ''}
+                        ${!isInClickableRange && !isFog ? 'opacity-40' : ''}
+                        ${isInClickableRange ? 'cursor-pointer' : 'cursor-not-allowed'}
                     `}
                 >
                     {iconUrl && (
