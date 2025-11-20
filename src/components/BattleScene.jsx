@@ -56,9 +56,13 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
     const initialDrawPile = shuffle([...initialDeck]);
     deckRef.current = { drawPile: initialDrawPile, hand: [], discardPile: [] };
     let block = 0; let str = heroData.baseStr || 0;
-    heroData.relics.forEach(rid => {
+    (heroData.relics || []).forEach(rid => {
         const relic = RELIC_DATABASE[rid];
-        if(relic.onBattleStart) { const newState = relic.onBattleStart({ block, status: { strength: str } }); block = newState.block; str = newState.status.strength; }
+        if(relic && relic.onBattleStart) { 
+            const newState = relic.onBattleStart({ block, status: { strength: str } }); 
+            block = newState.block; 
+            str = newState.status.strength; 
+        }
         if(rid === heroData.relicId && heroData.relicId === "UrgotPassive") block += 15; 
     });
     setPlayerBlock(block); setPlayerStatus(prev => ({ ...prev, strength: str }));
@@ -96,7 +100,14 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
          forceUpdate();
     }
     setNextEnemyAction(enemyConfig.actions[Math.floor(Math.random()*enemyConfig.actions.length)]);
-    heroData.relics.forEach(rid => { const relic = RELIC_DATABASE[rid]; if(relic.onTurnStart) { const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp }); setPlayerHp(pState.hp); setEnemyHp(eState.hp); } });
+    (heroData.relics || []).forEach(rid => { 
+        const relic = RELIC_DATABASE[rid]; 
+        if(relic && relic.onTurnStart) { 
+            const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp }); 
+            setPlayerHp(pState.hp); 
+            setEnemyHp(eState.hp); 
+        } 
+    });
     // TeemoPassive: 回合开始时，随机给一名敌人施加 2 层虚弱
     if (heroData.relicId === "TeemoPassive") {
       setEnemyStatus(s => ({ ...s, weak: s.weak + 2 }));
