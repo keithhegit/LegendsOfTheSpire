@@ -46,21 +46,54 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
     }
   };
   
-  // 处理触摸开始（用于滑动出牌）
+  // 长按查看详情
+  const longPressTimerRef = useRef(null);
+  const isLongPressRef = useRef(false);
+  
+  // 处理触摸开始（用于滑动出牌和长按）
   const handleTouchStart = (e) => {
     touchStartYRef.current = e.touches[0].clientY;
+    isLongPressRef.current = false;
+    
+    // 长按计时器（500ms）
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+      setShowDetail(true);
+      setTimeout(() => setShowDetail(false), 3000);
+    }, 500);
   };
   
   // 处理触摸结束（检测滑动）
   const handleTouchEnd = (e) => {
+    // 清除长按计时器
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    
+    // 如果是长按，不触发出牌
+    if (isLongPressRef.current) {
+      isLongPressRef.current = false;
+      return;
+    }
+    
     if (!canPlay) return;
     const touchEndY = e.changedTouches[0].clientY;
     const deltaY = touchStartYRef.current - touchEndY;
     
-    // 向上滑动超过100px时出牌
-    if (deltaY > 100) {
+    // 向上滑动超过80px时出牌（降低阈值，更容易触发）
+    if (deltaY > 80) {
       onPlay(index);
     }
+  };
+  
+  // 处理触摸取消
+  const handleTouchCancel = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    isLongPressRef.current = false;
   };
   
   return (
@@ -89,13 +122,20 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
       // 触摸事件（移动端支持）
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
       onDoubleClick={handleDoubleTap}
-      // 拖拽支持（滑动出牌）
+      // 拖拽支持（滑动出牌）- 优化触控体验
       drag={canPlay ? "y" : false}
       dragConstraints={{ top: -300, bottom: 0 }}
       dragSnapToOrigin={true}
+      dragElastic={0.2} // 取消惯性，让拖拽手感更"跟手"
+      whileDrag={{ 
+        scale: 1.2, // 拖拽时明显放大
+        zIndex: 100, // 提高层级，防止被其他牌遮挡
+        rotate: 0 // 拖拽时取消旋转
+      }}
       onDragEnd={(event, info) => { 
-        if (info.offset.y < -150 && canPlay) { 
+        if (info.offset.y < -120 && canPlay) { // 降低阈值，更容易触发
           onPlay(index); 
         } 
       }}
@@ -103,8 +143,11 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
       className={`
         w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-36 lg:w-40 lg:h-60 bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
         transition-all duration-200
-        ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)] active:cursor-grabbing' : 'border-slate-700 opacity-60 cursor-not-allowed'}
+        ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)] active:cursor-grabbing active:scale-110' : 'border-slate-700 opacity-60 cursor-not-allowed'}
       `}
+      style={{
+        touchAction: 'pan-y', // 允许垂直拖拽，防止误触
+      }}
     >
       {/* 卡牌详情弹窗 */}
       {showDetail && (
