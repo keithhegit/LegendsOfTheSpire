@@ -3,12 +3,13 @@ import { motion } from 'framer-motion';
 import { CARD_DATABASE } from '../../data/cards';
 import { useIsMobile } from '../../hooks/useIsMobile';
 
-const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} }) => {
+const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {}, isMobile: isMobileProp }) => {
   const card = CARD_DATABASE[cardId];
   const [showDetail, setShowDetail] = useState(false);
   const lastTapRef = useRef(0);
   const touchStartYRef = useRef(0);
-  const isMobile = useIsMobile();
+  const isMobileHook = useIsMobile();
+  const isMobile = isMobileProp !== undefined ? isMobileProp : isMobileHook;
   
   // 应用卡牌升级效果
   const upgrade = cardUpgrades[cardId] || {};
