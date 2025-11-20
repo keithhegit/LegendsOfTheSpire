@@ -17,7 +17,7 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
   const rotation = (index - (totalCards - 1) / 2) * 3;
   const yOffset = Math.abs(index - (totalCards - 1) / 2) * 5;
   
-  // 处理点击事件（参考 c8d0950，只有点击，没有拖拽）
+  // 处理点击事件（保留点击作为备用）
   const handleClick = (e) => {
     e.stopPropagation();
     if (canPlay) {
@@ -38,22 +38,38 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay, cardUpgrades = {} })
         transformOrigin: "bottom center",
         position: 'relative'
       }}
-      // 悬停特效（参考 c8d0950）
+      // 拖拽功能（参考线上环境 https://lol.keithhe.com/）
+      drag={canPlay ? "y" : false}
+      dragConstraints={{ top: -300, bottom: 0 }}
+      dragSnapToOrigin={true}
+      onDragEnd={(event, info) => {
+        // 如果向上拖动超过 150px，视为出牌
+        if (info.offset.y < -150 && canPlay) {
+          onPlay(index);
+        }
+      }}
+      // 悬停特效
       whileHover={canPlay ? { 
-        scale: 1.25, 
-        y: -60, 
+        scale: 1.2, 
+        y: -80, 
         zIndex: 100, 
-        rotate: 0,
-        boxShadow: "0 0 30px rgba(200, 170, 110, 0.8)"
+        rotate: 0
       } : {}}
-      // 点击事件
+      // 拖拽时的特效
+      whileDrag={{ 
+        scale: 1.1, 
+        zIndex: 100, 
+        rotate: 0, 
+        opacity: 0.8 
+      }}
+      // 点击事件（作为备用）
       onClick={handleClick}
       
       className={`
         w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-36 lg:w-40 lg:h-60 
         bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
         transition-all duration-200
-        ${canPlay ? 'border-[#C8AA6E] cursor-pointer hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)]' : 'border-slate-700 opacity-60 cursor-not-allowed'}
+        ${canPlay ? 'border-[#C8AA6E] cursor-grab active:cursor-grabbing hover:border-[#F0E6D2] hover:shadow-[0_0_30px_rgba(200,170,110,0.8)]' : 'border-slate-700 opacity-60 cursor-not-allowed'}
       `}
     >
       {/* 卡牌图片 */}
