@@ -9,13 +9,17 @@ import { SPLASH_URL } from '../data/constants';
 import { playSfx, playChampionVoice } from '../utils/audioManager';
 import Card from './shared/Card';
 
-const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex }) => { 
-  const getScaledEnemy = (enemyId, floor) => {
+const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex, act }) => { 
+  const getScaledEnemy = (enemyId, floor, currentAct) => {
     const baseEnemy = ENEMY_POOL[enemyId];
-    const { maxHp, actions } = scaleEnemyStats(baseEnemy, floor);
+    if (!baseEnemy) {
+      console.error(`Enemy not found: ${enemyId}`);
+      return { maxHp: 50, actions: [{ type: 'ATTACK', value: 5 }] };
+    }
+    const { maxHp, actions } = scaleEnemyStats(baseEnemy, floor, currentAct);
     return { ...baseEnemy, maxHp, actions };
   };
-  const enemyConfig = getScaledEnemy(enemyId, floorIndex); 
+  const enemyConfig = getScaledEnemy(enemyId, floorIndex, act); 
   const initialMana = heroData.maxMana || 3; 
   const [gameState, setGameState] = useState('PLAYER_TURN');
   const [playerHp, setPlayerHp] = useState(heroData.currentHp);
@@ -36,16 +40,18 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
 
   useEffect(() => {
     // 战斗开始时播放英雄语音
-    if (heroData.id) {
+    if (heroData?.id) {
       playChampionVoice(heroData.id);
     }
+    
+    if (!heroData || !initialDeck) return;
     
     const initialDrawPile = shuffle([...initialDeck]);
     deckRef.current = { drawPile: initialDrawPile, hand: [], discardPile: [] };
     let block = 0; let str = heroData.baseStr || 0;
-    heroData.relics.forEach(rid => {
+    (heroData.relics || []).forEach(rid => {
         const relic = RELIC_DATABASE[rid];
-        if(relic.onBattleStart) { const newState = relic.onBattleStart({ block, status: { strength: str } }); block = newState.block; str = newState.status.strength; }
+        if(relic && relic.onBattleStart) { const newState = relic.onBattleStart({ block, status: { strength: str } }); block = newState.block; str = newState.status.strength; }
         if(rid === heroData.relicId && heroData.relicId === "UrgotPassive") block += 15; 
     });
     setPlayerBlock(block); setPlayerStatus(prev => ({ ...prev, strength: str }));
@@ -222,9 +228,13 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
 
   const { hand, drawPile: currentDrawPile, discardPile: currentDiscardPile } = deckRef.current;
 
+  if (!heroData || !enemyConfig) {
+    return <div className="w-full h-full flex items-center justify-center text-white">Loading...</div>;
+  }
+
   return (
     <div className="w-full h-full relative flex flex-col overflow-hidden bg-black">
-        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${SPLASH_URL}/SummonersRift_1.jpg)`}}></div>
+        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{backgroundImage: `url(${ACT_BACKGROUNDS[act || 1]})`}}></div>
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
              <div className={`absolute left-10 bottom-[42%] w-64 h-[500px] transition-all duration-200 ${heroAnim === 'attack' ? 'translate-x-32' : ''} ${heroAnim === 'hit' ? 'translate-x-[-10px] brightness-50 bg-red-500/30' : ''}`}>
                  <img src={heroData.img} className="w-full h-full object-cover object-top rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-2 border-[#C8AA6E]" />

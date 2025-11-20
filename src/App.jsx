@@ -5,6 +5,7 @@ import { generateGridMap, GRID_ROWS, GRID_COLS } from './data/gridMapLayout';
 import GridMapView from './components/GridMapView';
 import CodexView from './components/CodexView';
 import DeckView from './components/DeckView';
+import BattleScene from './components/BattleScene';
 
 // ==========================================
 // 1. 静态资源与全局配置
