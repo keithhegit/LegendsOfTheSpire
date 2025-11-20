@@ -66,20 +66,20 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
       `}
     >
       {/* 卡牌图片 */}
-      <div className="w-full h-40 bg-black overflow-hidden relative pointer-events-none">
+      <div className="w-full h-12 sm:h-16 md:h-24 lg:h-40 bg-black overflow-hidden relative pointer-events-none">
         <img src={card.img} className="w-full h-full object-cover opacity-90" alt={card.name} />
-        <div className="absolute top-2 left-2 w-8 h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-lg shadow-md">
+        <div className="absolute top-0.5 sm:top-1 md:top-2 left-0.5 sm:left-1 md:left-2 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-8 lg:h-8 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] font-bold text-[8px] sm:text-[10px] md:text-xs lg:text-lg shadow-md">
           {card.cost}
         </div>
       </div>
       
       {/* 卡牌文本 */}
-      <div className="flex-1 p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]">
-        <div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{card.name}</div>
-        <div className="text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2">
+      <div className="flex-1 p-0.5 sm:p-1 md:p-1.5 lg:p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]">
+        <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm font-bold text-[#F0E6D2] mb-0.5 md:mb-1 line-clamp-1">{card.name}</div>
+        <div className="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2">
           {card.description}
         </div>
-        <div className="mt-auto text-[9px] text-slate-500 uppercase font-bold tracking-wider">
+        <div className="mt-auto text-[5px] sm:text-[6px] md:text-[7px] lg:text-[9px] text-slate-500 uppercase font-bold tracking-wider">
           {card.type}
         </div>
       </div>
