@@ -45,6 +45,9 @@ export const playChampionVoice = (championKey) => {
   const voiceUrl = `${VOICE_URL}/${championKey}.ogg`;
   const audio = new Audio(voiceUrl);
   audio.volume = 0.6;
-  audio.play().catch(e => console.log("Champion voice play failed", e));
+  // 静默处理音频加载失败（某些浏览器不支持 .ogg 格式）
+  audio.play().catch(() => {
+    // 静默失败，不输出错误日志（避免控制台噪音）
+  });
 };
 
