@@ -70,15 +70,13 @@ const SHAPE_PATTERNS = {
   ]
 };
 
-// 挖空配置（空洞尺寸）
-const HOLE_PATTERNS = [
-  { name: '1x1', width: 1, height: 1, weight: 2 },
-  { name: '2x2', width: 2, height: 2, weight: 3 },
-  { name: '2x3', width: 2, height: 3, weight: 2 },
-  { name: '3x2', width: 3, height: 2, weight: 2 },
-  { name: '3x4', width: 3, height: 4, weight: 1 },
-  { name: '2x4', width: 2, height: 4, weight: 1 }
-];
+// 挖空配置（空洞尺寸范围）
+const HOLE_SIZE_RANGE = {
+  minWidth: 1,
+  maxWidth: 4,
+  minHeight: 1,
+  maxHeight: 4
+};
 
 const clampColumn = (col) => Math.max(0, Math.min(GRID_COLS - 1, col));
 
@@ -94,24 +92,18 @@ const pickShapePattern = (act) => {
   return patterns[0];
 };
 
-// 加权随机选择挖空模式
-const pickHolePattern = () => {
-  const totalWeight = HOLE_PATTERNS.reduce((sum, h) => sum + h.weight, 0);
-  let rand = Math.random() * totalWeight;
-  for (const hole of HOLE_PATTERNS) {
-    rand -= hole.weight;
-    if (rand <= 0) return hole;
-  }
-  return HOLE_PATTERNS[0];
+// 随机生成空洞尺寸
+const generateRandomHole = () => {
+  const width = HOLE_SIZE_RANGE.minWidth + Math.floor(Math.random() * (HOLE_SIZE_RANGE.maxWidth - HOLE_SIZE_RANGE.minWidth + 1));
+  const height = HOLE_SIZE_RANGE.minHeight + Math.floor(Math.random() * (HOLE_SIZE_RANGE.maxHeight - HOLE_SIZE_RANGE.minHeight + 1));
+  return { width, height, name: `${width}x${height}` };
 };
 
 // 应用挖空：在地图中间区域挖出空洞，形成立字型/O型/S型
 const applyHoles = (grid, gridRows, gridCols, mainPath) => {
-  // 33%概率应用挖空
-  if (Math.random() > 0.33) return;
-  
-  const hole = pickHolePattern();
-  console.log(`[挖空] 应用 ${hole.name} 空洞`);
+  // 100%概率应用挖空，随机生成1-3个空洞
+  const holeCount = 1 + Math.floor(Math.random() * 3); // 1-3个空洞
+  console.log(`[挖空] 生成 ${holeCount} 个空洞`);
   
   // 创建主路径节点集合（保护主路径不被挖空）
   const mainPathSet = new Set(mainPath.map(n => `${n.row}-${n.col}`));
@@ -122,26 +114,36 @@ const applyHoles = (grid, gridRows, gridCols, mainPath) => {
   const safeStartCol = Math.floor(gridCols * 0.2);
   const safeEndCol = Math.floor(gridCols * 0.8);
   
-  // 随机选择空洞中心位置
-  const centerRow = safeStartRow + Math.floor(Math.random() * (safeEndRow - safeStartRow - hole.height + 1));
-  const centerCol = safeStartCol + Math.floor(Math.random() * (safeEndCol - safeStartCol - hole.width + 1));
+  let totalRemoved = 0;
   
-  // 挖空：移除该区域内的所有节点（但保留主路径上的节点）
-  const removed = [];
-  for (let r = centerRow; r < centerRow + hole.height && r < gridRows; r++) {
-    for (let c = centerCol; c < centerCol + hole.width && c < gridCols; c++) {
-      if (grid[r] && grid[r][c]) {
-        const key = `${r}-${c}`;
-        // 保护主路径节点和起点/终点
-        if (!mainPathSet.has(key)) {
-          removed.push([r, c]);
-          grid[r][c] = null;
+  for (let h = 0; h < holeCount; h++) {
+    const hole = generateRandomHole();
+    console.log(`[挖空 ${h + 1}] 应用 ${hole.name} 空洞`);
+    
+    // 随机选择空洞中心位置
+    const centerRow = safeStartRow + Math.floor(Math.random() * Math.max(1, safeEndRow - safeStartRow - hole.height + 1));
+    const centerCol = safeStartCol + Math.floor(Math.random() * Math.max(1, safeEndCol - safeStartCol - hole.width + 1));
+    
+    // 挖空：移除该区域内的所有节点（但保留主路径上的节点）
+    const removed = [];
+    for (let r = centerRow; r < centerRow + hole.height && r < gridRows; r++) {
+      for (let c = centerCol; c < centerCol + hole.width && c < gridCols; c++) {
+        if (grid[r] && grid[r][c]) {
+          const key = `${r}-${c}`;
+          // 保护主路径节点和起点/终点
+          if (!mainPathSet.has(key)) {
+            removed.push([r, c]);
+            grid[r][c] = null;
+          }
         }
       }
     }
+    
+    totalRemoved += removed.length;
+    console.log(`[挖空 ${h + 1}] 移除了 ${removed.length} 个节点`);
   }
   
-  console.log(`[挖空] 移除了 ${removed.length} 个节点`);
+  console.log(`[挖空] 总共移除了 ${totalRemoved} 个节点`);
 };
 
 const buildRowTargets = (gridRows, bossCol, pattern) => {
@@ -260,7 +262,12 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
   }
   
   // ===========================
-  // Step 6: BFS验证BOSS可达性
+  // Step 6: 移除孤立节点（飞地）
+  // ===========================
+  removeIsolatedNodes(grid, gridRows, startNode, bossNode, allNodes);
+  
+  // ===========================
+  // Step 7: BFS验证BOSS可达性
   // ===========================
   const reachable = isBossReachable(grid, startNode, bossNode);
   
@@ -466,6 +473,53 @@ const isBossReachable = (grid, startNode, bossNode) => {
   }
   
   return false;
+};
+
+// ===========================
+// 移除孤立节点（飞地）
+// ===========================
+const removeIsolatedNodes = (grid, gridRows, startNode, bossNode, allNodes) => {
+  // 使用BFS找到所有从起点可达的节点
+  const reachableSet = new Set();
+  const queue = [startNode];
+  reachableSet.add(`${startNode.row}-${startNode.col}`);
+  
+  while (queue.length > 0) {
+    const current = queue.shift();
+    const neighbors = getHexNeighbors(current.row, current.col, gridRows, GRID_COLS);
+    
+    for (const [r, c] of neighbors) {
+      const neighbor = grid[r][c];
+      const key = `${r}-${c}`;
+      if (neighbor && !reachableSet.has(key)) {
+        reachableSet.add(key);
+        queue.push(neighbor);
+      }
+    }
+  }
+  
+  // 移除所有不可达的节点（飞地）
+  const isolated = [];
+  for (let i = allNodes.length - 1; i >= 0; i--) {
+    const node = allNodes[i];
+    const key = `${node.row}-${node.col}`;
+    
+    // 保护起点和BOSS节点
+    if ((node.row === startNode.row && node.col === startNode.col) ||
+        (node.row === bossNode.row && node.col === bossNode.col)) {
+      continue;
+    }
+    
+    if (!reachableSet.has(key)) {
+      isolated.push(node);
+      grid[node.row][node.col] = null;
+      allNodes.splice(i, 1);
+    }
+  }
+  
+  if (isolated.length > 0) {
+    console.log(`[清理] 移除了 ${isolated.length} 个孤立节点（飞地）`);
+  }
 };
 
 // ===========================

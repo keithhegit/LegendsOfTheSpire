@@ -316,7 +316,7 @@
 
   <script type="module">
     import { generateGridMap } from './src/data/gridMapLayout_v4.js';
-    import { getHexNeighbors, offsetToPixel } from './src/utils/hexagonGrid.js';
+    import { getHexNeighbors, offsetToPixel, offsetToPixelRotated } from './src/utils/hexagonGrid.js';
     
     // 全局变量
     let currentMapData = null;
@@ -442,8 +442,10 @@
       const GRID_COLS = 11;
       
       nodePositionMap = new Map();
+      const GRID_COLS = 11;
       bounds = currentMapData.nodes.reduce((acc, node) => {
-        const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
+        // 使用旋转后的坐标（横版布局）
+        const pos = offsetToPixelRotated(node.row, node.col, totalFloors, GRID_COLS, HEX_SIZE);
         nodePositionMap.set(`${node.row}-${node.col}`, pos);
         acc.minX = Math.min(acc.minX, pos.x);
         acc.maxX = Math.max(acc.maxX, pos.x);
