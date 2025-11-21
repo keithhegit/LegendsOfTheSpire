@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>六边形自由探索地图测试器 v4 (独立版)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #f0f0f0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #C8AA6E;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #8899aa;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #C8AA6E 0%, #9d844a 100%);
+      color: #0a0e27;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(200, 170, 110, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      border: 2px solid rgba(200, 170, 110, 0.3);
+    }
+    
+    .stat-item {
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .stat-label {
+      color: #8899aa;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+    
+    .stat-value {
+      color: #C8AA6E;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    
+    .stat-value.success {
+      color: #4ade80;
+    }
+    
+    .stat-value.error {
+      color: #ef4444;
+    }
+    
+    #canvas-container {
+      background: rgba(0,0,0,0.5);
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid rgba(200, 170, 110, 0.3);
+      overflow: auto;
+      max-height: 800px;
+    }
+    
+    #map-canvas {
+      display: block;
+      margin: 0 auto;
+      cursor: grab;
+    }
+    
+    #map-canvas:active {
+      cursor: grabbing;
+    }
+    
+    .legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+    }
+    
+    .legend-color {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    
+    .test-section {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      border: 2px solid rgba(200, 170, 110, 0.3);
+    }
+    
+    .test-section h2 {
+      color: #C8AA6E;
+      margin-bottom: 15px;
+    }
+    
+    #test-results {
+      display: grid;
+      gap: 10px;
+    }
+    
+    .test-result {
+      padding: 12px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+      border-left: 4px solid;
+    }
+    
+    .test-result.success {
+      border-color: #4ade80;
+    }
+    
+    .test-result.error {
+      border-color: #ef4444;
+    }
+    
+    .exploration-panel {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      border: 2px solid rgba(200, 170, 110, 0.3);
+    }
+    
+    .exploration-panel h2 {
+      color: #C8AA6E;
+      margin-bottom: 15px;
+    }
+    
+    .exploration-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .step-info {
+      padding: 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⬡ 六边形自由探索地图测试器 v4</h1>
+    <p class="subtitle">真正的六边形网格自由探索 - 无DAG限制，战争迷雾，BOSS保证可达</p>
+    
+    <div class="controls">
+      <button onclick="generateMap(1)">🎮 生成 ACT1 地图</button>
+      <button onclick="generateMap(2)">⚔️ 生成 ACT2 地图</button>
+      <button onclick="generateMap(3)">🔥 生成 ACT3 地图</button>
+      <button onclick="runBatchTest(1, 20)">📊 批量测试 ACT1 (20次)</button>
+      <button onclick="runBatchTest(2, 20)">📊 批量测试 ACT2 (20次)</button>
+      <button onclick="runBatchTest(3, 20)">📊 批量测试 ACT3 (20次)</button>
+      <button onclick="resetExploration()">🔄 重置探索</button>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-label">总节点数</div>
+        <div class="stat-value" id="stat-nodes">-</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">地图尺寸</div>
+        <div class="stat-value" id="stat-size">-</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">节点密度</div>
+        <div class="stat-value" id="stat-density">-</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">BOSS可达</div>
+        <div class="stat-value" id="stat-reachable">-</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">已探索节点</div>
+        <div class="stat-value" id="stat-explored">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">当前可选</div>
+        <div class="stat-value" id="stat-available">0</div>
+      </div>
+    </div>
+    
+    <div id="canvas-container">
+      <canvas id="map-canvas"></canvas>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #4ade80;"></div>
+        <span>起点 (START)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #ef4444;"></div>
+        <span>BOSS</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #dc2626;"></div>
+        <span>战斗 (BATTLE)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #f59e0b;"></div>
+        <span>商店 (SHOP)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #3b82f6;"></div>
+        <span>事件 (EVENT)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #10b981;"></div>
+        <span>休息 (REST)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #8b5cf6;"></div>
+        <span>宝箱 (CHEST)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255,255,255,0.1); border: 2px solid #C8AA6E;"></div>
+        <span>已探索</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255,255,255,0.3);"></div>
+        <span>可探索</span>
+      </div>
+    </div>
+    
+    <div class="exploration-panel">
+      <h2>🧭 模拟探索</h2>
+      <p style="color: #8899aa; margin-bottom: 10px;">
+        点击地图上的六边形节点来模拟玩家探索。只能选择相邻的未探索节点。
+      </p>
+      <div class="exploration-controls">
+        <button onclick="autoExplore()">🤖 自动探索到BOSS</button>
+        <button onclick="resetExploration()">🔄 重置探索</button>
+      </div>
+      <div class="step-info" id="step-info">
+        等待开始探索...
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>📊 批量测试结果</h2>
+      <div id="test-results"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===========================
+    // 六边形工具函数（内联）
+    // ===========================
+    const GRID_COLS = 11;
+    
+    // Offset坐标转像素坐标
+    function offsetToPixel(row, col, hexSize) {
+      const x = hexSize * Math.sqrt(3) * (col + 0.5 * (row % 2));
+      const y = hexSize * 1.5 * row;
+      return { x, y };
+    }
+    
+    // 获取六边形邻居 (Odd-R offset)
+    function getHexNeighbors(row, col, totalRows, totalCols) {
+      const isOddRow = row % 2 === 1;
+      const directions = isOddRow
+        ? [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]] // 奇数行
+        : [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]]; // 偶数行
+      
+      const neighbors = [];
+      for (const [dr, dc] of directions) {
+        const newRow = row + dr;
+        const newCol = col + dc;
+        if (newRow >= 0 && newRow < totalRows && newCol >= 0 && newCol < totalCols) {
+          neighbors.push([newRow, newCol]);
+        }
+      }
+      return neighbors;
+    }
+    
+    // ===========================
+    // 地图生成逻辑（简化内联）
+    // ===========================
+    const ACT_CONFIG = {
+      1: { minRows: 12, maxRows: 15, minNodes: 35, maxNodes: 50, nodeDensity: 0.35 },
+      2: { minRows: 25, maxRows: 32, minNodes: 70, maxNodes: 100, nodeDensity: 0.32 },
+      3: { minRows: 45, maxRows: 55, minNodes: 120, maxNodes: 180, nodeDensity: 0.30 }
+    };
+    
+    const NODE_WEIGHTS = {
+      BATTLE: 0.50,
+      EVENT: 0.20,
+      SHOP: 0.12,
+      REST: 0.12,
+      CHEST: 0.06
+    };
+    
+    function createNode(row, col, type) {
+      return {
+        id: `${row}-${col}`,
+        row,
+        col,
+        type,
+        status: 'LOCKED',
+        explored: false
+      };
+    }
+    
+    function getRandomNodeType(row, totalRows) {
+      const progress = row / totalRows;
+      let weights = { ...NODE_WEIGHTS };
+      
+      if (progress < 0.2) {
+        weights.BATTLE = 0.70;
+        weights.EVENT = 0.15;
+        weights.SHOP = 0.05;
+        weights.REST = 0.05;
+        weights.CHEST = 0.05;
+      } else if (progress > 0.8) {
+        weights.BATTLE = 0.40;
+        weights.EVENT = 0.15;
+        weights.SHOP = 0.20;
+        weights.REST = 0.20;
+        weights.CHEST = 0.05;
+      }
+      
+      const rand = Math.random();
+      let cumulative = 0;
+      for (const [type, weight] of Object.entries(weights)) {
+        cumulative += weight;
+        if (rand < cumulative) return type;
+      }
+      return 'BATTLE';
+    }
+    
+    function generateGridMap(act) {
+      console.log(`\n========== 生成 ACT${act} 地图 ==========`);
+      
+      const config = ACT_CONFIG[act];
+      const gridRows = config.minRows + Math.floor(Math.random() * (config.maxRows - config.minRows + 1));
+      
+      // 初始化网格
+      const grid = Array(gridRows).fill(null).map(() => Array(GRID_COLS).fill(null));
+      const allNodes = [];
+      
+      // 生成起点
+      const startCol = Math.floor(GRID_COLS / 2);
+      const startNode = createNode(0, startCol, 'BATTLE');
+      startNode.status = 'AVAILABLE';
+      grid[0][startCol] = startNode;
+      allNodes.push(startNode);
+      
+      // 生成BOSS
+      const bossRow = gridRows - 1;
+      const bossCol = Math.floor(GRID_COLS / 2);
+      const bossNode = createNode(bossRow, bossCol, 'BOSS');
+      grid[bossRow][bossCol] = bossNode;
+      allNodes.push(bossNode);
+      
+      // 生成主路径
+      let currentNode = startNode;
+      for (let row = 1; row < gridRows - 1; row++) {
+        const targetCol = bossCol;
+        const colDiff = targetCol - currentNode.col;
+        
+        let nextCol;
+        if (Math.abs(colDiff) <= 1) {
+          nextCol = currentNode.col + (Math.random() < 0.5 ? -1 : 1);
+        } else {
+          if (Math.random() < 0.7) {
+            nextCol = currentNode.col + Math.sign(colDiff);
+          } else {
+            nextCol = currentNode.col + (Math.random() < 0.5 ? -1 : 1);
+          }
+        }
+        
+        nextCol = Math.max(1, Math.min(GRID_COLS - 2, nextCol));
+        
+        if (grid[row][nextCol]) {
+          currentNode = grid[row][nextCol];
+          continue;
+        }
+        
+        const nodeType = getRandomNodeType(row, gridRows);
+        const node = createNode(row, nextCol, nodeType);
+        grid[row][nextCol] = node;
+        allNodes.push(node);
+        currentNode = node;
+      }
+      
+      // 填充额外节点
+      const targetNodeCount = Math.floor(gridRows * GRID_COLS * config.nodeDensity);
+      const attempts = targetNodeCount * 3;
+      
+      for (let i = 0; i < attempts && allNodes.length < targetNodeCount; i++) {
+        const row = 1 + Math.floor(Math.random() * (gridRows - 2));
+        const col = 1 + Math.floor(Math.random() * (GRID_COLS - 2));
+        
+        if (grid[row][col]) continue;
+        
+        const neighbors = getHexNeighbors(row, col, gridRows, GRID_COLS);
+        const hasNeighbor = neighbors.some(([r, c]) => grid[r][c]);
+        
+        if (!hasNeighbor && Math.random() > 0.3) continue;
+        
+        const nodeType = getRandomNodeType(row, gridRows);
+        const node = createNode(row, col, nodeType);
+        grid[row][col] = node;
+        allNodes.push(node);
+      }
+      
+      console.log(`总节点数: ${allNodes.length}`);
+      
+      return {
+        grid,
+        nodes: allNodes,
+        totalFloors: gridRows,
+        startNode,
+        bossNode,
+        act
+      };
+    }
+    
+    // ===========================
+    // 全局变量
+    // ===========================
+    let currentMapData = null;
+    let exploredNodes = new Set();
+    let currentNode = null;
+    
+    const canvas = document.getElementById('map-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    const HEX_SIZE = 30;
+    const PADDING = 100;
+    
+    // ===========================
+    // 生成地图
+    // ===========================
+    function generateMap(act) {
+      try {
+        currentMapData = generateGridMap(act);
+        exploredNodes = new Set();
+        currentNode = currentMapData.startNode;
+        exploredNodes.add(`${currentNode.row}-${currentNode.col}`);
+        
+        updateStats();
+        renderMap();
+        updateExplorationInfo();
+      } catch (error) {
+        console.error('地图生成失败:', error);
+        alert('地图生成失败: ' + error.message);
+      }
+    }
+    
+    // ===========================
+    // 更新统计信息
+    // ===========================
+    function updateStats() {
+      if (!currentMapData) return;
+      
+      const { nodes, grid, totalFloors } = currentMapData;
+      const totalCells = totalFloors * GRID_COLS;
+      const density = ((nodes.length / totalCells) * 100).toFixed(1);
+      
+      const reachable = checkBossReachable();
+      
+      document.getElementById('stat-nodes').textContent = nodes.length;
+      document.getElementById('stat-size').textContent = `${totalFloors}×${GRID_COLS}`;
+      document.getElementById('stat-density').textContent = `${density}%`;
+      
+      const reachableEl = document.getElementById('stat-reachable');
+      reachableEl.textContent = reachable ? '✅ 是' : '❌ 否';
+      reachableEl.className = 'stat-value ' + (reachable ? 'success' : 'error');
+      
+      document.getElementById('stat-explored').textContent = exploredNodes.size;
+      
+      const available = getAvailableNodes();
+      document.getElementById('stat-available').textContent = available.length;
+    }
+    
+    // ===========================
+    // BFS检查BOSS可达性
+    // ===========================
+    function checkBossReachable() {
+      if (!currentMapData) return false;
+      
+      const { grid, startNode, bossNode, totalFloors } = currentMapData;
+      const visited = new Set();
+      const queue = [startNode];
+      visited.add(`${startNode.row}-${startNode.col}`);
+      
+      while (queue.length > 0) {
+        const current = queue.shift();
+        
+        if (current.row === bossNode.row && current.col === bossNode.col) {
+          return true;
+        }
+        
+        const neighbors = getHexNeighbors(current.row, current.col, totalFloors, GRID_COLS);
+        for (const [r, c] of neighbors) {
+          const neighbor = grid[r][c];
+          if (neighbor && !visited.has(`${r}-${c}`)) {
+            visited.add(`${r}-${c}`);
+            queue.push(neighbor);
+          }
+        }
+      }
+      
+      return false;
+    }
+    
+    // ===========================
+    // 获取可探索的节点
+    // ===========================
+    function getAvailableNodes() {
+      if (!currentMapData || !currentNode) return [];
+      
+      const { grid, totalFloors } = currentMapData;
+      const neighbors = getHexNeighbors(currentNode.row, currentNode.col, totalFloors, GRID_COLS);
+      const available = [];
+      
+      for (const [r, c] of neighbors) {
+        const neighbor = grid[r][c];
+        if (neighbor && !exploredNodes.has(`${r}-${c}`)) {
+          available.push(neighbor);
+        }
+      }
+      
+      return available;
+    }
+    
+    // ===========================
+    // 渲染地图
+    // ===========================
+    function renderMap() {
+      if (!currentMapData) return;
+      
+      const { grid, totalFloors, startNode, bossNode } = currentMapData;
+      
+      // 计算canvas尺寸
+      const maxWidth = totalFloors * HEX_SIZE * 2;
+      const maxHeight = GRID_COLS * HEX_SIZE * 2;
+      canvas.width = maxWidth + PADDING * 2;
+      canvas.height = maxHeight + PADDING * 2;
+      
+      // 清空画布
+      ctx.fillStyle = '#0a0e27';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // 获取可选节点
+      const availableNodes = getAvailableNodes();
+      const availableSet = new Set(availableNodes.map(n => `${n.row}-${n.col}`));
+      
+      // 绘制连接线
+      ctx.strokeStyle = 'rgba(200, 170, 110, 0.3)';
+      ctx.lineWidth = 2;
+      for (const node of currentMapData.nodes) {
+        if (!exploredNodes.has(`${node.row}-${node.col}`)) continue;
+        
+        const nodePos = offsetToPixel(node.row, node.col, HEX_SIZE);
+        const neighbors = getHexNeighbors(node.row, node.col, totalFloors, GRID_COLS);
+        
+        for (const [r, c] of neighbors) {
+          const neighbor = grid[r][c];
+          if (neighbor && exploredNodes.has(`${r}-${c}`)) {
+            const neighborPos = offsetToPixel(r, c, HEX_SIZE);
+            ctx.beginPath();
+            ctx.moveTo(nodePos.x + PADDING, canvas.height - nodePos.y - PADDING);
+            ctx.lineTo(neighborPos.x + PADDING, canvas.height - neighborPos.y - PADDING);
+            ctx.stroke();
+          }
+        }
+      }
+      
+      // 绘制节点
+      for (const node of currentMapData.nodes) {
+        const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
+        const x = pos.x + PADDING;
+        const y = canvas.height - pos.y - PADDING;
+        
+        const isExplored = exploredNodes.has(`${node.row}-${node.col}`);
+        const isAvailable = availableSet.has(`${node.row}-${node.col}`);
+        const isCurrent = currentNode && node.row === currentNode.row && node.col === currentNode.col;
+        
+        drawHexagon(x, y, HEX_SIZE * 0.8, node, isExplored, isAvailable, isCurrent);
+      }
+    }
+    
+    // ===========================
+    // 绘制六边形
+    // ===========================
+    function drawHexagon(x, y, size, node, isExplored, isAvailable, isCurrent) {
+      const { startNode, bossNode } = currentMapData;
+      
+      // 确定颜色
+      let fillColor;
+      if (node.row === startNode.row && node.col === startNode.col) {
+        fillColor = '#4ade80';
+      } else if (node.row === bossNode.row && node.col === bossNode.col) {
+        fillColor = '#ef4444';
+      } else {
+        switch (node.type) {
+          case 'BATTLE': fillColor = '#dc2626'; break;
+          case 'SHOP': fillColor = '#f59e0b'; break;
+          case 'EVENT': fillColor = '#3b82f6'; break;
+          case 'REST': fillColor = '#10b981'; break;
+          case 'CHEST': fillColor = '#8b5cf6'; break;
+          default: fillColor = '#6b7280';
+        }
+      }
+      
+      // 绘制六边形
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const angle = Math.PI / 3 * i;
+        const hx = x + size * Math.cos(angle);
+        const hy = y + size * Math.sin(angle);
+        if (i === 0) ctx.moveTo(hx, hy);
+        else ctx.lineTo(hx, hy);
+      }
+      ctx.closePath();
+      
+      // 填充
+      if (isExplored) {
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.fill();
+        ctx.strokeStyle = '#C8AA6E';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      } else if (isAvailable) {
+        ctx.fillStyle = fillColor;
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = '#C8AA6E';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = fillColor;
+        ctx.globalAlpha = 0.3;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      
+      // 当前节点高亮
+      if (isCurrent) {
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+      
+      // 绘制文本
+      if (isExplored && !isCurrent) {
+        ctx.fillStyle = '#C8AA6E';
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('✓', x, y);
+      }
+    }
+    
+    // ===========================
+    // 画布点击事件
+    // ===========================
+    canvas.addEventListener('click', (e) => {
+      if (!currentMapData) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      
+      const availableNodes = getAvailableNodes();
+      
+      for (const node of availableNodes) {
+        const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
+        const x = pos.x + PADDING;
+        const y = canvas.height - pos.y - PADDING;
+        
+        const dx = clickX - x;
+        const dy = clickY - y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < HEX_SIZE * 0.8) {
+          exploreNode(node);
+          return;
+        }
+      }
+    });
+    
+    // ===========================
+    // 探索节点
+    // ===========================
+    function exploreNode(node) {
+      exploredNodes.add(`${node.row}-${node.col}`);
+      currentNode = node;
+      updateStats();
+      renderMap();
+      updateExplorationInfo();
+      
+      if (node.row === currentMapData.bossNode.row && node.col === currentMapData.bossNode.col) {
+        setTimeout(() => {
+          alert(`🎉 到达BOSS！总共探索了 ${exploredNodes.size} 个节点。`);
+        }, 100);
+      }
+    }
+    
+    // ===========================
+    // 更新探索信息
+    // ===========================
+    function updateExplorationInfo() {
+      const info = document.getElementById('step-info');
+      if (!currentNode) {
+        info.textContent = '等待开始探索...';
+        return;
+      }
+      
+      const available = getAvailableNodes();
+      const isBoss = currentNode.row === currentMapData.bossNode.row && currentNode.col === currentMapData.bossNode.col;
+      
+      if (isBoss) {
+        info.innerHTML = `
+          <div style="color: #4ade80; font-weight: bold; font-size: 1.2rem;">
+            🎉 已到达BOSS！总共探索了 ${exploredNodes.size} 个节点。
+          </div>
+        `;
+      } else {
+        info.innerHTML = `
+          <div><strong>当前位置:</strong> Row ${currentNode.row}, Col ${currentNode.col} (${currentNode.type})</div>
+          <div><strong>可选方向:</strong> ${available.length} 个</div>
+          <div style="margin-top: 5px; color: #8899aa;">
+            ${available.map(n => `Row ${n.row}, Col ${n.col} (${n.type})`).join(' | ')}
+          </div>
+        `;
+      }
+    }
+    
+    // ===========================
+    // 自动探索
+    // ===========================
+    function autoExplore() {
+      if (!currentMapData || !currentNode) return;
+      
+      const interval = setInterval(() => {
+        const available = getAvailableNodes();
+        
+        if (available.length === 0) {
+          clearInterval(interval);
+          alert('无法继续探索！');
+          return;
+        }
+        
+        const bossNode = currentMapData.bossNode;
+        let bestNode = available[0];
+        let minDist = Infinity;
+        
+        for (const node of available) {
+          const dist = Math.abs(node.row - bossNode.row) + Math.abs(node.col - bossNode.col);
+          if (dist < minDist) {
+            minDist = dist;
+            bestNode = node;
+          }
+        }
+        
+        exploreNode(bestNode);
+        
+        if (bestNode.row === bossNode.row && bestNode.col === bossNode.col) {
+          clearInterval(interval);
+        }
+      }, 300);
+    }
+    
+    // ===========================
+    // 重置探索
+    // ===========================
+    function resetExploration() {
+      if (!currentMapData) return;
+      exploredNodes = new Set();
+      currentNode = currentMapData.startNode;
+      exploredNodes.add(`${currentNode.row}-${currentNode.col}`);
+      updateStats();
+      renderMap();
+      updateExplorationInfo();
+    }
+    
+    // ===========================
+    // 批量测试
+    // ===========================
+    function runBatchTest(act, count) {
+      const results = [];
+      let successCount = 0;
+      
+      for (let i = 0; i < count; i++) {
+        try {
+          const mapData = generateGridMap(act);
+          const reachable = checkBossReachableForMap(mapData);
+          
+          if (reachable) successCount++;
+          
+          results.push({
+            id: i + 1,
+            nodes: mapData.nodes.length,
+            rows: mapData.totalFloors,
+            reachable
+          });
+        } catch (error) {
+          results.push({
+            id: i + 1,
+            error: error.message
+          });
+        }
+      }
+      
+      displayTestResults(act, results, successCount, count);
+    }
+    
+    function checkBossReachableForMap(mapData) {
+      const { grid, startNode, bossNode, totalFloors } = mapData;
+      const visited = new Set();
+      const queue = [startNode];
+      visited.add(`${startNode.row}-${startNode.col}`);
+      
+      while (queue.length > 0) {
+        const current = queue.shift();
+        
+        if (current.row === bossNode.row && current.col === bossNode.col) {
+          return true;
+        }
+        
+        const neighbors = getHexNeighbors(current.row, current.col, totalFloors, GRID_COLS);
+        for (const [r, c] of neighbors) {
+          const neighbor = grid[r][c];
+          if (neighbor && !visited.has(`${r}-${c}`)) {
+            visited.add(`${r}-${c}`);
+            queue.push(neighbor);
+          }
+        }
+      }
+      
+      return false;
+    }
+    
+    function displayTestResults(act, results, successCount, total) {
+      const container = document.getElementById('test-results');
+      const successRate = ((successCount / total) * 100).toFixed(1);
+      
+      const avgNodes = results.reduce((sum, r) => sum + (r.nodes || 0), 0) / total;
+      const avgRows = results.reduce((sum, r) => sum + (r.rows || 0), 0) / total;
+      
+      container.innerHTML = `
+        <div class="test-result ${successRate >= 90 ? 'success' : 'error'}">
+          <strong>ACT${act} 批量测试 (${total}次)</strong><br>
+          成功率: ${successRate}% (${successCount}/${total})<br>
+          平均节点数: ${avgNodes.toFixed(1)}<br>
+          平均行数: ${avgRows.toFixed(1)}
+        </div>
+      `;
+    }
+    
+    console.log('六边形自由探索地图测试器已加载');
+  </script>
+</body>
+</html>
+
