@@ -46,6 +46,158 @@ const ACT_CONFIG = {
   }
 };
 
+const SHAPE_PATTERNS = {
+  1: [
+    {
+      name: '直线 (I)',
+      anchors: [
+        { ratio: 0, offset: 0 },
+        { ratio: 1, offset: 0 }
+      ],
+      loops: []
+    },
+    {
+      name: 'S 字',
+      anchors: [
+        { ratio: 0, offset: 0 },
+        { ratio: 0.4, offset: -2 },
+        { ratio: 0.8, offset: 2 },
+        { ratio: 1, offset: 0 }
+      ],
+      loops: [{ ratio: 0.5, direction: 1, span: 2 }]
+    }
+  ],
+  2: [
+    {
+      name: '工 字',
+      anchors: [
+        { ratio: 0, offset: 0 },
+        { ratio: 0.2, offset: 4 },
+        { ratio: 0.5, offset: 0 },
+        { ratio: 0.8, offset: -4 },
+        { ratio: 1, offset: 0 }
+      ],
+      loops: [
+        { ratio: 0.15, direction: -1, span: 3 },
+        { ratio: 0.85, direction: 1, span: 3 }
+      ]
+    },
+    {
+      name: 'O 型',
+      anchors: [
+        { ratio: 0, offset: 0 },
+        { ratio: 0.25, offset: 3 },
+        { ratio: 0.5, offset: 0 },
+        { ratio: 0.75, offset: -3 },
+        { ratio: 1, offset: 0 }
+      ],
+      loops: [
+        { ratio: 0.3, direction: 1, span: 2 },
+        { ratio: 0.7, direction: -1, span: 2 }
+      ]
+    },
+    {
+      name: '梯形',
+      anchors: [
+        { ratio: 0, offset: -2 },
+        { ratio: 0.5, offset: 2 },
+        { ratio: 1, offset: -1 }
+      ],
+      loops: [{ ratio: 0.55, direction: 1, span: 2 }]
+    }
+  ],
+  3: [
+    {
+      name: 'S 扩展',
+      anchors: [
+        { ratio: 0, offset: 0 },
+        { ratio: 0.2, offset: -4 },
+        { ratio: 0.45, offset: 4 },
+        { ratio: 0.7, offset: -3 },
+        { ratio: 1, offset: 2 }
+      ],
+      loops: [
+        { ratio: 0.35, direction: 1, span: 3 },
+        { ratio: 0.65, direction: -1, span: 3 }
+      ]
+    },
+    {
+      name: '椭圆 O',
+      anchors: [
+        { ratio: 0, offset: 0 },
+        { ratio: 0.15, offset: 3 },
+        { ratio: 0.4, offset: 4 },
+        { ratio: 0.6, offset: -4 },
+        { ratio: 0.85, offset: -3 },
+        { ratio: 1, offset: 0 }
+      ],
+      loops: [
+        { ratio: 0.2, direction: 1, span: 3 },
+        { ratio: 0.8, direction: -1, span: 3 }
+      ]
+    },
+    {
+      name: '立 字阶梯',
+      anchors: [
+        { ratio: 0, offset: -2 },
+        { ratio: 0.3, offset: -2 },
+        { ratio: 0.5, offset: 3 },
+        { ratio: 0.8, offset: 3 },
+        { ratio: 1, offset: 0 }
+      ],
+      loops: [{ ratio: 0.5, direction: -1, span: 4 }]
+    }
+  ]
+};
+
+const clampColumn = (col) => Math.max(0, Math.min(GRID_COLS - 1, col));
+
+const pickShapePattern = (act) => {
+  const patterns = SHAPE_PATTERNS[act] || SHAPE_PATTERNS[1];
+  return patterns[Math.floor(Math.random() * patterns.length)];
+};
+
+const buildRowTargets = (gridRows, bossCol, pattern) => {
+  const anchors = (pattern.anchors?.length ? pattern.anchors : [{ ratio: 0, offset: 0 }, { ratio: 1, offset: 0 }])
+    .map(anchor => ({
+      row: Math.max(0, Math.min(gridRows - 1, Math.round(anchor.ratio * (gridRows - 1)))),
+      col: clampColumn(bossCol + (anchor.offset || 0))
+    }))
+    .sort((a, b) => a.row - b.row);
+
+  const targets = new Array(gridRows).fill(bossCol);
+  for (let row = 0; row < gridRows; row++) {
+    if (row <= anchors[0].row) {
+      targets[row] = anchors[0].col;
+      continue;
+    }
+    if (row >= anchors[anchors.length - 1].row) {
+      targets[row] = anchors[anchors.length - 1].col;
+      continue;
+    }
+    const nextIndex = anchors.findIndex(anchor => anchor.row >= row);
+    const nextAnchor = anchors[nextIndex];
+    const prevAnchor = anchors[nextIndex - 1];
+    if (nextAnchor.row === row) {
+      targets[row] = nextAnchor.col;
+    } else {
+      const t = (row - prevAnchor.row) / (nextAnchor.row - prevAnchor.row);
+      const interpolated = Math.round(prevAnchor.col + (nextAnchor.col - prevAnchor.col) * t);
+      targets[row] = clampColumn(interpolated);
+    }
+  }
+  return targets;
+};
+
+const buildLoopTriggers = (pattern, gridRows, config) => {
+  return (pattern.loops || []).map(loop => ({
+    row: Math.max(1, Math.min(gridRows - 2, Math.round(loop.ratio * (gridRows - 1)))),
+    direction: loop.direction || 1,
+    span: Math.max(1, loop.span || config.maxHorizontalRun),
+    used: false
+  }));
+};
+
 // 节点类型权重
 const NODE_WEIGHTS = {
   BATTLE: 0.50,
@@ -64,6 +216,8 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
   const config = ACT_CONFIG[act];
   const gridRows = config.rows;
   const targetSteps = config.minSteps + Math.floor(Math.random() * (config.maxSteps - config.minSteps + 1));
+  const pattern = pickShapePattern(act);
+  console.log(`[图形] ACT${act} 使用: ${pattern.name}, 目标步数 ${targetSteps}`);
   
   // 初始化网格
   const grid = Array(gridRows).fill(null).map(() => Array(GRID_COLS).fill(null));
@@ -94,7 +248,7 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
   // ===========================
   // Step 3: 生成主路径（确保BOSS可达）
   // ===========================
-  const mainPath = generateMainPath(grid, gridRows, startNode, bossNode, config, targetSteps, act, usedEnemies, allNodes);
+  const mainPath = generateMainPath(grid, gridRows, startNode, bossNode, config, pattern, targetSteps, act, usedEnemies, allNodes);
 
   // ===========================
   // Step 4: 生成可选支线
@@ -132,7 +286,7 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
 // ===========================
 // 生成主路径（确保BOSS可达）
 // ===========================
-const generateMainPath = (grid, gridRows, startNode, bossNode, config, targetSteps, act, usedEnemies, allNodes) => {
+const generateMainPath = (grid, gridRows, startNode, bossNode, config, pattern, targetSteps, act, usedEnemies, allNodes) => {
   const path = [startNode];
   let currentNode = startNode;
   let currentRow = startNode.row;
@@ -140,9 +294,11 @@ const generateMainPath = (grid, gridRows, startNode, bossNode, config, targetSte
   const bossRow = bossNode.row;
   const bossCol = bossNode.col;
   const verticalStepsNeeded = bossRow - currentRow;
-  let extraBudget = Math.max(0, targetSteps - verticalStepsNeeded);
+  let budgetRemaining = Math.max(0, targetSteps - verticalStepsNeeded);
+  const rowTargets = buildRowTargets(gridRows, bossCol, pattern);
+  const loopTriggers = buildLoopTriggers(pattern, gridRows, config);
 
-  const moveHorizontal = (dir) => {
+  const moveHorizontal = (dir, countsBudget = true) => {
     const targetCol = currentCol + dir;
     if (targetCol < 0 || targetCol >= GRID_COLS) {
       return false;
@@ -155,6 +311,9 @@ const generateMainPath = (grid, gridRows, startNode, bossNode, config, targetSte
     currentCol = targetCol;
     currentNode = grid[currentRow][currentCol];
     path.push(currentNode);
+    if (countsBudget) {
+      budgetRemaining = Math.max(0, budgetRemaining - 1);
+    }
     return true;
   };
 
@@ -173,51 +332,65 @@ const generateMainPath = (grid, gridRows, startNode, bossNode, config, targetSte
     path.push(nextNode);
   };
 
-  // 主路径推进到 BOSS 楼层的前一层
-  while (currentRow < bossRow - 1) {
-    const rowsRemaining = bossRow - currentRow - 1;
-    const maxHorizontal = Math.min(config.maxHorizontalRun, extraBudget);
-    let horizontalMoves = maxHorizontal > 0 ? Math.floor(Math.random() * (maxHorizontal + 1)) : 0;
-    const directionPreference = bossCol > currentCol ? 1 : bossCol < currentCol ? -1 : (Math.random() < 0.5 ? 1 : -1);
-    let direction = directionPreference;
-
-    while (horizontalMoves > 0) {
-      if (!moveHorizontal(direction)) {
-        direction *= -1;
-        if (!moveHorizontal(direction)) break;
+  const maybeApplyPatternLoop = () => {
+    if (!loopTriggers.length) return;
+    for (const loop of loopTriggers) {
+      if (loop.used) continue;
+      if (Math.abs(currentRow - loop.row) > 1) continue;
+      if (budgetRemaining < loop.span * 2) continue;
+      let success = true;
+      for (let step = 0; step < loop.span; step++) {
+        if (!moveHorizontal(loop.direction)) { success = false; break; }
       }
-      extraBudget = Math.max(0, extraBudget - 1);
-      horizontalMoves--;
-    }
-
-    // 如果还剩余大量额外步数且有机会，强制绕远（改变列再返回）
-    if (extraBudget > rowsRemaining && Math.random() < config.detourChance) {
-      const detourDir = directionPreference;
-      if (moveHorizontal(detourDir)) {
-        extraBudget = Math.max(0, extraBudget - 1);
-        if (moveHorizontal(detourDir)) {
-          extraBudget = Math.max(0, extraBudget - 1);
+      if (success) {
+        for (let step = 0; step < loop.span; step++) {
+          if (!moveHorizontal(-loop.direction)) { success = false; break; }
         }
       }
+      if (success) {
+        loop.used = true;
+      }
+      break;
+    }
+  };
+
+  // 主路径推进到 BOSS 楼层的前一层
+  while (currentRow < bossRow - 1) {
+    const nextRow = currentRow + 1;
+    const desiredCol = rowTargets[nextRow] ?? bossCol;
+    const delta = desiredCol - currentCol;
+    const dir = delta >= 0 ? 1 : -1;
+    let movesNeeded = Math.abs(delta);
+
+    while (movesNeeded > 0) {
+      if (!moveHorizontal(dir, false)) break;
+      movesNeeded--;
     }
 
-    // 向上移动（保持蜂窝邻接：同列或左一列）
-    const options = [];
-    if (currentCol >= 0 && currentCol < GRID_COLS) options.push(currentCol);
-    if (currentCol - 1 >= 0) options.push(currentCol - 1);
-    const nextCol = options.sort((a, b) => Math.abs(a - bossCol) - Math.abs(b - bossCol))[0] ?? currentCol;
-    moveUpward(nextCol);
+    if (budgetRemaining > 0 && Math.random() < config.detourChance) {
+      const extraDir = Math.random() < 0.5 ? 1 : -1;
+      const steps = Math.min(config.maxHorizontalRun, budgetRemaining);
+      let performed = 0;
+      while (performed < steps && moveHorizontal(extraDir)) {
+        performed++;
+      }
+      while (performed > 0 && moveHorizontal(-extraDir)) {
+        performed--;
+      }
+    }
+
+    maybeApplyPatternLoop();
+    moveUpward(desiredCol);
   }
 
-  // 现在处于 BOSS 楼层的前一层，横向调整到 bossCol 或 bossCol+1
-  while (extraBudget > 0) {
+  // 现在处于 BOSS 楼层的前一层，横向调整到 bossCol
+  while (budgetRemaining > 0) {
     const dir = currentCol < bossCol ? 1 : currentCol > bossCol ? -1 : (Math.random() < 0.5 ? 1 : -1);
     if (!moveHorizontal(dir)) break;
-    extraBudget = Math.max(0, extraBudget - 1);
   }
 
-  while (currentCol < bossCol) moveHorizontal(1);
-  while (currentCol > bossCol) moveHorizontal(-1);
+  while (currentCol < bossCol) moveHorizontal(1, false);
+  while (currentCol > bossCol) moveHorizontal(-1, false);
 
   currentRow = bossRow - 1;
   moveUpward(bossCol);
