@@ -14,7 +14,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ITEM_URL, PROFILEICON_URL, CDN_URL } from '../data/constants';
 import { ENEMY_POOL } from '../data/enemies';
-import { getHexNeighbors, offsetToPixel } from '../utils/hexagonGrid';
+import { getHexNeighbors, offsetToPixel, offsetToPixelRotated } from '../utils/hexagonGrid';
 
 const GridMapView_v3 = ({ mapData, onNodeSelect, activeNode, currentFloor, act }) => {
   const containerRef = useRef(null);
@@ -40,8 +40,10 @@ const GridMapView_v3 = ({ mapData, onNodeSelect, activeNode, currentFloor, act }
     const map = new Map();
     const b = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
 
+    const GRID_COLS = mapData.grid?.[0]?.length || 11;
     mapData.nodes.forEach(node => {
-      const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
+      // 使用旋转后的坐标（横版布局：左边起点，右边终点）
+      const pos = offsetToPixelRotated(node.row, node.col, mapData.totalFloors, GRID_COLS, HEX_SIZE);
       map.set(`${node.row}-${node.col}`, pos);
       b.minX = Math.min(b.minX, pos.x);
       b.maxX = Math.max(b.maxX, pos.x);

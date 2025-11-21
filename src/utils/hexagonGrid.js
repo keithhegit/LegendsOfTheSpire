@@ -158,3 +158,50 @@ export function areHexagonsAdjacent(row1, col1, row2, col2) {
   return hexDistance(row1, col1, row2, col2) === 1;
 }
 
+/**
+ * 将坐标旋转90度（逆时针），用于横版布局
+ * 原：row（垂直向下），col（水平向右）
+ * 转后：row（水平向右），col（垂直向下）
+ * 
+ * 注意：这个函数用于渲染时的坐标转换，不改变内部逻辑
+ * 旋转后：起点在左边（row=0），终点在右边（row=maxCols-1）
+ * @param {number} row - 原始row（垂直方向）
+ * @param {number} col - 原始col（水平方向）
+ * @param {number} maxRows - 原始最大行数
+ * @param {number} maxCols - 原始最大列数
+ * @returns {{row: number, col: number}} - 旋转后的坐标
+ */
+export function rotate90CCW(row, col, maxRows, maxCols) {
+  // 逆时针旋转90度：
+  // 原row（垂直）→ 新col（垂直，保持不变）
+  // 原col（水平）→ 新row（水平，保持不变）
+  // 但需要调整：起点在左边，终点在右边
+  return {
+    row: col,  // 原col变成新row（水平方向）
+    col: row   // 原row变成新col（垂直方向）
+  };
+}
+
+/**
+ * 旋转后的坐标转像素（横版布局）
+ * @param {number} row - 原始row（垂直方向）
+ * @param {number} col - 原始col（水平方向）
+ * @param {number} maxRows - 原始最大行数
+ * @param {number} maxCols - 原始最大列数
+ * @param {number} hexSize - 六边形大小
+ * @returns {{x: number, y: number}} - 像素坐标
+ */
+export function offsetToPixelRotated(row, col, maxRows, maxCols, hexSize = HEX_SIZE) {
+  // 旋转90度：新row = 原col, 新col = 原row
+  // 旋转后，row是水平方向（从左到右），col是垂直方向（从上到下）
+  // 对于flat-top六边形：
+  // - 水平方向（row）：使用 hexSize * 1.5 的间距
+  // - 垂直方向（col）：使用 hexSize * sqrt(3) 的间距
+  const rotatedRow = col;  // 原col变成水平方向
+  const rotatedCol = row;  // 原row变成垂直方向
+  
+  const x = hexSize * 1.5 * rotatedRow;
+  const y = hexSize * Math.sqrt(3) * rotatedCol;
+  return { x, y };
+}
+

@@ -21,7 +21,8 @@ export const GRID_COLS = 11; // 网格宽度
 
 const ACT_CONFIG = {
   1: {
-    rows: 12,
+    minRows: 7,
+    maxRows: 12,
     minSteps: 16,
     maxSteps: 22,
     maxHorizontalRun: 2,
@@ -29,7 +30,8 @@ const ACT_CONFIG = {
     optionalBranches: 3
   },
   2: {
-    rows: 20,
+    minRows: 10,
+    maxRows: 20,
     minSteps: 32,
     maxSteps: 46,
     maxHorizontalRun: 2,
@@ -37,7 +39,8 @@ const ACT_CONFIG = {
     optionalBranches: 6
   },
   3: {
-    rows: 28,
+    minRows: 13,
+    maxRows: 25,
     minSteps: 55,
     maxSteps: 72,
     maxHorizontalRun: 3,
@@ -46,115 +49,99 @@ const ACT_CONFIG = {
   }
 };
 
+// 图形模板定义（带权重）
 const SHAPE_PATTERNS = {
   1: [
-    {
-      name: '直线 (I)',
-      anchors: [
-        { ratio: 0, offset: 0 },
-        { ratio: 1, offset: 0 }
-      ],
-      loops: []
-    },
-    {
-      name: 'S 字',
-      anchors: [
-        { ratio: 0, offset: 0 },
-        { ratio: 0.4, offset: -2 },
-        { ratio: 0.8, offset: 2 },
-        { ratio: 1, offset: 0 }
-      ],
-      loops: [{ ratio: 0.5, direction: 1, span: 2 }]
-    }
+    { name: '直线 (I)', weight: 1, anchors: [{ ratio: 0, offset: 0 }, { ratio: 1, offset: 0 }], loops: [] },
+    { name: 'S 字', weight: 3, anchors: [{ ratio: 0, offset: 0 }, { ratio: 0.4, offset: -2 }, { ratio: 0.8, offset: 2 }, { ratio: 1, offset: 0 }], loops: [{ ratio: 0.5, direction: 1, span: 2 }] },
+    { name: '立 字阶梯', weight: 5, anchors: [{ ratio: 0, offset: -1 }, { ratio: 0.3, offset: -1 }, { ratio: 0.5, offset: 2 }, { ratio: 0.8, offset: 2 }, { ratio: 1, offset: 0 }], loops: [{ ratio: 0.5, direction: -1, span: 3 }] }
   ],
   2: [
-    {
-      name: '工 字',
-      anchors: [
-        { ratio: 0, offset: 0 },
-        { ratio: 0.2, offset: 4 },
-        { ratio: 0.5, offset: 0 },
-        { ratio: 0.8, offset: -4 },
-        { ratio: 1, offset: 0 }
-      ],
-      loops: [
-        { ratio: 0.15, direction: -1, span: 3 },
-        { ratio: 0.85, direction: 1, span: 3 }
-      ]
-    },
-    {
-      name: 'O 型',
-      anchors: [
-        { ratio: 0, offset: 0 },
-        { ratio: 0.25, offset: 3 },
-        { ratio: 0.5, offset: 0 },
-        { ratio: 0.75, offset: -3 },
-        { ratio: 1, offset: 0 }
-      ],
-      loops: [
-        { ratio: 0.3, direction: 1, span: 2 },
-        { ratio: 0.7, direction: -1, span: 2 }
-      ]
-    },
-    {
-      name: '梯形',
-      anchors: [
-        { ratio: 0, offset: -2 },
-        { ratio: 0.5, offset: 2 },
-        { ratio: 1, offset: -1 }
-      ],
-      loops: [{ ratio: 0.55, direction: 1, span: 2 }]
-    }
+    { name: '工 字', weight: 4, anchors: [{ ratio: 0, offset: 0 }, { ratio: 0.2, offset: 4 }, { ratio: 0.5, offset: 0 }, { ratio: 0.8, offset: -4 }, { ratio: 1, offset: 0 }], loops: [{ ratio: 0.15, direction: -1, span: 3 }, { ratio: 0.85, direction: 1, span: 3 }] },
+    { name: 'O 型', weight: 4, anchors: [{ ratio: 0, offset: 0 }, { ratio: 0.25, offset: 3 }, { ratio: 0.5, offset: 0 }, { ratio: 0.75, offset: -3 }, { ratio: 1, offset: 0 }], loops: [{ ratio: 0.3, direction: 1, span: 2 }, { ratio: 0.7, direction: -1, span: 2 }] },
+    { name: '梯形', weight: 3, anchors: [{ ratio: 0, offset: -2 }, { ratio: 0.5, offset: 2 }, { ratio: 1, offset: -1 }], loops: [{ ratio: 0.55, direction: 1, span: 2 }] },
+    { name: '立 字阶梯', weight: 6, anchors: [{ ratio: 0, offset: -2 }, { ratio: 0.3, offset: -2 }, { ratio: 0.5, offset: 3 }, { ratio: 0.8, offset: 3 }, { ratio: 1, offset: 0 }], loops: [{ ratio: 0.5, direction: -1, span: 4 }] }
   ],
   3: [
-    {
-      name: 'S 扩展',
-      anchors: [
-        { ratio: 0, offset: 0 },
-        { ratio: 0.2, offset: -4 },
-        { ratio: 0.45, offset: 4 },
-        { ratio: 0.7, offset: -3 },
-        { ratio: 1, offset: 2 }
-      ],
-      loops: [
-        { ratio: 0.35, direction: 1, span: 3 },
-        { ratio: 0.65, direction: -1, span: 3 }
-      ]
-    },
-    {
-      name: '椭圆 O',
-      anchors: [
-        { ratio: 0, offset: 0 },
-        { ratio: 0.15, offset: 3 },
-        { ratio: 0.4, offset: 4 },
-        { ratio: 0.6, offset: -4 },
-        { ratio: 0.85, offset: -3 },
-        { ratio: 1, offset: 0 }
-      ],
-      loops: [
-        { ratio: 0.2, direction: 1, span: 3 },
-        { ratio: 0.8, direction: -1, span: 3 }
-      ]
-    },
-    {
-      name: '立 字阶梯',
-      anchors: [
-        { ratio: 0, offset: -2 },
-        { ratio: 0.3, offset: -2 },
-        { ratio: 0.5, offset: 3 },
-        { ratio: 0.8, offset: 3 },
-        { ratio: 1, offset: 0 }
-      ],
-      loops: [{ ratio: 0.5, direction: -1, span: 4 }]
-    }
+    { name: 'S 扩展', weight: 4, anchors: [{ ratio: 0, offset: 0 }, { ratio: 0.2, offset: -4 }, { ratio: 0.45, offset: 4 }, { ratio: 0.7, offset: -3 }, { ratio: 1, offset: 2 }], loops: [{ ratio: 0.35, direction: 1, span: 3 }, { ratio: 0.65, direction: -1, span: 3 }] },
+    { name: '椭圆 O', weight: 4, anchors: [{ ratio: 0, offset: 0 }, { ratio: 0.15, offset: 3 }, { ratio: 0.4, offset: 4 }, { ratio: 0.6, offset: -4 }, { ratio: 0.85, offset: -3 }, { ratio: 1, offset: 0 }], loops: [{ ratio: 0.2, direction: 1, span: 3 }, { ratio: 0.8, direction: -1, span: 3 }] },
+    { name: '工 字扩展', weight: 5, anchors: [{ ratio: 0, offset: 0 }, { ratio: 0.2, offset: 5 }, { ratio: 0.5, offset: 0 }, { ratio: 0.8, offset: -5 }, { ratio: 1, offset: 0 }], loops: [{ ratio: 0.15, direction: -1, span: 4 }, { ratio: 0.85, direction: 1, span: 4 }] },
+    { name: '立 字阶梯', weight: 8, anchors: [{ ratio: 0, offset: -2 }, { ratio: 0.3, offset: -2 }, { ratio: 0.5, offset: 3 }, { ratio: 0.8, offset: 3 }, { ratio: 1, offset: 0 }], loops: [{ ratio: 0.5, direction: -1, span: 4 }] }
   ]
 };
 
+// 挖空配置（空洞尺寸）
+const HOLE_PATTERNS = [
+  { name: '1x1', width: 1, height: 1, weight: 2 },
+  { name: '2x2', width: 2, height: 2, weight: 3 },
+  { name: '2x3', width: 2, height: 3, weight: 2 },
+  { name: '3x2', width: 3, height: 2, weight: 2 },
+  { name: '3x4', width: 3, height: 4, weight: 1 },
+  { name: '2x4', width: 2, height: 4, weight: 1 }
+];
+
 const clampColumn = (col) => Math.max(0, Math.min(GRID_COLS - 1, col));
 
+// 加权随机选择图形模板
 const pickShapePattern = (act) => {
   const patterns = SHAPE_PATTERNS[act] || SHAPE_PATTERNS[1];
-  return patterns[Math.floor(Math.random() * patterns.length)];
+  const totalWeight = patterns.reduce((sum, p) => sum + (p.weight || 1), 0);
+  let rand = Math.random() * totalWeight;
+  for (const pattern of patterns) {
+    rand -= (pattern.weight || 1);
+    if (rand <= 0) return pattern;
+  }
+  return patterns[0];
+};
+
+// 加权随机选择挖空模式
+const pickHolePattern = () => {
+  const totalWeight = HOLE_PATTERNS.reduce((sum, h) => sum + h.weight, 0);
+  let rand = Math.random() * totalWeight;
+  for (const hole of HOLE_PATTERNS) {
+    rand -= hole.weight;
+    if (rand <= 0) return hole;
+  }
+  return HOLE_PATTERNS[0];
+};
+
+// 应用挖空：在地图中间区域挖出空洞，形成立字型/O型/S型
+const applyHoles = (grid, gridRows, gridCols, mainPath) => {
+  // 33%概率应用挖空
+  if (Math.random() > 0.33) return;
+  
+  const hole = pickHolePattern();
+  console.log(`[挖空] 应用 ${hole.name} 空洞`);
+  
+  // 创建主路径节点集合（保护主路径不被挖空）
+  const mainPathSet = new Set(mainPath.map(n => `${n.row}-${n.col}`));
+  
+  // 计算安全区域（避开起点和终点附近）
+  const safeStartRow = Math.floor(gridRows * 0.15);
+  const safeEndRow = Math.floor(gridRows * 0.85);
+  const safeStartCol = Math.floor(gridCols * 0.2);
+  const safeEndCol = Math.floor(gridCols * 0.8);
+  
+  // 随机选择空洞中心位置
+  const centerRow = safeStartRow + Math.floor(Math.random() * (safeEndRow - safeStartRow - hole.height + 1));
+  const centerCol = safeStartCol + Math.floor(Math.random() * (safeEndCol - safeStartCol - hole.width + 1));
+  
+  // 挖空：移除该区域内的所有节点（但保留主路径上的节点）
+  const removed = [];
+  for (let r = centerRow; r < centerRow + hole.height && r < gridRows; r++) {
+    for (let c = centerCol; c < centerCol + hole.width && c < gridCols; c++) {
+      if (grid[r] && grid[r][c]) {
+        const key = `${r}-${c}`;
+        // 保护主路径节点和起点/终点
+        if (!mainPathSet.has(key)) {
+          removed.push([r, c]);
+          grid[r][c] = null;
+        }
+      }
+    }
+  }
+  
+  console.log(`[挖空] 移除了 ${removed.length} 个节点`);
 };
 
 const buildRowTargets = (gridRows, bossCol, pattern) => {
@@ -214,10 +201,11 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
   console.log(`\n========== 生成 ACT${act} 六边形自由探索地图 ==========`);
   
   const config = ACT_CONFIG[act];
-  const gridRows = config.rows;
+  // 随机选择行数范围
+  const gridRows = config.minRows + Math.floor(Math.random() * (config.maxRows - config.minRows + 1));
   const targetSteps = config.minSteps + Math.floor(Math.random() * (config.maxSteps - config.minSteps + 1));
   const pattern = pickShapePattern(act);
-  console.log(`[图形] ACT${act} 使用: ${pattern.name}, 目标步数 ${targetSteps}`);
+  console.log(`[图形] ACT${act} 使用: ${pattern.name}, 行数: ${gridRows}, 目标步数 ${targetSteps}`);
   
   // 初始化网格
   const grid = Array(gridRows).fill(null).map(() => Array(GRID_COLS).fill(null));
@@ -256,7 +244,23 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
   addOptionalBranches(grid, mainPath, config.optionalBranches, act, usedEnemies, allNodes);
   
   // ===========================
-  // Step 5: BFS验证BOSS可达性
+  // Step 5: 应用挖空（形成立字型/O型/S型）
+  // ===========================
+  applyHoles(grid, gridRows, GRID_COLS, mainPath);
+  
+  // 更新allNodes：移除被挖空的节点
+  const nodeMap = new Map(allNodes.map(n => [`${n.row}-${n.col}`, n]));
+  for (let r = 0; r < gridRows; r++) {
+    for (let c = 0; c < GRID_COLS; c++) {
+      if (!grid[r][c] && nodeMap.has(`${r}-${c}`)) {
+        const idx = allNodes.findIndex(n => n.row === r && n.col === c);
+        if (idx >= 0) allNodes.splice(idx, 1);
+      }
+    }
+  }
+  
+  // ===========================
+  // Step 6: BFS验证BOSS可达性
   // ===========================
   const reachable = isBossReachable(grid, startNode, bossNode);
   
@@ -545,7 +549,7 @@ const getRandomEnemy = (act, usedEnemies = []) => {
 const generateFallbackMap = (act, usedEnemies) => {
   console.log('[Fallback] 生成简单线性地图');
   const config = ACT_CONFIG[act];
-  const gridRows = config.rows;
+  const gridRows = config.minRows + Math.floor(Math.random() * (config.maxRows - config.minRows + 1));
   const grid = Array(gridRows).fill(null).map(() => Array(GRID_COLS).fill(null));
   const allNodes = [];
   
