@@ -35,19 +35,26 @@ export const playSfx = (type) => {
     audio.volume = 0.4; // 默认音量
   }
   
-  audio.play().catch(e => console.log("SFX play failed (user interaction required)", e));
+  // 静默失败 - 用户首次交互前音频会被浏览器阻止
+  audio.play().catch(() => {
+    // 不显示错误，这是正常的浏览器安全策略
+  });
 };
 
-// 播放英雄语音（禁用.ogg格式，浏览器兼容性问题）
+// 播放英雄语音
 export const playChampionVoice = (championKey) => {
   if (!championKey) return;
   
-  // 注释掉语音播放，避免 NotSupportedError
-  // const voiceUrl = `${VOICE_URL}/${championKey}.ogg`;
-  // const audio = new Audio(voiceUrl);
-  // audio.volume = 0.6;
-  // audio.play().catch(e => console.log("Champion voice play failed", e));
+  const voiceUrl = `${VOICE_URL}/${championKey}.ogg`;
+  const audio = new Audio(voiceUrl);
+  audio.volume = 0.6;
   
-  // TODO: 未来可以使用 .mp3 格式替代 .ogg
+  // 更优雅的错误处理 - 静默失败，不在控制台显示错误
+  audio.play().catch(e => {
+    // 仅在开发环境显示详细错误
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`[Voice] Failed to play ${championKey}:`, e.name);
+    }
+  });
 };
 
