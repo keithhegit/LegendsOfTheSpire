@@ -78,9 +78,9 @@ const CHAMPION_POOL = {
   "Teemo": { id: "Teemo", name: "提莫", title: "迅捷斥候", maxHp: 65, maxMana: 3, avatar: `${CDN_URL}/img/champion/Teemo.png`, img: `${LOADING_URL}/Teemo_0.jpg`, passive: "游击战: 回合开始时，随机给一名敌人施加 2 层虚弱", relicId: "TeemoPassive", initialCards: ["TeemoQ", "TeemoR", "Strike", "Ignite"], description: "DoT型射手，通过虚弱和易伤削弱敌人。" },
   "Zed": { id: "Zed", name: "劫", title: "影流之主", maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Zed.png`, img: `${LOADING_URL}/Zed_0.jpg`, passive: "影分身: 每回合第一张攻击牌会重复施放一次(50%伤害)", relicId: "ZedPassive", initialCards: ["ZedQ", "ZedE", "Strike", "Strike"], description: "爆发型刺客，通过复制攻击造成巨额伤害。" },
   "Nasus": { id: "Nasus", name: "内瑟斯", title: "沙漠死神", maxHp: 85, maxMana: 3, avatar: `${CDN_URL}/img/champion/Nasus.png`, img: `${LOADING_URL}/Nasus_0.jpg`, passive: "汲魂痛击: 每次用攻击牌击杀敌人，获得1点力量", relicId: "NasusPassive", initialCards: ["NasusQ", "NasusW", "Strike", "Defend"], description: "无限成长型战士，通过击杀敌人永久提升力量。" },
-  "Irelia": { id: "Irelia", name: "艾瑞莉娅", title: "刀锋舞者", maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Irelia.png`, img: `${LOADING_URL}/Irelia_0.jpg`, passive: "热诚: 每次击杀敌人，恢复 1 点能量并抽 1 张牌", relicId: "IreliaPassive", initialCards: ["IreliaQ", "IreliaE", "Strike", "Defend"], description: "收割型战士，通过击杀重置和抽牌形成连击。" },
-  "Thresh_Hero": { id: "Thresh_Hero", name: "锤石", title: "魂锁典狱长", maxHp: 90, maxMana: 3, avatar: `${CDN_URL}/img/champion/Thresh.png`, img: `${LOADING_URL}/Thresh_0.jpg`, passive: "地狱诅咒: 敌人死亡增加 2 最大生命值", relicId: "ThreshPassive", initialCards: ["ThreshQ", "ThreshW", "Strike", "Defend"], description: "成长型坦克，通过击杀敌人永久提升生命上限。" },
-  "Katarina_Hero": { id: "Katarina_Hero", name: "卡特琳娜", title: "不祥之刃", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Katarina.png`, img: `${LOADING_URL}/Katarina_0.jpg`, passive: "贪婪: 每回合打出的每第 4 张攻击牌伤害翻倍", relicId: "KatarinaPassive", initialCards: ["KatarinaQ", "KatarinaE", "Strike", "Strike"], description: "计数器型刺客，通过连击触发高额爆发伤害。" },
+  "Irelia": { id: "Irelia", name: "艾瑞莉娅", title: "刀锋舞者", maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Irelia.png`, img: `${LOADING_URL}/Irelia_0.jpg`, passive: "热诚: 每次击杀敌人，恢复 1 点能量并抽 1 张牌", relicId: "IreliaPassive", initialCards: ["IreliaQ", "IreliaE", "Strike", "Defend"], description: "收割型战士，通过击杀重置和抽牌形成连击。", baseStr: 0 },
+  "Thresh": { id: "Thresh", name: "锤石", title: "魂锁典狱长", maxHp: 90, maxMana: 3, avatar: `${CDN_URL}/img/champion/Thresh.png`, img: `${LOADING_URL}/Thresh_0.jpg`, passive: "地狱诅咒: 每次击杀敌人，永久增加 2 最大生命值", relicId: "ThreshPassive", initialCards: ["ThreshQ", "ThreshW", "Strike", "Defend"], description: "成长型坦克，通过击杀敌人永久提升生命上限。", baseStr: 0 },
+  "Katarina": { id: "Katarina", name: "卡特琳娜", title: "不祥之刃", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Katarina.png`, img: `${LOADING_URL}/Katarina_0.jpg`, passive: "贪婪: 每回合每打出 3 张攻击牌后，下一张攻击牌伤害翻倍", relicId: "KatarinaPassive", initialCards: ["KatarinaQ", "KatarinaE", "Strike", "Strike"], description: "计数器型刺客，通过连击触发高额爆发伤害。", baseStr: 0 },
 };
 
 const RELIC_DATABASE = {
@@ -256,7 +256,7 @@ const generateMap = (usedEnemyIds, act) => {
     const nodeType2 = shuffle(nodeType2Pool)[0];
     const nodes = [createNode(`${i}-0`, nodeType1), createNode(`${i}-1`, nodeType2)];
     const nextFloorIndex = i + 1;
-    if (nextFloorIndex <= 9) { 
+    if (nextFloorIndex <= 9) {
         nodes[0].next = [`${nextFloorIndex}-0`, `${nextFloorIndex}-1`]; 
         nodes[1].next = [`${nextFloorIndex}-0`, `${nextFloorIndex}-1`]; 
     }
@@ -298,9 +298,9 @@ const AudioPlayer = ({ src }) => {
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(true);
     const [volume, setVolume] = useState(0.3);
-    useEffect(() => { 
+    useEffect(() => {
         if(audioRef.current && src) { 
-            audioRef.current.volume = volume; 
+            audioRef.current.volume = volume;
             audioRef.current.load(); // 重新加载音频
             const p = audioRef.current.play(); 
             if(p !== undefined) {
@@ -308,7 +308,7 @@ const AudioPlayer = ({ src }) => {
             }
         } 
     }, [src, volume]);
-    const togglePlay = () => { 
+    const togglePlay = () => {
         if (isPlaying) { 
             audioRef.current?.pause(); 
             setIsPlaying(false); 
@@ -443,9 +443,9 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, champion
                     <div className="flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full border-2 border-[#C8AA6E] overflow-hidden bg-black"><img src={`${ITEM_URL}/3400.png`} className="w-full h-full object-cover" /></div>
                         <div><h2 className="text-3xl font-bold text-[#C8AA6E]">黑市商人</h2><p className="text-[#A09B8C] italic">"只要给钱，什么都卖。"</p></div>
-                    </div>
+                        </div>
                     <div className="flex items-center gap-2 text-4xl font-bold text-yellow-400 bg-black/50 px-6 py-2 rounded-lg border border-yellow-600"><Coins size={32} /> {gold}</div>
-                </div>
+                        </div>
                 <div className="grid grid-cols-2 gap-12 flex-1 overflow-y-auto">
                     <div>
                         <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-blue-500 pl-3">技能卷轴</h3>
@@ -559,10 +559,10 @@ const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
                 <div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{c.name}</div>
                 <div className="text-[10px] text-[#A09B8C] leading-tight line-clamp-2">{c.description}</div>
                 <div className="mt-auto text-[8px] text-slate-500 uppercase font-bold">{c.type}</div>
-              </div>
-            </div>
+                </div>
+             </div>
           ))}
-        </div>
+       </div>
         <button onClick={onSkip} className="mt-6 px-8 py-3 border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest transition-all">跳过</button>
       </div>
     </div>
@@ -599,7 +599,7 @@ export default function LegendsOfTheSpire() {
   const [relics, setRelics] = useState([]);
   const [baseStr, setBaseStr] = useState(0);
   const [activeNode, setActiveNode] = useState(null);
-  const [usedEnemies, setUsedEnemies] = useState([]);
+  const [usedEnemies, setUsedEnemies] = useState([]); 
   const [showCodex, setShowCodex] = useState(false); 
   const [showDeck, setShowDeck] = useState(false);
   const [toasts, setToasts] = useState([]);
@@ -724,7 +724,7 @@ export default function LegendsOfTheSpire() {
               // 章节奖励：回复 50% 生命
               setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.5)));
               alert(`第 ${currentAct} 章通关！进入下一章...`);
-              setView('MAP');
+          setView('MAP');
           } else {
               // 游戏通关
               const allIds = Object.keys(CHAMPION_POOL);
@@ -849,8 +849,8 @@ export default function LegendsOfTheSpire() {
   const handleBuyCard = (card) => { setGold(prev => prev - card.price); setMasterDeck(prev => [...prev, card.id]); };
   const handleRelicReward = (relic) => { setRelics(prev => [...prev, relic.id]); if (relic.onPickup) { const ns = relic.onPickup({ maxHp, currentHp }); setMaxHp(ns.maxHp); setCurrentHp(ns.currentHp); } completeNode(); };
   const handleBuyRelic = (relic) => { setGold(prev => prev - relic.price); handleRelicReward(relic); };
-  const handleEventReward = (reward) => { 
-      if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value); 
+  const handleEventReward = (reward) => {
+      if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value);
       if (reward.type === 'RELIC_RANDOM') { const pool = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)); if (pool.length > 0) handleRelicReward(shuffle(pool)[0]); } 
       if (reward.type === 'UPGRADE_RANDOM') {
           // 随机升级一张卡
@@ -862,7 +862,7 @@ export default function LegendsOfTheSpire() {
               setMasterDeck(newDeck);
           }
       }
-      completeNode(); 
+      completeNode();
   };
   const handleCardReward = (cardId) => { setMasterDeck([...masterDeck, cardId]); setGold(gold + 50); completeNode(); };
   
@@ -992,38 +992,38 @@ export default function LegendsOfTheSpire() {
                           <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-xs font-bold text-[#C8AA6E]">{currentFloor+1}F</div>
                       </div>
                       <div className="flex items-center gap-4">
-                          <div className="flex flex-col">
-                              <span className="text-[#F0E6D2] font-bold text-lg shadow-black drop-shadow-md flex items-center gap-2">
-                                {champion.name}
-                                <RelicTooltip relic={RELIC_DATABASE[champion.relicId]}>
-                                    <img src={RELIC_DATABASE[champion.relicId].img} 
-                                         className="w-6 h-6 rounded border border-yellow-400 bg-black/50 cursor-help hover:scale-110 transition-transform" 
-                                    />
-                                </RelicTooltip>
-                              </span>
+                      <div className="flex flex-col">
+                          <span className="text-[#F0E6D2] font-bold text-lg shadow-black drop-shadow-md flex items-center gap-2">
+                            {champion.name}
+                            <RelicTooltip relic={RELIC_DATABASE[champion.relicId]}>
+                                <img src={RELIC_DATABASE[champion.relicId].img} 
+                                     className="w-6 h-6 rounded border border-yellow-400 bg-black/50 cursor-help hover:scale-110 transition-transform" 
+                                />
+                            </RelicTooltip>
+                          </span>
                               <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
                           </div>
                           {/* 遗物栏 - 紧邻被动技能右侧 */}
                           <div className="flex gap-2 flex-wrap max-w-md">
-                              {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
-                                  const relic = RELIC_DATABASE[rid];
-                                  return (
-                                      <RelicTooltip key={i} relic={relic}>
+                      {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
+                          const relic = RELIC_DATABASE[rid];
+                          return (
+                              <RelicTooltip key={i} relic={relic}>
                                           <div className="w-9 h-9 rounded border border-[#C8AA6E]/50 bg-black/50 relative group cursor-help hover:scale-110 transition-transform">
-                                              <img src={relic.img} className="w-full h-full object-cover" />
-                                          </div>
-                                      </RelicTooltip>
-                                  );
-                              })}
-                          </div>
-                      </div>
+                                      <img src={relic.img} className="w-full h-full object-cover" />
+                                  </div>
+                              </RelicTooltip>
+                          );
+                      })}
                   </div>
               </div>
-          )}
+      </div>
+            </div>
+        )}
           {renderView()}
           {showCodex && <CodexView onClose={() => setShowCodex(false)} />}
           {showDeck && <DeckView deck={masterDeck} onClose={() => setShowDeck(false)} />}
           <ToastContainer toasts={toasts} />
-      </div>
+    </div>
   );
 }
