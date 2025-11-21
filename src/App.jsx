@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Sword, Shield, Zap, Skull, Heart, RefreshCw, AlertTriangle, Flame, XCircle, Activity, Map as MapIcon, Gift, Anchor, Coins, ShoppingBag, ChevronRight, Star, Play, Pause, Volume2, VolumeX, Landmark, Lock, RotateCcw, Save, ArrowRight, BookOpen, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateGridMap, GRID_ROWS, GRID_COLS } from './data/gridMapLayout';
-import GridMapView from './components/GridMapView';
+import { generateGridMap } from './data/gridMapLayout_v3'; // v3生成器（带保底机制）
+import GridMapView_v2 from './components/GridMapView_v2'; // 新版六边形地图视图
 import CodexView from './components/CodexView';
 import DeckView from './components/DeckView';
 import BattleScene from './components/BattleScene';
@@ -674,12 +674,27 @@ export default function LegendsOfTheSpire() {
   const handleChampionSelect = (selectedChamp) => {
     // 播放英雄语音
     playChampionVoice(selectedChamp.id);
-    setChampion(selectedChamp); setMaxHp(selectedChamp.maxHp); setCurrentHp(selectedChamp.maxHp);
+    setChampion(selectedChamp); 
+    setMaxHp(selectedChamp.maxHp); 
+    setCurrentHp(selectedChamp.maxHp);
     setMasterDeck([...STARTING_DECK_BASIC, ...selectedChamp.initialCards]);
     setRelics([RELIC_DATABASE[selectedChamp.relicId].id]);
-    // 使用新的网格地图生成器
-    const newMapData = generateGridMap(1, 10, usedEnemies);
-    setMapData(newMapData); setCurrentFloor(0); setCurrentAct(1); setView('MAP');
+    setBaseStr(0);
+    setGold(0);
+    
+    // 使用v3地图生成器（带自动重试保底机制）
+    const newMapData = generateGridMap(1, []); // act=1, usedEnemies=[]
+    setMapData(newMapData);
+    
+    // 设置初始activeNode为startNode
+    if (newMapData.startNode) {
+      setActiveNode(newMapData.startNode);
+    }
+    
+    setCurrentFloor(0); 
+    setCurrentAct(1); 
+    setUsedEnemies([]);
+    setView('MAP');
   };
 
   const completeNode = () => {
@@ -977,7 +992,7 @@ export default function LegendsOfTheSpire() {
               </div>
           );
           case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
-          case 'MAP': return <GridMapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} activeNode={activeNode} />;
+          case 'MAP': return <GridMapView_v2 mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} activeNode={activeNode} />;
           case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} onUpgradeCard={handleUpgradeCard} onBuyMana={handleBuyMana} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
           case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} act={currentAct} />;
