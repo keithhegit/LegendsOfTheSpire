@@ -186,12 +186,46 @@ export function generateGridMap(act = 1, usedEnemies = []) {
   
   console.log(`[Detours] Targeting ${numDetourChains} detour chains to add ${maxSteps - minSteps} extra steps`);
   
+  // 跟踪已被绕路覆盖的主路径区段（避免重叠）
+  const coveredSteps = new Set();
+  
   for (let chain = 0; chain < numDetourChains && currentNodeCount < targetNodeCount; chain++) {
-    // 随机选择主路径的起点和终点（使用动态长度）
-    const maxStart = Math.max(2, minSteps - (chainLengthMax + 2));
-    const chainStartStep = 2 + Math.floor(Math.random() * maxStart);
-    const chainLength = chainLengthMin + Math.floor(Math.random() * (chainLengthMax - chainLengthMin + 1));
-    const chainEndStep = Math.min(chainStartStep + chainLength, minSteps - 2);
+    // 找到未被覆盖的主路径区段
+    let chainStartStep = -1;
+    let chainEndStep = -1;
+    
+    // 尝试多次找到合适的区段
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const maxStart = Math.max(2, minSteps - (chainLengthMax + 2));
+      const tryStartStep = 2 + Math.floor(Math.random() * maxStart);
+      const chainLength = chainLengthMin + Math.floor(Math.random() * (chainLengthMax - chainLengthMin + 1));
+      const tryEndStep = Math.min(tryStartStep + chainLength, minSteps - 2);
+      
+      // 检查这个区段是否已被覆盖
+      let isOverlap = false;
+      for (let s = tryStartStep; s <= tryEndStep; s++) {
+        if (coveredSteps.has(s)) {
+          isOverlap = true;
+          break;
+        }
+      }
+      
+      if (!isOverlap) {
+        chainStartStep = tryStartStep;
+        chainEndStep = tryEndStep;
+        // 标记这个区段为已覆盖
+        for (let s = chainStartStep; s <= chainEndStep; s++) {
+          coveredSteps.add(s);
+        }
+        break;
+      }
+    }
+    
+    // 如果找不到合适区段，跳过这条链
+    if (chainStartStep === -1) {
+      console.log(`  [DetourChain ${chain}] Skipped - no available segment`);
+      continue;
+    }
     
     const chainStartNode = mainPath[chainStartStep];
     const chainEndNode = mainPath[chainEndStep];
@@ -308,11 +342,12 @@ export function generateGridMap(act = 1, usedEnemies = []) {
     
     if (stepsToBreak <= 1) continue; // 跨度太小，不断开
     
-    // 根据ACT调整断开概率（ACT3更激进）
-    const breakChance = act === 3 ? 0.4 : 0.3;
-    if (Math.random() < breakChance) {
-      // 只断开1-2个连接，不是全部
-      const numToBreak = Math.min(2, Math.floor(stepsToBreak / 2));
+    // 新策略：ACT3强制断开所有链，ACT1/2保守
+    const shouldBreak = act === 3 ? true : Math.random() < 0.25; // ACT3: 100%, ACT1/2: 25%
+    
+    if (shouldBreak) {
+      // ACT3: 断开更多连接，ACT1/2: 只断开1个
+      const numToBreak = act === 3 ? Math.min(3, Math.max(1, Math.floor(stepsToBreak / 2))) : 1;
       
       for (let i = 0; i < numToBreak; i++) {
         // 随机选择一个要断开的步骤
