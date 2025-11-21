@@ -132,46 +132,62 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
 const generateMainPath = (grid, gridRows, startNode, bossNode, act, usedEnemies, allNodes) => {
   const path = [startNode];
   let currentNode = startNode;
-  
-  // 从起点逐步向BOSS方向生成节点
-  for (let row = 1; row < gridRows - 1; row++) {
-    // 目标：向BOSS列靠近（但增加横向摆动）
-    const targetCol = bossNode.col;
-    const colDiff = targetCol - currentNode.col;
-    
-    const horizontalSteps = [-1, 0, 1];
-    let nextCol;
-    const rand = Math.random();
+  let currentRow = startNode.row;
+  let currentCol = startNode.col;
 
-    if (Math.abs(colDiff) > 0 && rand < 0.65) {
-      nextCol = currentNode.col + Math.sign(colDiff);
-    } else {
-      nextCol = currentNode.col + horizontalSteps[Math.floor(Math.random() * horizontalSteps.length)];
+  const chooseHorizontalDir = () => {
+    const towardBoss = bossNode.col > currentCol ? 1 : bossNode.col < currentCol ? -1 : 0;
+    if (towardBoss === 0) {
+      return Math.random() < 0.5 ? 1 : -1;
     }
+    return Math.random() < 0.7 ? towardBoss : -towardBoss;
+  };
 
-    // 边界检查并确保相邻
-    nextCol = Math.max(0, Math.min(GRID_COLS - 1, nextCol));
-    if (Math.abs(nextCol - currentNode.col) > 1) {
-      nextCol = currentNode.col + Math.sign(nextCol - currentNode.col);
-    }
-    nextCol = Math.max(0, Math.min(GRID_COLS - 1, nextCol));
-    
-    // 如果该位置已有节点，跳过
-    if (grid[row][nextCol]) {
-      currentNode = grid[row][nextCol];
+  while (currentRow < bossNode.row) {
+    // 0-2 次横向移动（保持一层内的左右摆动）
+    const lateralMoves = Math.random() < 0.5 ? 1 : 0;
+    for (let i = 0; i < lateralMoves; i++) {
+      const dir = chooseHorizontalDir();
+      let targetCol = currentCol + dir;
+      if (targetCol < 0 || targetCol >= GRID_COLS) continue;
+      if (!grid[currentRow][targetCol]) {
+        const node = createNode(currentRow, targetCol, getRandomNodeType(currentRow, gridRows), null, act, usedEnemies);
+        grid[currentRow][targetCol] = node;
+        allNodes.push(node);
+      }
+      currentCol = targetCol;
+      currentNode = grid[currentRow][currentCol];
       path.push(currentNode);
-      continue;
     }
-    
-    // 创建新节点
-    const nodeType = getRandomNodeType(row, gridRows);
-    const node = createNode(row, nextCol, nodeType, null, act, usedEnemies);
-    grid[row][nextCol] = node;
-    allNodes.push(node);
-    path.push(node);
-    currentNode = node;
+
+    const nextRow = currentRow + 1;
+    const upwardOptions = [];
+
+    if (nextRow < gridRows) {
+      if (currentCol >= 0 && currentCol < GRID_COLS) upwardOptions.push(currentCol);
+      if (currentCol - 1 >= 0) upwardOptions.push(currentCol - 1);
+    }
+
+    let nextCol = upwardOptions.filter(c => c >= 0 && c < GRID_COLS);
+    if (nextCol.length === 0) {
+      nextCol = [Math.max(0, Math.min(GRID_COLS - 1, currentCol))];
+    }
+
+    nextCol = nextCol.sort((a, b) => Math.abs(a - bossNode.col) - Math.abs(b - bossNode.col))[0];
+
+    let nextNode = grid[nextRow][nextCol];
+    if (!nextNode) {
+      nextNode = createNode(nextRow, nextCol, getRandomNodeType(nextRow, gridRows), null, act, usedEnemies);
+      grid[nextRow][nextCol] = nextNode;
+      allNodes.push(nextNode);
+    }
+
+    path.push(nextNode);
+    currentNode = nextNode;
+    currentRow = nextRow;
+    currentCol = nextCol;
   }
-  
+
   console.log(`[主路径] 生成了 ${path.length} 个节点`);
   return path;
 };
