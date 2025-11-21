@@ -70,15 +70,20 @@ const SHAPE_PATTERNS = {
   ]
 };
 
-// 挖空配置（空洞尺寸）
-const HOLE_PATTERNS = [
-  { name: '1x1', width: 1, height: 1, weight: 2 },
-  { name: '2x2', width: 2, height: 2, weight: 3 },
-  { name: '2x3', width: 2, height: 3, weight: 2 },
-  { name: '3x2', width: 3, height: 2, weight: 2 },
-  { name: '3x4', width: 3, height: 4, weight: 1 },
-  { name: '2x4', width: 2, height: 4, weight: 1 }
-];
+// 挖空配置（空洞尺寸范围）
+const HOLE_SIZE_RANGE = {
+  minWidth: 1,
+  maxWidth: 4,
+  minHeight: 1,
+  maxHeight: 4
+};
+
+// 空洞数量范围（根据ACT调整）
+const HOLE_COUNT_RANGE = {
+  1: { min: 1, max: 2 },  // ACT1: 1-2个空洞
+  2: { min: 1, max: 3 },  // ACT2: 1-3个空洞
+  3: { min: 2, max: 4 }   // ACT3: 2-4个空洞
+};
 
 const clampColumn = (col) => Math.max(0, Math.min(GRID_COLS - 1, col));
 
@@ -94,24 +99,20 @@ const pickShapePattern = (act) => {
   return patterns[0];
 };
 
-// 加权随机选择挖空模式
-const pickHolePattern = () => {
-  const totalWeight = HOLE_PATTERNS.reduce((sum, h) => sum + h.weight, 0);
-  let rand = Math.random() * totalWeight;
-  for (const hole of HOLE_PATTERNS) {
-    rand -= hole.weight;
-    if (rand <= 0) return hole;
-  }
-  return HOLE_PATTERNS[0];
+// 随机生成空洞尺寸
+const generateRandomHole = () => {
+  const width = HOLE_SIZE_RANGE.minWidth + Math.floor(Math.random() * (HOLE_SIZE_RANGE.maxWidth - HOLE_SIZE_RANGE.minWidth + 1));
+  const height = HOLE_SIZE_RANGE.minHeight + Math.floor(Math.random() * (HOLE_SIZE_RANGE.maxHeight - HOLE_SIZE_RANGE.minHeight + 1));
+  return { width, height, name: `${width}x${height}` };
 };
 
 // 应用挖空：在地图中间区域挖出空洞，形成立字型/O型/S型
-const applyHoles = (grid, gridRows, gridCols, mainPath) => {
-  // 33%概率应用挖空
-  if (Math.random() > 0.33) return;
-  
-  const hole = pickHolePattern();
-  console.log(`[挖空] 应用 ${hole.name} 空洞`);
+// 100%概率应用挖空，随机生成N个随机尺寸的空洞
+const applyHoles = (grid, gridRows, gridCols, mainPath, act) => {
+  // 100%概率应用挖空
+  const holeCountRange = HOLE_COUNT_RANGE[act] || HOLE_COUNT_RANGE[1];
+  const holeCount = holeCountRange.min + Math.floor(Math.random() * (holeCountRange.max - holeCountRange.min + 1));
+  console.log(`[挖空] 生成 ${holeCount} 个随机尺寸空洞`);
   
   // 创建主路径节点集合（保护主路径不被挖空）
   const mainPathSet = new Set(mainPath.map(n => `${n.row}-${n.col}`));
@@ -122,26 +123,45 @@ const applyHoles = (grid, gridRows, gridCols, mainPath) => {
   const safeStartCol = Math.floor(gridCols * 0.2);
   const safeEndCol = Math.floor(gridCols * 0.8);
   
-  // 随机选择空洞中心位置
-  const centerRow = safeStartRow + Math.floor(Math.random() * (safeEndRow - safeStartRow - hole.height + 1));
-  const centerCol = safeStartCol + Math.floor(Math.random() * (safeEndCol - safeStartCol - hole.width + 1));
+  let totalRemoved = 0;
   
-  // 挖空：移除该区域内的所有节点（但保留主路径上的节点）
-  const removed = [];
-  for (let r = centerRow; r < centerRow + hole.height && r < gridRows; r++) {
-    for (let c = centerCol; c < centerCol + hole.width && c < gridCols; c++) {
-      if (grid[r] && grid[r][c]) {
-        const key = `${r}-${c}`;
-        // 保护主路径节点和起点/终点
-        if (!mainPathSet.has(key)) {
-          removed.push([r, c]);
-          grid[r][c] = null;
+  // 生成多个随机空洞
+  for (let h = 0; h < holeCount; h++) {
+    const hole = generateRandomHole();
+    console.log(`[挖空 ${h + 1}/${holeCount}] 尺寸: ${hole.name}`);
+    
+    // 随机选择空洞位置（确保不越界）
+    const maxRow = Math.max(safeStartRow, safeEndRow - hole.height);
+    const maxCol = Math.max(safeStartCol, safeEndCol - hole.width);
+    
+    if (maxRow < safeStartRow || maxCol < safeStartCol) {
+      console.warn(`[挖空 ${h + 1}] 跳过：尺寸过大无法放置`);
+      continue;
+    }
+    
+    const centerRow = safeStartRow + Math.floor(Math.random() * (maxRow - safeStartRow + 1));
+    const centerCol = safeStartCol + Math.floor(Math.random() * (maxCol - safeStartCol + 1));
+    
+    // 挖空：移除该区域内的所有节点（但保留主路径上的节点）
+    const removed = [];
+    for (let r = centerRow; r < centerRow + hole.height && r < gridRows; r++) {
+      for (let c = centerCol; c < centerCol + hole.width && c < gridCols; c++) {
+        if (grid[r] && grid[r][c]) {
+          const key = `${r}-${c}`;
+          // 保护主路径节点
+          if (!mainPathSet.has(key)) {
+            removed.push([r, c]);
+            grid[r][c] = null;
+          }
         }
       }
     }
+    
+    totalRemoved += removed.length;
+    console.log(`[挖空 ${h + 1}] 移除了 ${removed.length} 个节点`);
   }
   
-  console.log(`[挖空] 移除了 ${removed.length} 个节点`);
+  console.log(`[挖空] 总共移除了 ${totalRemoved} 个节点`);
 };
 
 const buildRowTargets = (gridRows, bossCol, pattern) => {
@@ -246,7 +266,7 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
   // ===========================
   // Step 5: 应用挖空（形成立字型/O型/S型）
   // ===========================
-  applyHoles(grid, gridRows, GRID_COLS, mainPath);
+  applyHoles(grid, gridRows, GRID_COLS, mainPath, act);
   
   // 更新allNodes：移除被挖空的节点
   const nodeMap = new Map(allNodes.map(n => [`${n.row}-${n.col}`, n]));
