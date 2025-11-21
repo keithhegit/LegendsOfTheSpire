@@ -428,10 +428,21 @@ v0.1.0 (Alpha) → v0.5.0 (Beta) → v0.7.5 → v0.8.0 → v0.9.0 (开发中)
   - ✅ 串行绕路链优化
   - ✅ 自动重试保底机制
   - ✅ 地图生成测试系统 (`test_map_generation.html`)
-- 🚧 Phase 2 (UI组件): 进行中
-- ⏳ Phase 3 (游戏集成): 待开始
+- ✅ Phase 2 (UI组件): 已完成
+  - ✅ 六边形节点组件 (`HexagonNode.jsx`)
+  - ✅ 路径连线组件 (`PathConnector.jsx`)
+  - ✅ 新版地图视图 (`GridMapView_v2.jsx`)
+  - ✅ 拖拽查看全图功能
+  - ✅ 三选一高亮逻辑
+  - ✅ 迷雾效果优化
+- 📝 Phase 3 (游戏集成): 规划中
+  - 📋 集成指南已完成 (`INTEGRATION_GUIDE.md`)
+  - ⏳ 待集成到 `App.jsx`
+- ⏳ Phase 4 (测试与优化): 待开始
 
 **详细规划**：参见 [new_grid.md](./new_grid.md)
+
+**集成指南**：参见 [INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md)
 
 **测试工具**：参见 [HOW_TO_TEST.md](./HOW_TO_TEST.md)
 
@@ -974,6 +985,7 @@ export const ENEMY_POOL = {
 | 文档名称 | 说明 | 路径 |
 |---------|------|------|
 | **new_grid.md** | v0.9.0 六边形地图系统开发规划 | [./new_grid.md](./new_grid.md) |
+| **INTEGRATION_GUIDE.md** | 网格地图系统集成指南（Phase 3） | [./INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md) |
 | **HOW_TO_TEST.md** | 地图生成算法测试指南 | [./HOW_TO_TEST.md](./HOW_TO_TEST.md) |
 | **NEW_HERO_SKILL_IMPLEMENTATION_SUMMARY.md** | 8个被动技能实装总结 | [./NEW_HERO_SKILL_IMPLEMENTATION_SUMMARY.md](./NEW_HERO_SKILL_IMPLEMENTATION_SUMMARY.md) |
 | **P0_P1_P2_FIXES_SUMMARY.md** | P0-P2优先级修复详细报告 | [./P0_P1_P2_FIXES_SUMMARY.md](./P0_P1_P2_FIXES_SUMMARY.md) |
