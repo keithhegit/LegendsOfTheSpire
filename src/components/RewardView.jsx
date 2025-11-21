@@ -5,24 +5,39 @@ import { CARD_DATABASE } from '../data/cards';
 
 const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
   const rewards = useMemo(() => {
-    // 构建卡池：20% 概率出现RARE（R技能），80% 出现普通卡牌
-    const rareCards = Object.values(CARD_DATABASE).filter(c => c.rarity === 'RARE' && (c.hero === championName || c.hero === 'Neutral'));
-    const normalCards = Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC' && c.rarity !== 'PASSIVE' && c.rarity !== 'RARE' && (c.hero === championName || c.hero === 'Neutral'));
+    // 构建卡池：每个槽位 20% 概率出现 RARE（R技能）
+    const rareCards = Object.values(CARD_DATABASE).filter(c => 
+      c.rarity === 'RARE' && (c.hero === championName || c.hero === 'Neutral')
+    );
+    const normalCards = Object.values(CARD_DATABASE).filter(c => 
+      c.rarity !== 'BASIC' && 
+      c.rarity !== 'PASSIVE' && 
+      c.rarity !== 'RARE' && 
+      (c.hero === championName || c.hero === 'Neutral')
+    );
     
     const cardPool = [];
     for (let i = 0; i < 3; i++) {
-      if (Math.random() < 0.2 && rareCards.length > 0) {
-        // 20% 概率抽取 RARE 卡牌
-        cardPool.push(shuffle([...rareCards])[0]);
-      } else {
-        // 80% 概率抽取普通卡牌
-        if (normalCards.length > 0) {
-          cardPool.push(shuffle([...normalCards])[0]);
-        } else {
-          // 如果没有普通卡，降级到 RARE
-          cardPool.push(shuffle([...rareCards])[0]);
-        }
+      const roll = Math.random();
+      if (roll < 0.2 && rareCards.length > 0) {
+        // 20% 概率：RARE 卡牌（R技能）
+        const selectedCard = shuffle([...rareCards])[0];
+        cardPool.push(selectedCard);
+      } else if (normalCards.length > 0) {
+        // 80% 概率：普通卡牌
+        const selectedCard = shuffle([...normalCards])[0];
+        cardPool.push(selectedCard);
+      } else if (rareCards.length > 0) {
+        // 保底：如果没有普通卡，给 RARE
+        const selectedCard = shuffle([...rareCards])[0];
+        cardPool.push(selectedCard);
       }
+    }
+    
+    // 确保返回3张卡牌
+    while (cardPool.length < 3 && (normalCards.length > 0 || rareCards.length > 0)) {
+      const fallbackPool = normalCards.length > 0 ? normalCards : rareCards;
+      cardPool.push(shuffle([...fallbackPool])[0]);
     }
     
     return cardPool;
