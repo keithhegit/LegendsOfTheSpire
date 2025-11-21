@@ -8,6 +8,7 @@ import DeckView from './components/DeckView';
 import BattleScene from './components/BattleScene';
 import ChampionSelect from './components/ChampionSelect';
 import ToastContainer from './components/shared/Toast';
+import { unlockAudio } from './utils/audioContext';
 
 // ==========================================
 // 1. 静态资源与全局配置
