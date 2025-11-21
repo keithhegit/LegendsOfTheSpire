@@ -68,21 +68,24 @@ export const generateGridMap = (act, floorCount = 10, usedEnemies = []) => {
         
         // 第一层(底部)只有1个起点节点，最后一层(Boss)只有1个Boss节点
         let nodeCount;
+        let cols;
         if (r === 0) {
             nodeCount = 1; // 起点
+            // 第一层节点固定在中间列，确保能解锁第二层的节点
+            cols = [Math.floor(GRID_COLS / 2)];
         } else if (r === floorCount - 1) {
             nodeCount = 1; // Boss层
+            cols = [Math.floor(GRID_COLS / 2)]; // Boss也居中
         } else {
             nodeCount = Math.floor(Math.random() * 3) + 2; // 中间层 2-4 个节点
+            // 随机选择列位置
+            const availableCols = Array.from({ length: GRID_COLS }, (_, i) => i);
+            cols = shuffle([...availableCols]).slice(0, nodeCount);
         }
 
-        // 随机选择列位置
-        const availableCols = Array.from({ length: GRID_COLS }, (_, i) => i);
-        const cols = shuffle([...availableCols]).slice(0, nodeCount);
-
-        // Boss 层强制居中
+        // Boss 层处理（已在上面 cols 设置中处理）
         if (r === floorCount - 1) {
-            const bossCol = Math.floor(GRID_COLS / 2);
+            const bossCol = cols[0]; // 使用 cols 中设定的列
             const bossNode = {
                 id: `boss-${r}-${bossCol}`,
                 row: r,

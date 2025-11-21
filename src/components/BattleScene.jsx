@@ -88,7 +88,15 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
          forceUpdate();
     }
     setNextEnemyAction(enemyConfig.actions[Math.floor(Math.random()*enemyConfig.actions.length)]);
-    heroData.relics.forEach(rid => { const relic = RELIC_DATABASE[rid]; if(relic.onTurnStart) { const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp }); setPlayerHp(pState.hp); setEnemyHp(eState.hp); } });
+    // 添加 null 检查防止 relic 为 undefined
+    (heroData.relics || []).forEach(rid => { 
+        const relic = RELIC_DATABASE[rid]; 
+        if(relic && relic.onTurnStart) { 
+            const { pState, eState } = relic.onTurnStart({ hp: playerHp, maxHp: heroData.maxHp }, { hp: enemyHp }); 
+            setPlayerHp(pState.hp); 
+            setEnemyHp(eState.hp); 
+        } 
+    });
   };
 
   const playCard = (index) => {
@@ -96,11 +104,25 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       const { hand, discardPile } = deckRef.current;
       const cardId = hand[index];
       if (!cardId) return; // 防止无效的 cardId
-      const card = CARD_DATABASE[cardId];
-      if (!card) {
-        console.error(`Card not found in database: ${cardId}`);
+      
+      // 处理升级卡牌 (带 + 后缀)
+      const isUpgraded = cardId.endsWith('+');
+      const baseId = isUpgraded ? cardId.slice(0, -1) : cardId;
+      const baseCard = CARD_DATABASE[baseId];
+      
+      if (!baseCard) {
+        console.error(`Card not found in database: ${baseId}`);
         return;
       }
+      
+      // 如果是升级卡牌，增强属性
+      const card = {
+          ...baseCard,
+          value: isUpgraded && baseCard.value ? baseCard.value + 3 : baseCard.value,
+          block: isUpgraded && baseCard.block ? baseCard.block + 3 : baseCard.block,
+          effectValue: isUpgraded && baseCard.effectValue ? baseCard.effectValue + 1 : baseCard.effectValue
+      };
+      
       if(playerMana < card.cost) return;
       setPlayerMana(p => p - card.cost);
       const newHand = [...hand]; newHand.splice(index, 1);
