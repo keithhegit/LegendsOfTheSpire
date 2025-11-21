@@ -4,28 +4,24 @@
  * 参考: https://www.redblobgames.com/grids/hexagons/
  */
 
-// 六边形尺寸配置
-export const HEX_SIZE = 50; // 六边形外接圆半径
-export const HEX_WIDTH = Math.sqrt(3) * HEX_SIZE;
-export const HEX_HEIGHT = 2 * HEX_SIZE;
+// 六边形尺寸配置（flat-top）
+export const HEX_SIZE = 50; // 外接圆半径
+export const HEX_WIDTH = HEX_SIZE * 2;
+export const HEX_HEIGHT = Math.sqrt(3) * HEX_SIZE;
 
 /**
  * Offset坐标 -> Axial坐标
- * 使用 "odd-r" 布局（奇数行向右偏移）
+ * 我们将 row 映射为 r，col 映射为 q（轴向坐标系）
  */
 export function offsetToAxial(row, col) {
-  const q = col - Math.floor((row - (row & 1)) / 2);
-  const r = row;
-  return { q, r };
+  return { q: col, r: row };
 }
 
 /**
  * Axial坐标 -> Offset坐标
  */
 export function axialToOffset(q, r) {
-  const col = q + Math.floor((r - (r & 1)) / 2);
-  const row = r;
-  return { row, col };
+  return { row: r, col: q };
 }
 
 /**
@@ -33,8 +29,9 @@ export function axialToOffset(q, r) {
  * 返回六边形中心点的像素坐标
  */
 export function axialToPixel(q, r, hexSize = HEX_SIZE) {
-  const x = hexSize * (Math.sqrt(3) * q + Math.sqrt(3) / 2 * r);
-  const y = hexSize * (3 / 2 * r);
+  // flat-top axial → pixel
+  const x = hexSize * (3 / 2 * q);
+  const y = hexSize * (Math.sqrt(3) / 2 * q + Math.sqrt(3) * r);
   return { x, y };
 }
 
@@ -50,45 +47,27 @@ export function axialToPixel(q, r, hexSize = HEX_SIZE) {
  * - 垂直间距 = hexSize * sqrt(3)
  */
 export function offsetToPixel(row, col, hexSize = HEX_SIZE) {
-  // Flat-top hexagon layout (odd-r coordinate system)
-  const isOddRow = row % 2 === 1;
-  const x = hexSize * 1.5 * col + (isOddRow ? hexSize * 0.75 : 0);
-  const y = hexSize * Math.sqrt(3) * row;
-  return { x, y };
+  const { q, r } = offsetToAxial(row, col);
+  return axialToPixel(q, r, hexSize);
 }
 
 /**
  * 获取六边形的6个邻居（Offset坐标系）
- * 使用 "odd-r" 布局 + flat-top hexagon
- * 
- * Flat-top 邻居方向：
- *   NW  N  NE
- *    \  |  /
- *   W - X - E
- *    /  |  \
- *   SW  S  SE
+ * 使用轴向坐标的6个方向向量
  */
 export function getHexNeighbors(row, col, maxRows = 30, maxCols = 7) {
-  const isOddRow = row % 2 === 1;
+  const directions = [
+    [1, 0],
+    [1, -1],
+    [0, -1],
+    [-1, 0],
+    [-1, 1],
+    [0, 1],
+  ];
+
+  const neighbors = directions.map(([dq, dr]) => [row + dr, col + dq]);
   
-  // Flat-top布局的邻居偏移（odd-r坐标系）
-  // 奇数行向右偏移0.5个单位
-  const neighbors = isOddRow
-    ? [
-        [row - 1, col],     [row - 1, col + 1], // N, NE (上方两个)
-        [row, col - 1],     [row, col + 1],     // W, E (左右两个)
-        [row + 1, col],     [row + 1, col + 1]  // S, SE (下方两个)
-      ]
-    : [
-        [row - 1, col - 1], [row - 1, col],     // NW, N (上方两个)
-        [row, col - 1],     [row, col + 1],     // W, E (左右两个)
-        [row + 1, col - 1], [row + 1, col]      // SW, S (下方两个)
-      ];
-  
-  // 过滤出边界内的邻居
-  return neighbors.filter(([r, c]) => 
-    r >= 0 && r < maxRows && c >= 0 && c < maxCols
-  );
+  return neighbors.filter(([r, c]) => r >= 0 && r < maxRows && c >= 0 && c < maxCols);
 }
 
 /**
@@ -101,24 +80,20 @@ export function getHexNeighbors(row, col, maxRows = 30, maxCols = 7) {
  * @returns {[number, number] | null} - [row, col] 或 null（如果越界）
  */
 export function getNeighborInDirection(row, col, direction, maxRows = 30, maxCols = 7) {
-  const isOddRow = row % 2 === 1;
-  
   let targetRow, targetCol;
   
   switch (direction) {
-    case 'forward': // 正前方（下一行，同列或相邻列）
+    case 'forward': // 我们约定向下（row + 1）
       targetRow = row + 1;
       targetCol = col;
       break;
-      
-    case 'forward-left': // 左前方
+    case 'forward-left':
       targetRow = row + 1;
-      targetCol = isOddRow ? col : col - 1;
+      targetCol = col - 1;
       break;
-      
-    case 'forward-right': // 右前方
-      targetRow = row + 1;
-      targetCol = isOddRow ? col + 1 : col;
+    case 'forward-right':
+      targetRow = row;
+      targetCol = col + 1;
       break;
       
     default:

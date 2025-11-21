@@ -327,7 +327,9 @@
     const ctx = canvas.getContext('2d');
     
     const HEX_SIZE = 30;
-    const PADDING = 100;
+    const PADDING = 80;
+    let nodePositionMap = new Map();
+    let bounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
     
     // ===========================
     // 生成地图
@@ -439,11 +441,21 @@
       const { grid, totalFloors, startNode, bossNode } = currentMapData;
       const GRID_COLS = 11;
       
-      // 计算canvas尺寸
-      const maxWidth = totalFloors * HEX_SIZE * 2;
-      const maxHeight = GRID_COLS * HEX_SIZE * 2;
-      canvas.width = maxWidth + PADDING * 2;
-      canvas.height = maxHeight + PADDING * 2;
+      nodePositionMap = new Map();
+      bounds = currentMapData.nodes.reduce((acc, node) => {
+        const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
+        nodePositionMap.set(`${node.row}-${node.col}`, pos);
+        acc.minX = Math.min(acc.minX, pos.x);
+        acc.maxX = Math.max(acc.maxX, pos.x);
+        acc.minY = Math.min(acc.minY, pos.y);
+        acc.maxY = Math.max(acc.maxY, pos.y);
+        return acc;
+      }, { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+      
+      const width = (bounds.maxX - bounds.minX) + PADDING * 2 + HEX_SIZE * 2;
+      const height = (bounds.maxY - bounds.minY) + PADDING * 2 + HEX_SIZE * 2;
+      canvas.width = width;
+      canvas.height = height;
       
       // 清空画布
       ctx.fillStyle = '#0a0e27';
@@ -459,16 +471,16 @@
       for (const node of currentMapData.nodes) {
         if (!exploredNodes.has(`${node.row}-${node.col}`)) continue;
         
-        const nodePos = offsetToPixel(node.row, node.col, HEX_SIZE);
+        const nodePos = nodePositionMap.get(`${node.row}-${node.col}`);
         const neighbors = getHexNeighbors(node.row, node.col, totalFloors, GRID_COLS);
         
         for (const [r, c] of neighbors) {
           const neighbor = grid[r][c];
           if (neighbor && exploredNodes.has(`${r}-${c}`)) {
-            const neighborPos = offsetToPixel(r, c, HEX_SIZE);
+            const neighborPos = nodePositionMap.get(`${r}-${c}`);
             ctx.beginPath();
-            ctx.moveTo(nodePos.x + PADDING, canvas.height - nodePos.y - PADDING);
-            ctx.lineTo(neighborPos.x + PADDING, canvas.height - neighborPos.y - PADDING);
+            ctx.moveTo(nodePos.x - bounds.minX + PADDING, nodePos.y - bounds.minY + PADDING);
+            ctx.lineTo(neighborPos.x - bounds.minX + PADDING, neighborPos.y - bounds.minY + PADDING);
             ctx.stroke();
           }
         }
@@ -476,9 +488,10 @@
       
       // 绘制节点
       for (const node of currentMapData.nodes) {
-        const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
-        const x = pos.x + PADDING;
-        const y = canvas.height - pos.y - PADDING;
+        const pos = nodePositionMap.get(`${node.row}-${node.col}`);
+        if (!pos) continue;
+        const x = pos.x - bounds.minX + PADDING;
+        const y = pos.y - bounds.minY + PADDING;
         
         const isExplored = exploredNodes.has(`${node.row}-${node.col}`);
         const isAvailable = availableSet.has(`${node.row}-${node.col}`);
@@ -569,9 +582,10 @@
       const availableNodes = getAvailableNodes();
       
       for (const node of availableNodes) {
-        const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
-        const x = pos.x + PADDING;
-        const y = canvas.height - pos.y - PADDING;
+        const pos = nodePositionMap.get(`${node.row}-${node.col}`);
+        if (!pos) continue;
+        const x = pos.x - bounds.minX + PADDING;
+        const y = pos.y - bounds.minY + PADDING;
         
         const dx = clickX - x;
         const dy = clickY - y;

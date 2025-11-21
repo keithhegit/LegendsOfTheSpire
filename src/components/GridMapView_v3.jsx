@@ -10,7 +10,7 @@
  * 4. 清晰的可选节点高亮
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ITEM_URL, PROFILEICON_URL, CDN_URL } from '../data/constants';
 import { ENEMY_POOL } from '../data/enemies';
@@ -23,9 +23,50 @@ const GridMapView_v3 = ({ mapData, onNodeSelect, activeNode, currentFloor, act }
   const [exploredNodes, setExploredNodes] = useState(new Set());
   
   const HEX_SIZE = 45;
-  const VIEW_WIDTH = 1200;
-  const VIEW_HEIGHT = 800;
-  const PADDING = 100;
+  const MIN_VIEW_WIDTH = 1200;
+  const MIN_VIEW_HEIGHT = 800;
+  const PADDING = 120;
+
+  const { positionMap, bounds, contentWidth, contentHeight } = useMemo(() => {
+    if (!mapData) {
+      return {
+        positionMap: new Map(),
+        bounds: { minX: 0, minY: 0, maxX: 0, maxY: 0 },
+        contentWidth: MIN_VIEW_WIDTH,
+        contentHeight: MIN_VIEW_HEIGHT,
+      };
+    }
+
+    const map = new Map();
+    const b = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
+
+    mapData.nodes.forEach(node => {
+      const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
+      map.set(`${node.row}-${node.col}`, pos);
+      b.minX = Math.min(b.minX, pos.x);
+      b.maxX = Math.max(b.maxX, pos.x);
+      b.minY = Math.min(b.minY, pos.y);
+      b.maxY = Math.max(b.maxY, pos.y);
+    });
+
+    if (map.size === 0) {
+      b.minX = b.minY = 0;
+      b.maxX = b.maxY = 1;
+    }
+
+    const width = b.maxX - b.minX + HEX_SIZE * 2;
+    const height = b.maxY - b.minY + HEX_SIZE * 2;
+
+    return {
+      positionMap: map,
+      bounds: b,
+      contentWidth: width,
+      contentHeight: height,
+    };
+  }, [mapData]);
+
+  const VIEW_WIDTH = Math.max(MIN_VIEW_WIDTH, contentWidth + PADDING * 2);
+  const VIEW_HEIGHT = Math.max(MIN_VIEW_HEIGHT, contentHeight + PADDING * 2);
   
   // 初始化已探索节点（起点）
   useEffect(() => {
@@ -143,10 +184,13 @@ const GridMapView_v3 = ({ mapData, onNodeSelect, activeNode, currentFloor, act }
   const centerMap = () => {
     if (!activeNode) return;
     
-    const pos = offsetToPixel(activeNode.row, activeNode.col, HEX_SIZE);
+    const pos = positionMap.get(`${activeNode.row}-${activeNode.col}`);
+    if (!pos) return;
+    const nodeX = pos.x - bounds.minX + PADDING;
+    const nodeY = pos.y - bounds.minY + PADDING;
     setDragOffset({
-      x: VIEW_WIDTH / 2 - pos.x,
-      y: VIEW_HEIGHT / 2 - pos.y
+      x: VIEW_WIDTH / 2 - nodeX,
+      y: VIEW_HEIGHT / 2 - nodeY
     });
   };
   
@@ -155,7 +199,8 @@ const GridMapView_v3 = ({ mapData, onNodeSelect, activeNode, currentFloor, act }
   // ===========================
   const renderHexNode = (node) => {
     const key = `${node.row}-${node.col}`;
-    const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
+    const pos = positionMap.get(key);
+    if (!pos) return null;
     
     const isExplored = exploredNodes.has(key);
     const isAvailable = availableSet.has(key);
@@ -165,8 +210,8 @@ const GridMapView_v3 = ({ mapData, onNodeSelect, activeNode, currentFloor, act }
     // 战争迷雾：不可见的节点不渲染
     if (!isVisible) return null;
     
-    const x = pos.x + dragOffset.x + VIEW_WIDTH / 2;
-    const y = VIEW_HEIGHT - (pos.y + dragOffset.y + VIEW_HEIGHT / 2);
+    const x = pos.x - bounds.minX + PADDING + dragOffset.x;
+    const y = pos.y - bounds.minY + PADDING + dragOffset.y;
     
     const color = getNodeColor(node);
     const icon = getMapIcon(node);
@@ -188,9 +233,10 @@ const GridMapView_v3 = ({ mapData, onNodeSelect, activeNode, currentFloor, act }
             const neighbor = grid[r][c];
             if (!neighbor || !exploredNodes.has(`${r}-${c}`)) return null;
             
-            const nPos = offsetToPixel(r, c, HEX_SIZE);
-            const nx = nPos.x + dragOffset.x + VIEW_WIDTH / 2;
-            const ny = VIEW_HEIGHT - (nPos.y + dragOffset.y + VIEW_HEIGHT / 2);
+            const nPos = positionMap.get(`${r}-${c}`);
+            if (!nPos) return null;
+            const nx = nPos.x - bounds.minX + PADDING + dragOffset.x;
+            const ny = nPos.y - bounds.minY + PADDING + dragOffset.y;
             
             return (
               <line

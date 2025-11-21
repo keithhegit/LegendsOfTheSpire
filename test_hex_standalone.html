@@ -322,27 +322,25 @@
     
     // Offset坐标转像素坐标
     function offsetToPixel(row, col, hexSize) {
-      const x = hexSize * Math.sqrt(3) * (col + 0.5 * (row % 2));
-      const y = hexSize * 1.5 * row;
+      const x = hexSize * 1.5 * col;
+      const y = hexSize * (Math.sqrt(3) / 2 * col + Math.sqrt(3) * row);
       return { x, y };
     }
     
     // 获取六边形邻居 (Odd-R offset)
     function getHexNeighbors(row, col, totalRows, totalCols) {
-      const isOddRow = row % 2 === 1;
-      const directions = isOddRow
-        ? [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]] // 奇数行
-        : [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]]; // 偶数行
+      const directions = [
+        [1, 0],
+        [1, -1],
+        [0, -1],
+        [-1, 0],
+        [-1, 1],
+        [0, 1],
+      ];
       
-      const neighbors = [];
-      for (const [dr, dc] of directions) {
-        const newRow = row + dr;
-        const newCol = col + dc;
-        if (newRow >= 0 && newRow < totalRows && newCol >= 0 && newCol < totalCols) {
-          neighbors.push([newRow, newCol]);
-        }
-      }
-      return neighbors;
+      return directions
+        .map(([dq, dr]) => [row + dr, col + dq])
+        .filter(([r, c]) => r >= 0 && r < totalRows && c >= 0 && c < totalCols);
     }
     
     // ===========================
