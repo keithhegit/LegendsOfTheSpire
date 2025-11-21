@@ -26,14 +26,6 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
   const rotation = (index - (totalCards - 1) / 2) * 3; // 扇形展开角度
   const yOffset = Math.abs(index - (totalCards - 1) / 2) * 5; // 扇形弧度
   
-  // 处理点击事件
-  const handleClick = (e) => {
-    e.stopPropagation();
-    if (canPlay) {
-      onPlay(index);
-    }
-  };
-  
   return (
     <motion.div
       layout
@@ -61,7 +53,6 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
         zIndex: 100, 
         rotate: 0
       } : {}}
-      onClick={handleClick}
       className={`
         w-40 h-60 bg-[#1E2328] border-2 rounded-lg flex flex-col items-center overflow-hidden shadow-2xl 
         ${canPlay ? 'border-[#C8AA6E] cursor-grab active:cursor-grabbing' : 'border-slate-700 opacity-60 cursor-not-allowed'}
