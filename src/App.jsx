@@ -804,22 +804,28 @@ export default function LegendsOfTheSpire() {
           ? { finalHp: battleResult, gainedStr: 0, gainedMaxHp: 0 }
           : battleResult;
       
+      console.log('[战斗胜利] battleResult:', result); // 调试日志
+      console.log('[当前属性] baseStr:', baseStr, 'maxHp:', maxHp); // 调试日志
+      
       // 盖伦被动：战斗结束恢复HP
       let passiveHeal = champion.relicId === "GarenPassive" ? 6 : 0; 
       
       // 内瑟斯被动：将战斗中获得的力量永久化
       if (result.gainedStr > 0) {
+          console.log('[内瑟斯] 永久力量增长:', result.gainedStr, '→', baseStr + result.gainedStr); // 调试日志
           setBaseStr(prev => prev + result.gainedStr);
       }
       
       // 锤石被动：永久增加最大生命值
       if (result.gainedMaxHp > 0) {
+          console.log('[锤石] 最大HP增长:', result.gainedMaxHp, '→', maxHp + result.gainedMaxHp); // 调试日志
           setMaxHp(prev => prev + result.gainedMaxHp);
           passiveHeal += result.gainedMaxHp; // 最大HP增长也算作恢复
       }
       
       // 卡牌大师被动：战斗胜利额外金币
       if (champion && champion.relicId === "TwistedFatePassive") {
+          console.log('[卡牌大师] 获得额外金币: +15'); // 调试日志
           setGold(prev => prev + 15);
       }
       

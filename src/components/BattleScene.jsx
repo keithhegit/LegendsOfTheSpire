@@ -284,10 +284,8 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           
           // 内瑟斯被动：用攻击牌击杀获得1永久力量
           if (heroData.relicId === "NasusPassive" && lastPlayedCard && lastPlayedCard.type === 'ATTACK') {
-              const currentStr = playerStatus.strength;
-              const baseStrength = heroData.baseStr || 0;
-              battleResult.gainedStr = currentStr - baseStrength; // 计算本局获得的力量
-              setPlayerStatus(s => ({ ...s, strength: s.strength + 1 }));
+              battleResult.gainedStr = 1; // 每次击杀固定+1力量
+              setPlayerStatus(s => ({ ...s, strength: s.strength + 1 })); // 局内也显示增长
           }
           
           // 艾瑞莉娅被动：击杀恢复1法力并抽1牌
