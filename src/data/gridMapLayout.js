@@ -130,6 +130,34 @@ export const generateGridMap = (act, floorCount = 10, usedEnemies = []) => {
             nodeMap.set(`${r}-${col}`, node);
         });
     }
+    
+    // 验证：确保第一层节点能解锁第二层的至少一个节点
+    // 如果第二层没有节点在第一层节点的相邻位置，强制生成一个
+    if (floorCount > 1) {
+        const firstNode = nodes.find(n => n.row === 0);
+        if (firstNode) {
+            const secondRowNodes = nodes.filter(n => n.row === 1);
+            const adjacentCols = [firstNode.col - 1, firstNode.col, firstNode.col + 1].filter(c => c >= 0 && c < GRID_COLS);
+            const hasAdjacentNode = secondRowNodes.some(n => adjacentCols.includes(n.col));
+            
+            if (!hasAdjacentNode && secondRowNodes.length > 0) {
+                // 如果没有相邻节点，移动一个第二层节点到相邻位置
+                const nodeToMove = secondRowNodes[0];
+                const targetCol = adjacentCols[Math.floor(adjacentCols.length / 2)]; // 选择中间的相邻列
+                const oldGridRow = GRID_ROWS - 1 - nodeToMove.row;
+                
+                // 清除旧位置
+                grid[oldGridRow][nodeToMove.col] = null;
+                
+                // 设置新位置
+                nodeToMove.col = targetCol;
+                nodeToMove.id = `${nodeToMove.row}-${targetCol}`;
+                grid[oldGridRow][targetCol] = nodeToMove;
+                nodeMap.delete(`${nodeToMove.row}-${nodeToMove.col}`);
+                nodeMap.set(nodeToMove.id, nodeToMove);
+            }
+        }
+    }
 
     // 建立连接关系：每个节点可以连接到下一层的相邻节点（正前、左前、右前）
     for (let r = 0; r < floorCount - 1; r++) {
