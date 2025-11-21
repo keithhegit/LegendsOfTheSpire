@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Champion Voice URLs</title>
+</head>
+<body>
+    <h1>Testing Champion Voice URLs</h1>
+    <div id="results"></div>
+    <script>
+        const champions = [
+            'Garen', 'Darius', 'Lux', 'Jinx', 'Yasuo', 'Sona', 'Ekko', 'Sylas', 'Urgot', 'Viktor',
+            'Riven', 'TwistedFate', 'LeeSin', 'Vayne', 'Teemo', 'Zed', 'Nasus', 'Irelia', 'Thresh', 'Katarina'
+        ];
+        
+        const VOICE_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/audio/spire/vo_assets_v1";
+        
+        const results = document.getElementById('results');
+        
+        champions.forEach(champ => {
+            const url = `${VOICE_URL}/${champ}.ogg`;
+            fetch(url, { method: 'HEAD' })
+                .then(response => {
+                    const div = document.createElement('div');
+                    div.style.padding = '5px';
+                    div.style.color = response.ok ? 'green' : 'red';
+                    div.textContent = `${champ}: ${response.ok ? '✓ OK' : '✗ NOT FOUND'} (${url})`;
+                    results.appendChild(div);
+                })
+                .catch(err => {
+                    const div = document.createElement('div');
+                    div.style.padding = '5px';
+                    div.style.color = 'red';
+                    div.textContent = `${champ}: ✗ ERROR (${err.message})`;
+                    results.appendChild(div);
+                });
+        });
+    </script>
+</body>
+</html>
+

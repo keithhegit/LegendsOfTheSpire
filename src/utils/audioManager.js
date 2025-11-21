@@ -1,4 +1,5 @@
 import { VOICE_URL } from '../data/constants';
+import { getVoiceFileName } from '../data/voiceMapping';
 
 // 音效 URL - 使用新的R2存储地址
 const SFX_BASE_URL = "https://pub-c98d5902eedf42f6a9765dfad981fd88.r2.dev/sfx";
@@ -45,7 +46,15 @@ export const playSfx = (type) => {
 export const playChampionVoice = (championKey) => {
   if (!championKey) return;
   
-  const voiceUrl = `${VOICE_URL}/${championKey}.ogg`;
+  // 临时禁用语音播放，因为 R2 存储中没有语音文件
+  // TODO: 上传语音文件到 R2 后重新启用
+  return;
+  
+  /*
+  // 使用映射表获取正确的语音文件名
+  const voiceFileName = getVoiceFileName(championKey);
+  const voiceUrl = `${VOICE_URL}/${voiceFileName}.ogg`;
+  
   const audio = new Audio(voiceUrl);
   audio.volume = 0.6;
   
@@ -53,8 +62,9 @@ export const playChampionVoice = (championKey) => {
   audio.play().catch(e => {
     // 仅在开发环境显示详细错误
     if (process.env.NODE_ENV === 'development') {
-      console.warn(`[Voice] Failed to play ${championKey}:`, e.name);
+      console.warn(`[Voice] Failed to play ${championKey} (${voiceFileName}.ogg):`, e.name);
     }
   });
+  */
 };
 
