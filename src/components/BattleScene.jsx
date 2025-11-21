@@ -78,7 +78,8 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   const startTurnLogic = () => {
     setGameState('PLAYER_TURN'); 
     setPlayerMana(initialMana + (heroData.relicId === "LuxPassive" ? 1 : 0)); 
-    setPlayerBlock(0);
+    // 护甲不清零，累积到下一回合（符合 Slay the Spire 机制）
+    // setPlayerBlock(0); // 已移除
     let drawCount = 5; if (heroData.relicId === "JinxPassive") drawCount = 6; 
     drawCards(drawCount);
     if (heroData.relicId === "ViktorPassive" && Math.random() < 0.5) {

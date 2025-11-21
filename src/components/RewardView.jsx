@@ -5,9 +5,27 @@ import { CARD_DATABASE } from '../data/cards';
 
 const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
   const rewards = useMemo(() => {
-    const allCards = Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC' && c.rarity !== 'PASSIVE');
-    const heroCards = allCards.filter(c => c.hero === championName || c.hero === 'Neutral');
-    return shuffle(heroCards).slice(0, 3);
+    // 构建卡池：20% 概率出现RARE（R技能），80% 出现普通卡牌
+    const rareCards = Object.values(CARD_DATABASE).filter(c => c.rarity === 'RARE' && (c.hero === championName || c.hero === 'Neutral'));
+    const normalCards = Object.values(CARD_DATABASE).filter(c => c.rarity !== 'BASIC' && c.rarity !== 'PASSIVE' && c.rarity !== 'RARE' && (c.hero === championName || c.hero === 'Neutral'));
+    
+    const cardPool = [];
+    for (let i = 0; i < 3; i++) {
+      if (Math.random() < 0.2 && rareCards.length > 0) {
+        // 20% 概率抽取 RARE 卡牌
+        cardPool.push(shuffle([...rareCards])[0]);
+      } else {
+        // 80% 概率抽取普通卡牌
+        if (normalCards.length > 0) {
+          cardPool.push(shuffle([...normalCards])[0]);
+        } else {
+          // 如果没有普通卡，降级到 RARE
+          cardPool.push(shuffle([...rareCards])[0]);
+        }
+      }
+    }
+    
+    return cardPool;
   }, [championName]);
   
   return (
