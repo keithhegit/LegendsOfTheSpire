@@ -272,7 +272,52 @@ export function generateGridMap(act = 1, usedEnemies = []) {
   
   console.log(`[Detours] Generated ${detourChains.length} detour chains, total nodes: ${currentNodeCount} (target: ${targetNodeCount})`);
   
-  // 阶段4: 验证可达性
+  // 阶段4: 断开主路径部分连接（强制走绕路！）
+  // 策略：对于有绕路链的区段，50%概率断开主路径的直连
+  let brokenConnections = 0;
+  
+  for (const detourChainNodes of detourChains) {
+    if (detourChainNodes.length < 2) continue;
+    
+    // 找到这条绕路链对应的主路径区段
+    const firstDetour = detourChainNodes[0];
+    const lastDetour = detourChainNodes[detourChainNodes.length - 1];
+    
+    // 找到主路径上的起点和终点节点
+    const chainStartNode = mainPath.find(n => n.next.includes(firstDetour.id));
+    const chainEndNode = mainPath.find(n => firstDetour.prev && lastDetour.next && lastDetour.next.includes(n.id));
+    
+    if (!chainStartNode || !chainEndNode) continue;
+    
+    const startStep = mainPath.indexOf(chainStartNode);
+    const endStep = mainPath.indexOf(chainEndNode);
+    
+    if (startStep === -1 || endStep === -1 || endStep <= startStep + 1) continue;
+    
+    // 断开中间的主路径连接（50%概率）
+    if (Math.random() < 0.5) {
+      for (let step = startStep + 1; step < endStep; step++) {
+        const currentNode = mainPath[step];
+        const nextNode = mainPath[step + 1];
+        
+        // 移除连接
+        const nextIdx = currentNode.next.indexOf(nextNode.id);
+        if (nextIdx !== -1) {
+          currentNode.next.splice(nextIdx, 1);
+          const prevIdx = nextNode.prev.indexOf(currentNode.id);
+          if (prevIdx !== -1) {
+            nextNode.prev.splice(prevIdx, 1);
+          }
+          brokenConnections++;
+          console.log(`  [ForceDetour] Disconnected main path ${currentNode.id} -X-> ${nextNode.id} (forces detour)`);
+        }
+      }
+    }
+  }
+  
+  console.log(`[ForceDetour] Broken ${brokenConnections} main path connections to force detours`);
+  
+  // 阶段5: 验证可达性
   const { reachable, distance: minDistance } = bfsCheck(nodes, startNode, bossNode);
   const maxDistance = dfsMaxDistance(nodes, startNode, bossNode);
   
