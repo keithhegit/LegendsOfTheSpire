@@ -52,28 +52,30 @@ export function offsetToPixel(row, col, hexSize = HEX_SIZE) {
 
 /**
  * 获取六边形的6个邻居（Offset坐标系）
- * 使用 "odd-r" 布局
+ * 使用 "odd-r" 布局 + flat-top hexagon
  * 
- * 邻居方向（从12点钟方向顺时针）：
- *     N
- *  NW   NE
- *  SW   SE
- *     S
+ * Flat-top 邻居方向：
+ *   NW  N  NE
+ *    \  |  /
+ *   W - X - E
+ *    /  |  \
+ *   SW  S  SE
  */
 export function getHexNeighbors(row, col, maxRows = 30, maxCols = 7) {
   const isOddRow = row % 2 === 1;
   
-  // 奇数行和偶数行的邻居偏移不同
+  // Flat-top布局的邻居偏移（odd-r坐标系）
+  // 奇数行向右偏移0.5个单位
   const neighbors = isOddRow
     ? [
-        [row - 1, col],     [row - 1, col + 1], // NW, NE
-        [row, col - 1],     [row, col + 1],     // W, E
-        [row + 1, col],     [row + 1, col + 1]  // SW, SE
+        [row - 1, col],     [row - 1, col + 1], // N, NE (上方两个)
+        [row, col - 1],     [row, col + 1],     // W, E (左右两个)
+        [row + 1, col],     [row + 1, col + 1]  // S, SE (下方两个)
       ]
     : [
-        [row - 1, col - 1], [row - 1, col],     // NW, NE
-        [row, col - 1],     [row, col + 1],     // W, E
-        [row + 1, col - 1], [row + 1, col]      // SW, SE
+        [row - 1, col - 1], [row - 1, col],     // NW, N (上方两个)
+        [row, col - 1],     [row, col + 1],     // W, E (左右两个)
+        [row + 1, col - 1], [row + 1, col]      // SW, S (下方两个)
       ];
   
   // 过滤出边界内的邻居

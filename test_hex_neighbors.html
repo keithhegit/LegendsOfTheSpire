@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>六边形邻居测试</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a2e; color: #eee; }
+    canvas { border: 2px solid #C8AA6E; display: block; margin: 20px auto; background: #0a0e27; }
+    .info { text-align: center; margin: 20px; }
+  </style>
+</head>
+<body>
+  <div class="info">
+    <h2>Flat-Top 六边形邻居测试</h2>
+    <p>点击任意六边形查看其邻居</p>
+  </div>
+  <canvas id="canvas" width="800" height="600"></canvas>
+  <div class="info" id="info"></div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const HEX_SIZE = 40;
+    
+    // Flat-top offset to pixel
+    function offsetToPixel(row, col) {
+      const isOddRow = row % 2 === 1;
+      const x = HEX_SIZE * Math.sqrt(3) * (col + (isOddRow ? 0.5 : 0));
+      const y = HEX_SIZE * 1.5 * row;
+      return { x, y };
+    }
+    
+    // Get neighbors (flat-top, odd-r)
+    function getNeighbors(row, col) {
+      const isOddRow = row % 2 === 1;
+      return isOddRow
+        ? [
+            [row - 1, col], [row - 1, col + 1],
+            [row, col - 1], [row, col + 1],
+            [row + 1, col], [row + 1, col + 1]
+          ]
+        : [
+            [row - 1, col - 1], [row - 1, col],
+            [row, col - 1], [row, col + 1],
+            [row + 1, col - 1], [row + 1, col]
+          ];
+    }
+    
+    // Draw hexagon
+    function drawHex(x, y, size, color, text) {
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const angle = Math.PI / 3 * i;
+        const hx = x + size * Math.cos(angle);
+        const hy = y + size * Math.sin(angle);
+        if (i === 0) ctx.moveTo(hx, hy);
+        else ctx.lineTo(hx, hy);
+      }
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = '#C8AA6E';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      if (text) {
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y);
+      }
+    }
+    
+    // Create grid
+    const grid = [];
+    const ROWS = 7;
+    const COLS = 7;
+    
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const pos = offsetToPixel(r, c);
+        grid.push({ row: r, col: c, x: pos.x + 150, y: pos.y + 100 });
+      }
+    }
+    
+    let selectedNode = null;
+    
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      for (const node of grid) {
+        let color = '#2a2a4a';
+        let text = `${node.row},${node.col}`;
+        
+        if (selectedNode && selectedNode.row === node.row && selectedNode.col === node.col) {
+          color = '#4ade80';
+          text = 'X';
+        } else if (selectedNode) {
+          const neighbors = getNeighbors(selectedNode.row, selectedNode.col);
+          const isNeighbor = neighbors.some(([r, c]) => r === node.row && c === node.col);
+          if (isNeighbor) {
+            color = '#ef4444';
+            text = '✓';
+          }
+        }
+        
+        drawHex(node.x, node.y, HEX_SIZE * 0.8, color, text);
+      }
+    }
+    
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      
+      for (const node of grid) {
+        const dx = clickX - node.x;
+        const dy = clickY - node.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < HEX_SIZE * 0.8) {
+          selectedNode = node;
+          const neighbors = getNeighbors(node.row, node.col);
+          document.getElementById('info').innerHTML = `
+            <strong>选中:</strong> (${node.row}, ${node.col}) ${node.row % 2 === 1 ? '[奇数行]' : '[偶数行]'}<br>
+            <strong>邻居:</strong> ${neighbors.map(([r, c]) => `(${r},${c})`).join(', ')}
+          `;
+          render();
+          return;
+        }
+      }
+    });
+    
+    render();
+  </script>
+</body>
+</html>
+
