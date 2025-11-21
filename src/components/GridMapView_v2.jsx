@@ -29,12 +29,15 @@ const GridMapView_v2 = ({ mapData, onNodeSelect, currentFloor, act, activeNode }
   const nodePositions = useMemo(() => {
     if (!mapData || !mapData.nodes) return new Map();
     
+    // 找到最大row值（用于翻转Y轴）
+    const maxRow = Math.max(...mapData.nodes.map(n => n.row));
+    
     const positions = new Map();
     mapData.nodes.forEach(node => {
       const pos = offsetToPixel(node.row, node.col, HEX_SIZE);
       positions.set(node.id, {
         x: pos.x + VIEW_WIDTH / 2,
-        y: pos.y + 100 // 顶部留白
+        y: VIEW_HEIGHT - pos.y - 100 // 翻转Y轴，让起点在底部
       });
     });
     return positions;
@@ -165,19 +168,19 @@ const GridMapView_v2 = ({ mapData, onNodeSelect, currentFloor, act, activeNode }
 
   return (
     <div 
-      className="relative flex flex-col items-center h-full w-full overflow-hidden bg-[#0c0c12]"
+      className="relative flex flex-col items-center h-full w-full overflow-hidden bg-white"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* 背景 */}
-      <div className="absolute inset-0 z-0">
+      {/* 背景 - 暂时屏蔽用于测试 */}
+      {/* <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/70 z-10" />
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-40" 
           style={{ backgroundImage: `url('${ACT_BACKGROUNDS[act]}')` }}
         />
-      </div>
+      </div> */}
 
       {/* SVG地图容器 */}
       <motion.svg
@@ -236,12 +239,12 @@ const GridMapView_v2 = ({ mapData, onNodeSelect, currentFloor, act, activeNode }
       </motion.svg>
 
       {/* 底部状态栏 */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/90 to-transparent pointer-events-none z-30 flex justify-center items-end pb-4">
-        <div className="text-[#C8AA6E] font-serif text-center space-y-1">
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-200 to-transparent pointer-events-none z-30 flex justify-center items-end pb-4">
+        <div className="text-black font-serif text-center space-y-1">
           <div className="text-lg font-bold">
             ACT {act} - 当前层数: {currentFloor + 1} / {mapData.totalFloors}
           </div>
-          <div className="text-sm text-slate-400">
+          <div className="text-sm text-gray-600">
             拖拽查看全图 | 点击高亮节点前进
           </div>
         </div>

@@ -698,57 +698,54 @@ export default function LegendsOfTheSpire() {
   };
 
   const completeNode = () => {
-      if (!activeNode) return;
+      if (!activeNode || !mapData || !mapData.nodes) return;
       
       // 标记当前节点为已完成
-      const newGrid = mapData.grid.map(row => [...row]);
-      const currentNode = activeNode;
-      const gridRow = GRID_ROWS - 1 - currentNode.row;
-      if (newGrid[gridRow] && newGrid[gridRow][currentNode.col]) {
-          newGrid[gridRow][currentNode.col].status = 'COMPLETED';
+      const newNodes = [...mapData.nodes];
+      const idx = newNodes.findIndex(n => n.id === activeNode.id);
+      if (idx === -1) return;
+      
+      newNodes[idx].status = 'COMPLETED';
+      
+      // 解锁下一层的连接节点（基于DAG的next数组）
+      if (activeNode.next && activeNode.next.length > 0) {
+        activeNode.next.forEach(nextId => {
+          const nextNodeIdx = newNodes.findIndex(n => n.id === nextId);
+          if (nextNodeIdx !== -1) {
+            newNodes[nextNodeIdx].status = 'AVAILABLE';
+          }
+        });
       }
       
-      // 解锁下一层相邻节点
-      const nextFloor = currentNode.row + 1;
-      if (nextFloor < 10) {
-          const nextGridRow = GRID_ROWS - 1 - nextFloor;
-          // 解锁正前、左前、右前的节点
-          const nextCols = [
-              currentNode.col,      // 正前
-              currentNode.col - 1,  // 左前
-              currentNode.col + 1   // 右前
-          ].filter(col => col >= 0 && col < GRID_COLS);
-          
-          nextCols.forEach(col => {
-              if (newGrid[nextGridRow] && newGrid[nextGridRow][col] && newGrid[nextGridRow][col]) {
-                  const nextNode = newGrid[nextGridRow][col];
-                  if (nextNode && nextNode.status === 'LOCKED') {
-                      nextNode.status = 'AVAILABLE';
-                  }
-              }
-          });
-      }
+      // 更新mapData（保持grid和nodes同步）
+      const newGrid = mapData.grid ? mapData.grid.map(row => [...row]) : [];
+      newNodes.forEach(node => {
+        if (newGrid[node.row] && newGrid[node.row][node.col]) {
+          newGrid[node.row][node.col] = node;
+        }
+      });
       
-      // 确保 nodeMap 是 Map 对象
-      const nodeMap = mapData.nodeMap instanceof Map ? mapData.nodeMap : new Map();
-      const updatedNodeMap = new Map(nodeMap);
-      updatedNodeMap.set(`${currentNode.row}-${currentNode.col}`, { ...currentNode, status: 'COMPLETED' });
+      setMapData({ ...mapData, grid: newGrid, nodes: newNodes });
       
-      setMapData({ ...mapData, grid: newGrid, nodeMap: updatedNodeMap });
+      // 检查是否到达BOSS（v3生成器中BOSS是type='BOSS'）
+      const nextFloor = activeNode.row + 1;
+      const totalFloors = mapData.totalFloors || 10;
       
-      // 检查是否到达最后一层
-      if (nextFloor >= 10) {
+      if (activeNode.type === 'BOSS' || nextFloor >= totalFloors) {
           // 章节通关逻辑
           if (currentAct < 3) {
               const nextAct = currentAct + 1;
               setCurrentAct(nextAct);
               setCurrentFloor(0);
-              const nextMapData = generateGridMap(nextAct, 10, usedEnemies);
+              const nextMapData = generateGridMap(nextAct, []); // v3生成器
               setMapData(nextMapData);
+              if (nextMapData.startNode) {
+                setActiveNode(nextMapData.startNode);
+              }
               // 章节奖励：回复 50% 生命
               setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.5)));
               alert(`第 ${currentAct} 章通关！进入下一章...`);
-          setView('MAP');
+              setView('MAP');
           } else {
               // 游戏通关
               const allIds = Object.keys(CHAMPION_POOL);
@@ -790,27 +787,7 @@ export default function LegendsOfTheSpire() {
           }
       }
       
-      // 立即锁定同层的其他节点
-      const newGrid = mapData.grid.map(row => [...row]);
-      const gridRow = GRID_ROWS - 1 - node.row;
-      
-      // 锁定同层的所有其他节点
-      if (newGrid[gridRow]) {
-          newGrid[gridRow].forEach((n, colIndex) => {
-              if (n && n.id === node.id) {
-                  // 当前节点保持当前状态，稍后在 completeNode 中标记为 COMPLETED
-              } else if (n) {
-                  n.status = 'LOCKED';
-              }
-          });
-      }
-      
-      // 确保 nodeMap 是 Map 对象
-      const nodeMap = mapData.nodeMap instanceof Map ? mapData.nodeMap : new Map();
-      const updatedNodeMap = new Map(nodeMap);
-      updatedNodeMap.set(`${node.row}-${node.col}`, node);
-      
-      setMapData({ ...mapData, grid: newGrid, nodeMap: updatedNodeMap });
+      // v3生成器不需要锁定节点逻辑，DAG结构自动处理
       setActiveNode(node);
       setCurrentFloor(node.row);
       
