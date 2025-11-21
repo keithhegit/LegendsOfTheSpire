@@ -37,6 +37,14 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
   const [enemyAnim, setEnemyAnim] = useState("");
   const [playerStatus, setPlayerStatus] = useState({ strength: heroData.baseStr || 0, weak: 0, vulnerable: 0 });
   const [enemyStatus, setEnemyStatus] = useState({ strength: 0, weak: 0, vulnerable: 0 });
+  
+  // 被动技能状态追踪
+  const [rivenAttackCount, setRivenAttackCount] = useState(0); // 瑞文：攻击计数
+  const [leeSinSkillBuff, setLeeSinSkillBuff] = useState(false); // 盲僧：技能牌buff
+  const [vayneHitCount, setVayneHitCount] = useState(0); // 薇恩：连击计数
+  const [zedFirstAttack, setZedFirstAttack] = useState(true); // 劫：首次攻击标记
+  const [katarinaAttackCount, setKatarinaAttackCount] = useState(0); // 卡特琳娜：攻击计数
+  const [lastPlayedCard, setLastPlayedCard] = useState(null); // 追踪最后打出的牌
 
   useEffect(() => {
     // 战斗开始时播放英雄语音
@@ -89,6 +97,21 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
          forceUpdate();
     }
     setNextEnemyAction(enemyConfig.actions[Math.floor(Math.random()*enemyConfig.actions.length)]);
+    
+    // 被动技能：回合开始触发
+    // 劫被动：重置首次攻击标记
+    if (heroData.relicId === "ZedPassive") {
+        setZedFirstAttack(true);
+    }
+    // 卡特琳娜被动：重置计数器
+    if (heroData.relicId === "KatarinaPassive") {
+        setKatarinaAttackCount(0);
+    }
+    // 提莫被动：回合开始给敌人2层虚弱
+    if (heroData.relicId === "TeemoPassive") {
+        setEnemyStatus(s => ({ ...s, weak: s.weak + 2 }));
+    }
+    
     // 添加 null 检查防止 relic 为 undefined
     (heroData.relics || []).forEach(rid => { 
         const relic = RELIC_DATABASE[rid]; 
@@ -117,29 +140,64 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
       }
       
       // 如果是升级卡牌，增强属性
-      const card = {
+      let card = {
           ...baseCard,
           value: isUpgraded && baseCard.value ? baseCard.value + 3 : baseCard.value,
           block: isUpgraded && baseCard.block ? baseCard.block + 3 : baseCard.block,
           effectValue: isUpgraded && baseCard.effectValue ? baseCard.effectValue + 1 : baseCard.effectValue
       };
       
-      if(playerMana < card.cost) return;
-      setPlayerMana(p => p - card.cost);
+      // 盲僧被动：技能牌后下一张攻击牌-1费
+      let actualCost = card.cost;
+      if (heroData.relicId === "LeeSinPassive" && card.type === 'ATTACK' && leeSinSkillBuff) {
+          actualCost = Math.max(0, card.cost - 1);
+          setLeeSinSkillBuff(false); // 消耗buff
+      }
+      
+      if(playerMana < actualCost) return;
+      setPlayerMana(p => p - actualCost);
       const newHand = [...hand]; newHand.splice(index, 1);
       if(!card.exhaust) { deckRef.current = { ...deckRef.current, hand: newHand, discardPile: [...discardPile, cardId] }; } 
       else { deckRef.current = { ...deckRef.current, hand: newHand }; }
       forceUpdate();
       
+      // 记录最后打出的牌（用于内瑟斯/艾瑞莉娅被动）
+      setLastPlayedCard(card);
+      
+      // 处理卡牌效果
       if(card.effect === 'DRAW') drawCards(card.effectValue);
+      if(card.effect2 === 'DRAW') drawCards(card.effectValue2 || 1); // 支持第二个抽牌效果（卡牌R）
       if(card.exhaust && heroData.relicId === "EkkoPassive") setPlayerStatus(s => ({ ...s, strength: s.strength + 1 }));
       if(card.type === 'SKILL' && heroData.relicId === "SylasPassive") setPlayerHp(h => Math.min(heroData.maxHp, h + 3));
       if(card.effect === 'VULNERABLE') setEnemyStatus(s => ({ ...s, vulnerable: s.vulnerable + card.effectValue }));
+      if(card.effect2 === 'VULNERABLE') setEnemyStatus(s => ({ ...s, vulnerable: s.vulnerable + (card.effectValue2 || 0) })); // 娑娜R
       if(card.effect === 'WEAK') setEnemyStatus(s => ({ ...s, weak: s.weak + card.effectValue }));
       if(card.effect === 'STRENGTH') setPlayerStatus(s => ({ ...s, strength: s.strength + card.effectValue }));
+      if(card.effect2 === 'STRENGTH') setPlayerStatus(s => ({ ...s, strength: s.strength + (card.effectValue2 || 0) })); // 卡牌R
       if(card.effect === 'CLEANSE') setPlayerStatus(s => ({ ...s, weak: 0, vulnerable: 0 }));
       if(card.effect === 'HEAL') setPlayerHp(h => Math.min(heroData.maxHp, h + card.effectValue));
+      
+      // 盲僧被动：技能牌后设置buff
+      if (card.type === 'SKILL' && heroData.relicId === "LeeSinPassive") {
+          setLeeSinSkillBuff(true);
+      }
+      
       if(card.type === 'ATTACK') {
+          // 瑞文被动：攻击牌计数
+          if (heroData.relicId === "RivenPassive") {
+              const newCount = rivenAttackCount + 1;
+              if (newCount >= 3) {
+                  setPlayerMana(m => Math.min(initialMana, m + 1)); // 恢复1点能量
+                  setRivenAttackCount(0);
+              } else {
+                  setRivenAttackCount(newCount);
+              }
+          }
+          
+          // 卡特琳娜被动：攻击牌计数
+          if (heroData.relicId === "KatarinaPassive") {
+              setKatarinaAttackCount(prev => prev + 1);
+          }
           // 播放攻击挥击音效
           playSfx('ATTACK_SWING');
           triggerAnim('HERO', 'attack'); 
@@ -156,13 +214,30 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           }, 200);
           let dmg = card.value + playerStatus.strength;
           if (playerStatus.weak > 0) dmg = Math.floor(dmg * 0.75);
+          
+          // 卡特琳娜被动：每第4张攻击牌伤害翻倍
+          if (heroData.relicId === "KatarinaPassive" && katarinaAttackCount === 4) {
+              dmg = dmg * 2;
+              setKatarinaAttackCount(0); // 重置计数器
+          }
+          
           const hits = card.isMultiHit ? card.hits : 1;
           let total = 0;
+          let isFirstHit = true; // 用于劫被动
+          
           for(let i=0; i<hits; i++) {
               let finalDmg = dmg;
               if (enemyStatus.vulnerable > 0) finalDmg = Math.floor(finalDmg * 1.5);
               if (heroData.relicId === "YasuoPassive" && Math.random() < 0.1) finalDmg = Math.floor(finalDmg * 2);
               if (heroData.relics.includes("InfinityEdge")) finalDmg = Math.floor(finalDmg * 1.5);
+              
+              // 劫被动：首张攻击牌额外50%伤害（只在第一次命中时触发）
+              if (heroData.relicId === "ZedPassive" && zedFirstAttack && isFirstHit) {
+                  const bonusDmg = Math.floor(finalDmg * 0.5);
+                  finalDmg += bonusDmg;
+                  setZedFirstAttack(false); // 标记已使用
+              }
+              isFirstHit = false;
               let dmgToHp = finalDmg;
               if (enemyBlock > 0) { 
                   // 敌人格挡时播放格挡音效
@@ -173,6 +248,18 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
                   // 敌人受击时播放受击音效
                   setTimeout(() => playSfx('HIT_TAKEN'), 250);
               }
+              
+              // 薇恩被动：连续命中计数
+              if (heroData.relicId === "VaynePassive" && dmgToHp > 0) {
+                  const newHitCount = vayneHitCount + 1;
+                  if (newHitCount >= 3) {
+                      dmgToHp += 10; // 额外10点伤害
+                      setVayneHitCount(0); // 重置计数
+                  } else {
+                      setVayneHitCount(newHitCount);
+                  }
+              }
+              
               setEnemyHp(h => Math.max(0, h - dmgToHp)); total += dmgToHp;
               if(heroData.relics.includes("VampiricScepter")) setPlayerHp(h => Math.min(heroData.maxHp, h + 1));
               if(heroData.relicId === "DariusPassive") setEnemyStatus(s => ({ ...s, weak: s.weak + 1 }));
@@ -188,11 +275,34 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
 
   useEffect(() => { 
       if(enemyHp<=0) {
+          // 敌人死亡时触发的被动
+          
+          // 内瑟斯被动：用攻击牌击杀获得1力量
+          if (heroData.relicId === "NasusPassive" && lastPlayedCard && lastPlayedCard.type === 'ATTACK') {
+              setPlayerStatus(s => ({ ...s, strength: s.strength + 1 }));
+          }
+          
+          // 艾瑞莉娅被动：击杀恢复1能量并抽1牌
+          if (heroData.relicId === "IreliaPassive") {
+              setPlayerMana(m => Math.min(initialMana, m + 1));
+              drawCards(1);
+          }
+          
+          // 锤石被动：敌人死亡增加2HP（简化实现）
+          if (heroData.relicId === "ThreshPassive") {
+              setPlayerHp(h => h + 2);
+          }
+          
           playSfx('WIN');
           setTimeout(()=>onWin(playerHp), 1000); 
       }
   }, [enemyHp]);
-  useEffect(() => { if(playerHp<=0) setTimeout(onLose, 1000); }, [playerHp]);
+  
+  useEffect(() => { 
+      if(playerHp<=0) {
+          setTimeout(onLose, 1000); 
+      }
+  }, [playerHp]);
   
   const endTurn = () => { 
       const { hand, discardPile } = deckRef.current;

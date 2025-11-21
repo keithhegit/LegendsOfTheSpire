@@ -31,7 +31,7 @@ export const CARD_DATABASE = {
   // 亚索
   "YasuoQ": { id: "YasuoQ", hero: "Yasuo", name: "斩钢闪", price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害。", img: `${SPELL_URL}/YasuoQ1Wrapper.png`, rarity: "COMMON" },
   "YasuoE": { id: "YasuoE", hero: "Yasuo", name: "踏前斩", price: 70, type: "ATTACK", cost: 1, value: 8, effect: "STRENGTH", effectValue: 1, description: "造成 8 点伤害。获得 1 点力量。", img: `${SPELL_URL}/YasuoDashWrapper.png`, rarity: "UNCOMMON" },
-  "YasuoR": { id: "YasuoR", hero: "Yasuo", name: "狂风绝息斩", price: 150, type: "ATTACK", cost: 2, value: 20, isMultiHit: true, hits: 3, description: "造成 3 次 20 点伤害（只能对浮空敌人释放 - 简化为直接释放）。", img: `${SPELL_URL}/YasuoR.png`, rarity: "RARE" },
+  "YasuoR": { id: "YasuoR", hero: "Yasuo", name: "狂风绝息斩", price: 150, type: "ATTACK", cost: 3, value: 20, isMultiHit: true, hits: 3, description: "造成 3 次 20 点伤害。", img: `${SPELL_URL}/YasuoR.png`, rarity: "RARE" },
 
   // 娑娜
   "SonaQ": { id: "SonaQ", hero: "Sona", name: "英勇赞美诗", price: 50, type: "ATTACK", cost: 1, value: 7, effect: "HEAL", effectValue: 3, description: "造成 7 点伤害，回复 3 点生命。", img: `${SPELL_URL}/SonaHymnofValor.png`, rarity: "COMMON" },
@@ -51,7 +51,7 @@ export const CARD_DATABASE = {
   // 厄加特
   "UrgotQ": { id: "UrgotQ", hero: "Urgot", name: "腐蚀电荷", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "WEAK", effectValue: 1, description: "造成 8 点伤害，给予 1 层虚弱。", img: `${SPELL_URL}/UrgotQ.png`, rarity: "COMMON" },
   "UrgotW": { id: "UrgotW", hero: "Urgot", name: "净除", price: 90, type: "SKILL", cost: 1, block: 8, effect: "VULNERABLE", effectValue: 1, description: "获得 8 点护甲，给予 1 层易伤。", img: `${SPELL_URL}/UrgotW.png`, rarity: "UNCOMMON" },
-  "UrgotR": { id: "UrgotR", hero: "Urgot", name: "超越死亡的恐惧", price: 150, type: "ATTACK", cost: 3, value: 50, description: "造成 50 点伤害。", img: `${SPELL_URL}/UrgotR.png`, rarity: "RARE" },
+  "UrgotR": { id: "UrgotR", hero: "Urgot", name: "超越死亡的恐惧", price: 150, type: "ATTACK", cost: 3, value: 45, description: "造成 45 点巨额伤害。", img: `${SPELL_URL}/UrgotR.png`, rarity: "RARE" },
 
   // 维克托
   "ViktorQ": { id: "ViktorQ", hero: "Viktor", name: "能量转移", price: 40, type: "ATTACK", cost: 0, value: 3, block: 3, description: "造成 3 点伤害，获得 3 点护甲。", img: `${SPELL_URL}/ViktorPowerTransfer.png`, rarity: "COMMON" },
