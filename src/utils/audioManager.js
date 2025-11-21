@@ -38,13 +38,16 @@ export const playSfx = (type) => {
   audio.play().catch(e => console.log("SFX play failed (user interaction required)", e));
 };
 
-// 播放英雄语音
+// 播放英雄语音（禁用.ogg格式，浏览器兼容性问题）
 export const playChampionVoice = (championKey) => {
   if (!championKey) return;
   
-  const voiceUrl = `${VOICE_URL}/${championKey}.ogg`;
-  const audio = new Audio(voiceUrl);
-  audio.volume = 0.6;
-  audio.play().catch(e => console.log("Champion voice play failed", e));
+  // 注释掉语音播放，避免 NotSupportedError
+  // const voiceUrl = `${VOICE_URL}/${championKey}.ogg`;
+  // const audio = new Audio(voiceUrl);
+  // audio.volume = 0.6;
+  // audio.play().catch(e => console.log("Champion voice play failed", e));
+  
+  // TODO: 未来可以使用 .mp3 格式替代 .ogg
 };
 

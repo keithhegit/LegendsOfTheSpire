@@ -7,6 +7,7 @@ import CodexView from './components/CodexView';
 import DeckView from './components/DeckView';
 import BattleScene from './components/BattleScene';
 import ChampionSelect from './components/ChampionSelect';
+import ToastContainer from './components/shared/Toast';
 
 // ==========================================
 // 1. 静态资源与全局配置
@@ -599,8 +600,9 @@ export default function LegendsOfTheSpire() {
   const [baseStr, setBaseStr] = useState(0);
   const [activeNode, setActiveNode] = useState(null);
   const [usedEnemies, setUsedEnemies] = useState([]);
-  const [showCodex, setShowCodex] = useState(false);
-  const [showDeck, setShowDeck] = useState(false); 
+  const [showCodex, setShowCodex] = useState(false); 
+  const [showDeck, setShowDeck] = useState(false);
+  const [toasts, setToasts] = useState([]);
   
   const [unlockedChamps, setUnlockedChamps] = useState(() => { 
       try { 
@@ -798,6 +800,15 @@ export default function LegendsOfTheSpire() {
       }
   };
 
+  // Toast通知系统
+  const showToast = (message, type = 'default') => {
+      const id = Date.now();
+      setToasts(prev => [...prev, { id, message, type }]);
+      setTimeout(() => {
+          setToasts(prev => prev.filter(t => t.id !== id));
+      }, 3000);
+  };
+
   const handleBattleWin = (battleResult) => { 
       // 处理战斗结果（可能是旧格式的remainingHp数字，也可能是新格式的对象）
       const result = typeof battleResult === 'number' 
@@ -814,6 +825,7 @@ export default function LegendsOfTheSpire() {
       if (result.gainedStr > 0) {
           console.log('[内瑟斯] 永久力量增长:', result.gainedStr, '→', baseStr + result.gainedStr); // 调试日志
           setBaseStr(prev => prev + result.gainedStr);
+          showToast(`永久力量 +${result.gainedStr}`, 'strength');
       }
       
       // 锤石被动：永久增加最大生命值
@@ -821,12 +833,14 @@ export default function LegendsOfTheSpire() {
           console.log('[锤石] 最大HP增长:', result.gainedMaxHp, '→', maxHp + result.gainedMaxHp); // 调试日志
           setMaxHp(prev => prev + result.gainedMaxHp);
           passiveHeal += result.gainedMaxHp; // 最大HP增长也算作恢复
+          showToast(`最大生命值 +${result.gainedMaxHp}`, 'maxHp');
       }
       
       // 卡牌大师被动：战斗胜利额外金币
       if (champion && champion.relicId === "TwistedFatePassive") {
           console.log('[卡牌大师] 获得额外金币: +15'); // 调试日志
           setGold(prev => prev + 15);
+          showToast('灌铅骰子: +15 金币', 'gold');
       }
       
       setCurrentHp(Math.min(maxHp + (result.gainedMaxHp || 0), result.finalHp + passiveHeal)); 
@@ -977,35 +991,39 @@ export default function LegendsOfTheSpire() {
                           <img src={champion.avatar} className="w-12 h-12 rounded-full border-2 border-[#C8AA6E] shadow-lg" />
                           <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#091428] rounded-full border border-[#C8AA6E] flex items-center justify-center text-xs font-bold text-[#C8AA6E]">{currentFloor+1}F</div>
                       </div>
-                      <div className="flex flex-col">
-                          <span className="text-[#F0E6D2] font-bold text-lg shadow-black drop-shadow-md flex items-center gap-2">
-                            {champion.name}
-                            <RelicTooltip relic={RELIC_DATABASE[champion.relicId]}>
-                                <img src={RELIC_DATABASE[champion.relicId].img} 
-                                     className="w-6 h-6 rounded border border-yellow-400 bg-black/50 cursor-help hover:scale-110 transition-transform" 
-                                />
-                            </RelicTooltip>
-                          </span>
-                          <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
+                      <div className="flex items-center gap-4">
+                          <div className="flex flex-col">
+                              <span className="text-[#F0E6D2] font-bold text-lg shadow-black drop-shadow-md flex items-center gap-2">
+                                {champion.name}
+                                <RelicTooltip relic={RELIC_DATABASE[champion.relicId]}>
+                                    <img src={RELIC_DATABASE[champion.relicId].img} 
+                                         className="w-6 h-6 rounded border border-yellow-400 bg-black/50 cursor-help hover:scale-110 transition-transform" 
+                                    />
+                                </RelicTooltip>
+                              </span>
+                              <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
+                          </div>
+                          {/* 遗物栏 - 紧邻被动技能右侧 */}
+                          <div className="flex gap-2 flex-wrap max-w-md">
+                              {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
+                                  const relic = RELIC_DATABASE[rid];
+                                  return (
+                                      <RelicTooltip key={i} relic={relic}>
+                                          <div className="w-9 h-9 rounded border border-[#C8AA6E]/50 bg-black/50 relative group cursor-help hover:scale-110 transition-transform">
+                                              <img src={relic.img} className="w-full h-full object-cover" />
+                                          </div>
+                                      </RelicTooltip>
+                                  );
+                              })}
+                          </div>
                       </div>
-                  </div>
-                  <div className="flex gap-2 pointer-events-auto mr-4 flex-wrap max-w-md justify-end">
-                      {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
-                          const relic = RELIC_DATABASE[rid];
-                          return (
-                              <RelicTooltip key={i} relic={relic}>
-                                  <div className="w-10 h-10 rounded border border-[#C8AA6E]/50 bg-black/50 relative group cursor-help hover:scale-110 transition-transform">
-                                      <img src={relic.img} className="w-full h-full object-cover" />
-                                  </div>
-                              </RelicTooltip>
-                          );
-                      })}
                   </div>
               </div>
           )}
           {renderView()}
           {showCodex && <CodexView onClose={() => setShowCodex(false)} />}
           {showDeck && <DeckView deck={masterDeck} onClose={() => setShowDeck(false)} />}
+          <ToastContainer toasts={toasts} />
       </div>
   );
 }
