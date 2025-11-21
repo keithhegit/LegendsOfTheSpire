@@ -162,68 +162,115 @@ export function generateGridMap(act = 1, usedEnemies = []) {
   const bossNode = currentNode;
   console.log(`[MainPath] BOSS at (${bossNode.row}, ${bossNode.col}), shortest path=${minSteps} steps`);
   
-  // 阶段3: 生成Z型绕路（关键！）
-  // 策略：在主路径的中间段，向两侧生成"绕路"节点
+  // 阶段3: 生成Z型绕路链（关键！）
+  // 新策略：生成长链绕路，每条链有3-6个节点
   let currentNodeCount = nodes.length;
   
-  for (let step = 2; step < minSteps - 1 && currentNodeCount < targetNodeCount; step++) {
-    const mainPathNode = mainPath[step];
+  // 计算需要多少条绕路链（增加数量！）
+  const targetDetourChains = Math.ceil((maxSteps - minSteps) / 3); // 目标增加的步数 / 每条链平均长度
+  const numDetourChains = Math.min(targetDetourChains, Math.floor(minSteps / 2)); // 不超过主路径长度的一半
+  const detourChains = [];
+  
+  console.log(`[Detours] Targeting ${numDetourChains} detour chains to add ${maxSteps - minSteps} extra steps`);
+  
+  for (let chain = 0; chain < numDetourChains && currentNodeCount < targetNodeCount; chain++) {
+    // 随机选择主路径的起点和终点（跨越3-6步，增加长度！）
+    const chainStartStep = 2 + Math.floor(Math.random() * (minSteps - 8));
+    const chainLength = 3 + Math.floor(Math.random() * 4); // 3-6步跨度（增加！）
+    const chainEndStep = Math.min(chainStartStep + chainLength, minSteps - 2);
     
-    // 在这一步的左侧和右侧各生成1-2个"绕路"节点
-    const detourCount = Math.floor(Math.random() * 2) + 1; // 1-2个绕路节点
+    const chainStartNode = mainPath[chainStartStep];
+    const chainEndNode = mainPath[chainEndStep];
     
-    for (let i = 0; i < detourCount; i++) {
-      if (currentNodeCount >= targetNodeCount) break;
+    // 决定绕路方向（左侧或右侧）
+    const direction = Math.random() < 0.5 ? -1 : 1;
+    const baseColOffset = direction * (3 + Math.floor(Math.random() * 2)); // ±3 或 ±4
+    
+    // 生成绕路链节点（每个step生成1-2个节点，增加链的实际长度）
+    const detourChainNodes = [];
+    let prevDetourNode = null;
+    
+    for (let i = 0; i < chainLength && currentNodeCount < targetNodeCount; i++) {
+      const step = chainStartStep + i;
+      const correspondingMainNode = mainPath[step];
       
-      // 横向偏移（左侧或右侧）
-      const direction = Math.random() < 0.5 ? -1 : 1;
-      const colOffset = direction * (2 + Math.floor(Math.random() * 2)); // ±2 或 ±3
-      let targetCol = mainPathNode.col + colOffset;
-      targetCol = Math.max(0, Math.min(GRID_COLS - 1, targetCol));
+      // 关键改进：每个step生成1-2个节点
+      const nodesPerStep = Math.random() < 0.6 ? 2 : 1; // 60%概率生成2个节点
       
-      // 同一行或上一行
-      const targetRow = Math.random() < 0.5 ? mainPathNode.row : Math.max(0, mainPathNode.row - 1);
+      for (let nodeIdx = 0; nodeIdx < nodesPerStep && currentNodeCount < targetNodeCount; nodeIdx++) {
       
-      if (grid[targetRow][targetCol]) continue;
-      
-      // 创建绕路节点
-      const detourNode = createNode(targetRow, targetCol, getRandomNodeType(), act, step, usedEnemies);
-      grid[targetRow][targetCol] = detourNode;
-      nodes.push(detourNode);
-      currentNodeCount++;
-      
-      // 连接：前一个主路径节点 -> 绕路节点 -> 下一个主路径节点
-      const prevMainNode = mainPath[step - 1];
-      const nextMainNode = mainPath[step + 1];
-      
-      prevMainNode.next.push(detourNode.id);
-      detourNode.prev.push(prevMainNode.id);
-      
-      detourNode.next.push(nextMainNode.id);
-      nextMainNode.prev.push(detourNode.id);
-      
-      console.log(`[Detour] Created at (${targetRow}, ${targetCol}), connects ${prevMainNode.id} -> ${detourNode.id} -> ${nextMainNode.id}`);
-      
-      // 可选：在绕路节点之间也创建横向连接
-      if (Math.random() < 0.3 && currentNodeCount < targetNodeCount) {
-        const detourCol2 = targetCol + direction * 2;
-        if (detourCol2 >= 0 && detourCol2 < GRID_COLS && !grid[targetRow][detourCol2]) {
-          const detour2 = createNode(targetRow, detourCol2, getRandomNodeType(), act, step + 1, usedEnemies);
-          grid[targetRow][detourCol2] = detour2;
-          nodes.push(detour2);
-          currentNodeCount++;
-          
-          detourNode.next.push(detour2.id);
-          detour2.prev.push(detourNode.id);
-          
-          detour2.next.push(nextMainNode.id);
-          nextMainNode.prev.push(detour2.id);
+        // 横向偏移（远离主路径）
+        let targetCol = correspondingMainNode.col + baseColOffset;
+        // 添加一些随机变化（Z型效果）
+        targetCol += Math.floor(Math.random() * 3) - 1; // ±1
+        // 内层节点额外偏移
+        if (nodeIdx > 0) {
+          targetCol += direction * 1; // 进一步远离
         }
+        targetCol = Math.max(0, Math.min(GRID_COLS - 1, targetCol));
+        
+        // 行数可以相同或±1
+        let targetRow = correspondingMainNode.row + Math.floor(Math.random() * 3) - 1; // -1, 0, +1
+        targetRow = Math.max(1, Math.min(gridRows - 2, targetRow));
+        
+        // 检查是否被占用
+        if (grid[targetRow][targetCol]) {
+          // 尝试附近位置
+          let found = false;
+          for (let offset = 1; offset <= 3; offset++) {
+            for (let rowOff = -1; rowOff <= 1; rowOff++) {
+              const testRow = targetRow + rowOff;
+              const testCol = targetCol + offset * direction;
+              if (testRow >= 1 && testRow < gridRows - 1 && 
+                  testCol >= 0 && testCol < GRID_COLS && 
+                  !grid[testRow][testCol]) {
+                targetRow = testRow;
+                targetCol = testCol;
+                found = true;
+                break;
+              }
+            }
+            if (found) break;
+          }
+          if (!found) continue; // 跳过这个节点
+        }
+        
+        // 创建绕路节点
+        const detourNode = createNode(targetRow, targetCol, getRandomNodeType(), act, step, usedEnemies);
+        grid[targetRow][targetCol] = detourNode;
+        nodes.push(detourNode);
+        detourChainNodes.push(detourNode);
+        currentNodeCount++;
+        
+        // 连接到前一个绕路节点
+        if (prevDetourNode) {
+          prevDetourNode.next.push(detourNode.id);
+          detourNode.prev.push(prevDetourNode.id);
+        }
+        
+        prevDetourNode = detourNode;
       }
+    }
+    
+    // 如果成功创建了绕路链
+    if (detourChainNodes.length >= 2) {
+      // 连接起点：主路径 -> 绕路链第一个节点
+      chainStartNode.next.push(detourChainNodes[0].id);
+      detourChainNodes[0].prev.push(chainStartNode.id);
+      
+      // 连接终点：绕路链最后一个节点 -> 主路径
+      const lastDetourNode = detourChainNodes[detourChainNodes.length - 1];
+      lastDetourNode.next.push(chainEndNode.id);
+      chainEndNode.prev.push(lastDetourNode.id);
+      
+      detourChains.push(detourChainNodes);
+      
+      console.log(`[DetourChain ${chain}] Created chain with ${detourChainNodes.length} nodes: ${chainStartNode.id} -> [${detourChainNodes.map(n => n.id).join(' -> ')}] -> ${chainEndNode.id}`);
+      console.log(`  Chain adds ${detourChainNodes.length} extra steps compared to direct path`);
     }
   }
   
-  console.log(`[Detours] Generated ${currentNodeCount} total nodes (target: ${targetNodeCount})`);
+  console.log(`[Detours] Generated ${detourChains.length} detour chains, total nodes: ${currentNodeCount} (target: ${targetNodeCount})`);
   
   // 阶段4: 验证可达性
   const { reachable, distance: minDistance } = bfsCheck(nodes, startNode, bossNode);
