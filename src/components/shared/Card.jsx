@@ -3,13 +3,23 @@ import { motion } from 'framer-motion';
 import { CARD_DATABASE } from '../../data/cards';
 
 const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
-  const card = CARD_DATABASE[cardId];
-  
+  const isUpgraded = cardId.endsWith('+');
+  const baseId = isUpgraded ? cardId.slice(0, -1) : cardId;
+  const baseCard = CARD_DATABASE[baseId];
+
   // 如果卡牌不存在，返回空组件或占位符
-  if (!card) {
+  if (!baseCard) {
     console.warn(`Card not found: ${cardId}`);
     return null;
   }
+  
+  const card = {
+      ...baseCard,
+      name: isUpgraded ? `${baseCard.name}+` : baseCard.name,
+      value: isUpgraded && baseCard.value ? baseCard.value + 3 : baseCard.value,
+      block: isUpgraded && baseCard.block ? baseCard.block + 3 : baseCard.block,
+      description: isUpgraded ? baseCard.description.replace(/(\d+)/g, (match) => parseInt(match) + 3) : baseCard.description
+  };
   
   // 堆叠逻辑计算
   const overlap = totalCards > 5 ? -40 : 10; 
@@ -66,8 +76,8 @@ const Card = ({ cardId, index, totalCards, canPlay, onPlay }) => {
       </div>
       
       {/* 卡牌文本 */}
-      <div className="flex-1 p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328]">
-        <div className="text-sm font-bold text-[#F0E6D2] mb-1 line-clamp-1">{card.name}</div>
+      <div className={`flex-1 p-2 text-center flex flex-col w-full pointer-events-none bg-[#1E2328] ${isUpgraded ? 'border-t border-green-500' : ''}`}>
+        <div className={`text-sm font-bold mb-1 line-clamp-1 ${isUpgraded ? 'text-green-400' : 'text-[#F0E6D2]'}`}>{card.name}</div>
         <div className="text-[10px] text-[#A09B8C] leading-tight font-medium line-clamp-2">
           {card.description}
         </div>

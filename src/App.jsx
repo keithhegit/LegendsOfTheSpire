@@ -790,8 +790,43 @@ export default function LegendsOfTheSpire() {
   const handleBuyCard = (card) => { setGold(prev => prev - card.price); setMasterDeck(prev => [...prev, card.id]); };
   const handleRelicReward = (relic) => { setRelics(prev => [...prev, relic.id]); if (relic.onPickup) { const ns = relic.onPickup({ maxHp, currentHp }); setMaxHp(ns.maxHp); setCurrentHp(ns.currentHp); } completeNode(); };
   const handleBuyRelic = (relic) => { setGold(prev => prev - relic.price); handleRelicReward(relic); };
-  const handleEventReward = (reward) => { if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value); if (reward.type === 'RELIC_RANDOM') { const pool = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)); if (pool.length > 0) handleRelicReward(shuffle(pool)[0]); } completeNode(); };
+  const handleEventReward = (reward) => { 
+      if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value); 
+      if (reward.type === 'RELIC_RANDOM') { const pool = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)); if (pool.length > 0) handleRelicReward(shuffle(pool)[0]); } 
+      if (reward.type === 'UPGRADE_RANDOM') {
+          // 随机升级一张卡
+          const upgradableIndices = masterDeck.map((id, idx) => !id.endsWith('+') ? idx : -1).filter(i => i !== -1);
+          if (upgradableIndices.length > 0) {
+              const randomIdx = upgradableIndices[Math.floor(Math.random() * upgradableIndices.length)];
+              const newDeck = [...masterDeck];
+              newDeck[randomIdx] = newDeck[randomIdx] + '+';
+              setMasterDeck(newDeck);
+          }
+      }
+      completeNode(); 
+  };
   const handleCardReward = (cardId) => { setMasterDeck([...masterDeck, cardId]); setGold(gold + 50); completeNode(); };
+  
+  const handleUpgradeCard = (cardId) => {
+      // 升级指定卡牌（找到第一个匹配的未升级版本）
+      const idx = masterDeck.findIndex(id => id === cardId);
+      if (idx !== -1) {
+          const newDeck = [...masterDeck];
+          newDeck[idx] = cardId + '+';
+          setMasterDeck(newDeck);
+          setGold(prev => prev - 100);
+      }
+  };
+  
+  const handleBuyMana = () => {
+      // 增加最大法力值 (这里需要 GameState 支持，或者由 Relic 实现，简化起见，我们添加一个特殊的被动遗物)
+      // 由于没有直接的 maxMana 状态（写死在 BattleScene），我们需要通过遗物来修改
+      // 或者在 App 中添加 maxMana 状态传给 BattleScene
+      // 这里简单实现：添加一个隐藏遗物 "ManaGem"
+      setRelics(prev => [...prev, "ManaGem"]); 
+      setGold(prev => prev - 200);
+  };
+
   const handleSkipReward = () => { setGold(gold + 50); completeNode(); };
   const handleRest = () => { setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.3))); completeNode(); };
   
@@ -875,7 +910,7 @@ export default function LegendsOfTheSpire() {
           );
           case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
           case 'MAP': return <GridMapView mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} activeNode={activeNode} />;
-          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} championName={champion.name} />;
+          case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} onUpgradeCard={handleUpgradeCard} onBuyMana={handleBuyMana} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
           case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} act={currentAct} />;
           case 'COMBAT': return champion ? <BattleScene heroData={{...champion, maxHp, currentHp, relics, baseStr}} enemyId={activeNode?.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => { localStorage.removeItem(SAVE_KEY); setView('GAMEOVER'); }} floorIndex={currentFloor} act={currentAct} /> : <div>Loading...</div>;

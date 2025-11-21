@@ -120,6 +120,12 @@ const BattleScene = ({ heroData, enemyId, initialDeck, onWin, onLose, floorIndex
           // 播放攻击挥击音效
           playSfx('ATTACK_SWING');
           triggerAnim('HERO', 'attack'); 
+          
+          // R技能特效 (简单处理)
+          if (card.rarity === 'RARE') {
+             // 可以添加更华丽的特效逻辑
+          }
+          
           setTimeout(() => {
               triggerAnim('ENEMY', 'hit');
               // 延迟播放攻击命中音效
