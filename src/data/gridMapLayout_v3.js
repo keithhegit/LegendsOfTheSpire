@@ -169,7 +169,7 @@ export function generateGridMap(act = 1, usedEnemies = []) {
   // 计算需要多少条绕路链（增加数量！）
   const targetDetourChains = Math.ceil((maxSteps - minSteps) / 3); // 目标增加的步数 / 每条链平均长度
   const numDetourChains = Math.min(targetDetourChains, Math.floor(minSteps / 2)); // 不超过主路径长度的一半
-  const detourChains = [];
+  const detourChains = []; // 存储 { startNode, endNode, nodes, startStep, endStep }
   
   console.log(`[Detours] Targeting ${numDetourChains} detour chains to add ${maxSteps - minSteps} extra steps`);
   
@@ -263,7 +263,14 @@ export function generateGridMap(act = 1, usedEnemies = []) {
       lastDetourNode.next.push(chainEndNode.id);
       chainEndNode.prev.push(lastDetourNode.id);
       
-      detourChains.push(detourChainNodes);
+      // 保存绕路链信息（包含主路径的起点和终点）
+      detourChains.push({
+        startNode: chainStartNode,
+        endNode: chainEndNode,
+        nodes: detourChainNodes,
+        startStep: chainStartStep,
+        endStep: chainEndStep
+      });
       
       console.log(`[DetourChain ${chain}] Created chain with ${detourChainNodes.length} nodes: ${chainStartNode.id} -> [${detourChainNodes.map(n => n.id).join(' -> ')}] -> ${chainEndNode.id}`);
       console.log(`  Chain adds ${detourChainNodes.length} extra steps compared to direct path`);
@@ -273,32 +280,32 @@ export function generateGridMap(act = 1, usedEnemies = []) {
   console.log(`[Detours] Generated ${detourChains.length} detour chains, total nodes: ${currentNodeCount} (target: ${targetNodeCount})`);
   
   // 阶段4: 断开主路径部分连接（强制走绕路！）
-  // 策略：对于有绕路链的区段，50%概率断开主路径的直连
+  // 新策略：只断开被绕路链"跨越"的主路径连接，不断开所有中间连接
   let brokenConnections = 0;
   
-  for (const detourChainNodes of detourChains) {
-    if (detourChainNodes.length < 2) continue;
+  for (const detourChain of detourChains) {
+    if (detourChain.nodes.length < 2) continue;
     
-    // 找到这条绕路链对应的主路径区段
-    const firstDetour = detourChainNodes[0];
-    const lastDetour = detourChainNodes[detourChainNodes.length - 1];
+    const { startNode, endNode, startStep, endStep } = detourChain;
     
-    // 找到主路径上的起点和终点节点
-    const chainStartNode = mainPath.find(n => n.next.includes(firstDetour.id));
-    const chainEndNode = mainPath.find(n => firstDetour.prev && lastDetour.next && lastDetour.next.includes(n.id));
+    // 只断开起点到终点的**直接连接**（如果存在）
+    // 不断开中间所有连接，保留部分捷径
+    const stepsToBreak = endStep - startStep;
     
-    if (!chainStartNode || !chainEndNode) continue;
+    if (stepsToBreak <= 1) continue; // 跨度太小，不断开
     
-    const startStep = mainPath.indexOf(chainStartNode);
-    const endStep = mainPath.indexOf(chainEndNode);
-    
-    if (startStep === -1 || endStep === -1 || endStep <= startStep + 1) continue;
-    
-    // 断开中间的主路径连接（50%概率）
-    if (Math.random() < 0.5) {
-      for (let step = startStep + 1; step < endStep; step++) {
-        const currentNode = mainPath[step];
-        const nextNode = mainPath[step + 1];
+    // 30%概率断开这个区段的部分连接（降低概率！）
+    if (Math.random() < 0.3) {
+      // 只断开1-2个连接，不是全部
+      const numToBreak = Math.min(2, Math.floor(stepsToBreak / 2));
+      
+      for (let i = 0; i < numToBreak; i++) {
+        // 随机选择一个要断开的步骤
+        const stepToBreak = startStep + 1 + Math.floor(Math.random() * (stepsToBreak - 1));
+        const currentNode = mainPath[stepToBreak];
+        const nextNode = mainPath[stepToBreak + 1];
+        
+        if (!currentNode || !nextNode) continue;
         
         // 移除连接
         const nextIdx = currentNode.next.indexOf(nextNode.id);
@@ -315,7 +322,7 @@ export function generateGridMap(act = 1, usedEnemies = []) {
     }
   }
   
-  console.log(`[ForceDetour] Broken ${brokenConnections} main path connections to force detours`);
+  console.log(`[ForceDetour] Broken ${brokenConnections} main path connections (30% chance per chain)`);
   
   // 阶段5: 验证可达性
   const { reachable, distance: minDistance } = bfsCheck(nodes, startNode, bossNode);
