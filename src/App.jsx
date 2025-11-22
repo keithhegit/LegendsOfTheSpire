@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Sword, Shield, Zap, Skull, Heart, RefreshCw, AlertTriangle, Flame, XCircle, Activity, Map as MapIcon, Gift, Anchor, Coins, ShoppingBag, ChevronRight, Star, Play, Pause, Volume2, VolumeX, Landmark, Lock, RotateCcw, Save, ArrowRight, BookOpen, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateGridMap } from './data/gridMapLayout_v3'; // v3生成器（带保底机制）
-import GridMapView_v2 from './components/GridMapView_v2'; // 新版六边形地图视图
+import { generateGridMap } from './data/gridMapLayout_v4'; // v4生成器（带死胡同检测）
+import GridMapView_v3 from './components/GridMapView_v3'; // 新版六边形地图视图（三选一机制）
+import { getHexNeighbors } from './utils/hexagonGrid';
 import CodexView from './components/CodexView';
 import DeckView from './components/DeckView';
 import BattleScene from './components/BattleScene';
@@ -604,6 +605,9 @@ export default function LegendsOfTheSpire() {
   const [showCodex, setShowCodex] = useState(false); 
   const [showDeck, setShowDeck] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [lockedChoices, setLockedChoices] = useState(new Set());
+  const [toastMessage, setToastMessage] = useState(''); // Toast提示消息
+  const [showToast, setShowToast] = useState(false); // 是否显示Toast // 三选一：已锁定的选项
   
   const [unlockedChamps, setUnlockedChamps] = useState(() => { 
       try { 
@@ -682,7 +686,7 @@ export default function LegendsOfTheSpire() {
     setBaseStr(0);
     setGold(0);
     
-    // 使用v3地图生成器（带自动重试保底机制）
+    // 使用v4地图生成器（带死胡同检测和三选一机制）
     const newMapData = generateGridMap(1, []); // act=1, usedEnemies=[]
     setMapData(newMapData);
     
@@ -694,28 +698,21 @@ export default function LegendsOfTheSpire() {
     setCurrentFloor(0); 
     setCurrentAct(1); 
     setUsedEnemies([]);
+    setLockedChoices(new Set()); // 清空锁定选项
     setView('MAP');
   };
 
   const completeNode = () => {
       if (!activeNode || !mapData || !mapData.nodes) return;
       
-      // 标记当前节点为已完成
+      // v4自由探索系统：标记当前节点为已探索
       const newNodes = [...mapData.nodes];
-      const idx = newNodes.findIndex(n => n.id === activeNode.id);
+      const idx = newNodes.findIndex(n => n.row === activeNode.row && n.col === activeNode.col);
       if (idx === -1) return;
       
+      // 标记为已探索（不再使用status，使用explored属性）
+      newNodes[idx].explored = true;
       newNodes[idx].status = 'COMPLETED';
-      
-      // 解锁下一层的连接节点（基于DAG的next数组）
-      if (activeNode.next && activeNode.next.length > 0) {
-        activeNode.next.forEach(nextId => {
-          const nextNodeIdx = newNodes.findIndex(n => n.id === nextId);
-          if (nextNodeIdx !== -1) {
-            newNodes[nextNodeIdx].status = 'AVAILABLE';
-          }
-        });
-      }
       
       // 更新mapData（保持grid和nodes同步）
       const newGrid = mapData.grid ? mapData.grid.map(row => [...row]) : [];
@@ -727,21 +724,23 @@ export default function LegendsOfTheSpire() {
       
       setMapData({ ...mapData, grid: newGrid, nodes: newNodes });
       
-      // 检查是否到达BOSS（v3生成器中BOSS是type='BOSS'）
-      const nextFloor = activeNode.row + 1;
-      const totalFloors = mapData.totalFloors || 10;
+      // 注意：不清空锁定选项，锁定的选项应该永久锁定
+      // 只有在移动到新节点时，才会重新计算可用选项（但已锁定的选项仍然锁定）
       
-      if (activeNode.type === 'BOSS' || nextFloor >= totalFloors) {
+      // 检查是否到达BOSS
+      if (activeNode.type === 'BOSS') {
           // 章节通关逻辑
           if (currentAct < 3) {
               const nextAct = currentAct + 1;
               setCurrentAct(nextAct);
               setCurrentFloor(0);
-              const nextMapData = generateGridMap(nextAct, []); // v3生成器
+              const nextMapData = generateGridMap(nextAct, []); // v4生成器
               setMapData(nextMapData);
               if (nextMapData.startNode) {
                 setActiveNode(nextMapData.startNode);
               }
+              // 清空锁定选项
+              setLockedChoices(new Set());
               // 章节奖励：回复 50% 生命
               setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.5)));
               alert(`第 ${currentAct} 章通关！进入下一章...`);
@@ -761,33 +760,70 @@ export default function LegendsOfTheSpire() {
               setView('VICTORY_ALL'); 
           }
       } else {
-          setCurrentFloor(nextFloor);
+          // 继续探索，返回地图视图
           setView('MAP');
       }
   };
   
   const handleNodeSelect = (node) => {
-      // 参考 map.js 的 mapcan 逻辑：只能点击正前、左前、右前的节点
-      // 检查节点是否在可点击范围内
+      // v4自由探索系统：基于六边形邻接规则，不依赖DAG
+      // 三选一机制：当玩家选择一个节点后，锁定其他选项
+      
       if (!activeNode) {
-          // 如果没有 activeNode，只能点击当前层的 AVAILABLE 节点
-          if (node.status !== 'AVAILABLE' || node.row !== currentFloor) return;
+          // 起点：只能选择起点本身
+          if (node.row !== mapData.startNode?.row || node.col !== mapData.startNode?.col) return;
       } else {
-          // 如果有 activeNode，检查节点是否在可点击范围内
-          if (node.row === currentFloor) {
-              // 当前层的节点，必须是 AVAILABLE
-              if (node.status !== 'AVAILABLE') return;
-          } else if (node.row === currentFloor + 1) {
-              // 下一层的节点，检查是否是相邻列（正前、左前、右前）
-              const colDiff = Math.abs(node.col - activeNode.col);
-              if (colDiff > 1) return; // 不在可点击范围内
-              // 在可点击范围内，即使状态是 LOCKED 也可以点击（参考 map.js 逻辑）
-          } else {
-              return; // 不在当前层或下一层
+          // 检查节点是否在已锁定的选项中
+          const nodeKey = `${node.row}-${node.col}`;
+          if (lockedChoices.has(nodeKey)) {
+              return; // 已锁定的选项不能选择
           }
+          
+          // 获取当前节点的所有未探索邻居（排除已锁定的选项）
+          const neighbors = getHexNeighbors(activeNode.row, activeNode.col, mapData.totalFloors || 10, mapData.grid?.[0]?.length || 11);
+          const availableNeighbors = neighbors
+              .map(([r, c]) => mapData.grid?.[r]?.[c])
+              .filter(n => {
+                  if (!n || n.explored) return false;
+                  // 排除已锁定的选项
+                  const nKey = `${n.row}-${n.col}`;
+                  if (lockedChoices.has(nKey)) return false;
+                  return true;
+              });
+          
+          // 检查选择的节点是否是可用邻居
+          const isNeighbor = availableNeighbors.some(n => n.row === node.row && n.col === node.col);
+          if (!isNeighbor) {
+              return; // 不是可用邻居，不能选择
+          }
+          
+          // 【关键修复】三选一锁定逻辑：只锁定UI实际显示的3个选项中的未选择选项
+          // 必须与GridMapView_v3.jsx的getAvailableNodes()逻辑完全一致
+          let displayedChoices = availableNeighbors;
+          if (availableNeighbors.length > 3) {
+              // 使用与UI相同的排序和哈希逻辑
+              const sorted = [...availableNeighbors].sort((a, b) => {
+                  const seedA = `${a.row}-${a.col}`;
+                  const seedB = `${b.row}-${b.col}`;
+                  return seedA.localeCompare(seedB);
+              });
+              const hash = (activeNode.row * 1000 + activeNode.col) % sorted.length;
+              displayedChoices = [];
+              for (let i = 0; i < 3; i++) {
+                  displayedChoices.push(sorted[(hash + i) % sorted.length]);
+              }
+          }
+          
+          // 只锁定UI显示的3个选项中的未选择选项
+          const newLockedChoices = new Set(lockedChoices);
+          displayedChoices.forEach(n => {
+              if (n.row !== node.row || n.col !== node.col) {
+                  newLockedChoices.add(`${n.row}-${n.col}`);
+              }
+          });
+          setLockedChoices(newLockedChoices);
       }
       
-      // v3生成器不需要锁定节点逻辑，DAG结构自动处理
       setActiveNode(node);
       setCurrentFloor(node.row);
       
@@ -969,7 +1005,7 @@ export default function LegendsOfTheSpire() {
               </div>
           );
           case 'CHAMPION_SELECT': return <ChampionSelect onChampionSelect={handleChampionSelect} unlockedIds={unlockedChamps} />;
-          case 'MAP': return <GridMapView_v2 mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} activeNode={activeNode} />;
+          case 'MAP': return <GridMapView_v3 mapData={mapData} onNodeSelect={handleNodeSelect} currentFloor={currentFloor} act={currentAct} activeNode={activeNode} lockedChoices={lockedChoices} />;
           case 'SHOP': return <ShopView gold={gold} deck={masterDeck} relics={relics} onLeave={() => completeNode()} onBuyCard={handleBuyCard} onBuyRelic={handleBuyRelic} onUpgradeCard={handleUpgradeCard} onBuyMana={handleBuyMana} championName={champion.name} />;
           case 'EVENT': return <EventView onLeave={() => completeNode()} onReward={handleEventReward} />;
           case 'CHEST': return <ChestView onLeave={() => completeNode()} onRelicReward={handleRelicReward} relics={relics} act={currentAct} />;

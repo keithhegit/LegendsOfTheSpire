@@ -322,6 +322,7 @@
     let currentMapData = null;
     let exploredNodes = new Set();
     let currentNode = null;
+    let lockedChoices = new Set(); // 三选一：已锁定的选项
     
     const canvas = document.getElementById('map-canvas');
     const ctx = canvas.getContext('2d');
@@ -338,6 +339,7 @@
       try {
         currentMapData = generateGridMap(act, []);
         exploredNodes = new Set();
+        lockedChoices = new Set(); // 清空锁定选项
         currentNode = currentMapData.startNode;
         exploredNodes.add(`${currentNode.row}-${currentNode.col}`);
         
@@ -412,7 +414,7 @@
     }
     
     // ===========================
-    // 获取可探索的节点
+    // 获取可探索的节点（三选一逻辑）
     // ===========================
     function getAvailableNodes() {
       if (!currentMapData || !currentNode) return [];
@@ -420,16 +422,76 @@
       const { grid, totalFloors } = currentMapData;
       const GRID_COLS = 11;
       const neighbors = getHexNeighbors(currentNode.row, currentNode.col, totalFloors, GRID_COLS);
-      const available = [];
+      const allAvailable = [];
       
+      // 收集所有未探索的邻居
       for (const [r, c] of neighbors) {
         const neighbor = grid[r][c];
         if (neighbor && !exploredNodes.has(`${r}-${c}`)) {
-          available.push(neighbor);
+          allAvailable.push(neighbor);
         }
       }
       
-      return available;
+      // 三选一逻辑：如果可用节点≤3个，全部显示；如果>3个，随机选择3个
+      if (allAvailable.length <= 3) {
+        return allAvailable;
+      }
+      
+      // 随机选择3个（使用稳定的随机种子，基于节点位置）
+      const shuffled = [...allAvailable].sort((a, b) => {
+        const seedA = `${a.row}-${a.col}`;
+        const seedB = `${b.row}-${b.col}`;
+        return seedA.localeCompare(seedB);
+      });
+      
+      // 使用简单的哈希函数基于currentNode位置生成"随机"索引
+      const hash = (currentNode.row * 1000 + currentNode.col) % shuffled.length;
+      const selected = [];
+      for (let i = 0; i < 3; i++) {
+        selected.push(shuffled[(hash + i) % shuffled.length]);
+      }
+      
+      return selected;
+    }
+    
+    // ===========================
+    // 获取已锁定的选项（三选一中被排除的选项）
+    // ===========================
+    function getLockedNodes() {
+      if (!currentMapData || !currentNode) return new Set();
+      
+      const { grid, totalFloors } = currentMapData;
+      const GRID_COLS = 11;
+      const neighbors = getHexNeighbors(currentNode.row, currentNode.col, totalFloors, GRID_COLS);
+      const allAvailable = [];
+      
+      // 收集所有未探索的邻居
+      for (const [r, c] of neighbors) {
+        const neighbor = grid[r][c];
+        if (neighbor && !exploredNodes.has(`${r}-${c}`)) {
+          allAvailable.push(neighbor);
+        }
+      }
+      
+      // 如果可用节点≤3个，没有锁定的选项
+      if (allAvailable.length <= 3) {
+        return new Set();
+      }
+      
+      // 获取已选择的3个选项
+      const selected = getAvailableNodes();
+      const selectedSet = new Set(selected.map(n => `${n.row}-${n.col}`));
+      
+      // 返回被锁定的选项（所有可用节点中，不在selectedSet中的）
+      const locked = new Set();
+      for (const node of allAvailable) {
+        const key = `${node.row}-${node.col}`;
+        if (!selectedSet.has(key)) {
+          locked.add(key);
+        }
+      }
+      
+      return locked;
     }
     
     // ===========================
@@ -461,9 +523,12 @@
       ctx.fillStyle = '#0a0e27';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // 获取可选节点
+      // 获取可选节点和锁定节点
       const availableNodes = getAvailableNodes();
       const availableSet = new Set(availableNodes.map(n => `${n.row}-${n.col}`));
+      const lockedSet = getLockedNodes();
+      // 合并lockedChoices（从全局状态）
+      const allLockedSet = new Set([...lockedSet, ...Array.from(lockedChoices)]);
       
       // 绘制连接线（只显示已探索节点之间的连接）
       ctx.strokeStyle = 'rgba(200, 170, 110, 0.3)';
@@ -495,22 +560,25 @@
         
         const isExplored = exploredNodes.has(`${node.row}-${node.col}`);
         const isAvailable = availableSet.has(`${node.row}-${node.col}`);
+        const isLocked = allLockedSet.has(`${node.row}-${node.col}`);
         const isCurrent = currentNode && node.row === currentNode.row && node.col === currentNode.col;
         
         // 绘制六边形
-        drawHexagon(x, y, HEX_SIZE * 0.8, node, isExplored, isAvailable, isCurrent);
+        drawHexagon(x, y, HEX_SIZE * 0.8, node, isExplored, isAvailable, isLocked, isCurrent);
       }
     }
     
     // ===========================
     // 绘制六边形
     // ===========================
-    function drawHexagon(x, y, size, node, isExplored, isAvailable, isCurrent) {
+    function drawHexagon(x, y, size, node, isExplored, isAvailable, isLocked, isCurrent) {
       const { startNode, bossNode } = currentMapData;
       
       // 确定颜色
       let fillColor;
-      if (node.row === startNode.row && node.col === startNode.col) {
+      if (isLocked) {
+        fillColor = '#6b8fa3'; // 浅灰蓝色（锁定的选项）
+      } else if (node.row === startNode.row && node.col === startNode.col) {
         fillColor = '#4ade80'; // 起点
       } else if (node.row === bossNode.row && node.col === bossNode.col) {
         fillColor = '#ef4444'; // BOSS
@@ -543,6 +611,21 @@
         ctx.strokeStyle = '#C8AA6E';
         ctx.lineWidth = 2;
         ctx.stroke();
+      } else if (isLocked) {
+        // 锁定的选项：浅灰蓝色，置灰，不可选
+        ctx.fillStyle = '#6b8fa3'; // 浅灰蓝色
+        ctx.globalAlpha = 0.3; // 置灰
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'rgba(107, 143, 163, 0.5)'; // 浅灰蓝色边框
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // 绘制锁定标记
+        ctx.fillStyle = 'rgba(150, 150, 150, 0.8)';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('✕', x, y);
       } else if (isAvailable) {
         ctx.fillStyle = fillColor;
         ctx.globalAlpha = 0.8;
@@ -580,8 +663,12 @@
       const clickY = e.clientY - rect.top;
       
       const availableNodes = getAvailableNodes();
+      const availableSet = new Set(availableNodes.map(n => `${n.row}-${n.col}`));
+      const lockedSet = getLockedNodes();
+      const allLockedSet = new Set([...lockedSet, ...Array.from(lockedChoices)]);
       
-      for (const node of availableNodes) {
+      // 检查点击的节点
+      for (const node of currentMapData.nodes) {
         const pos = nodePositionMap.get(`${node.row}-${node.col}`);
         if (!pos) continue;
         const x = pos.x - bounds.minX + PADDING;
@@ -592,8 +679,16 @@
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < HEX_SIZE * 0.8) {
-          exploreNode(node);
-          return;
+          const nodeKey = `${node.row}-${node.col}`;
+          // 检查是否是锁定的选项
+          if (allLockedSet.has(nodeKey)) {
+            return; // 锁定的选项不可点击
+          }
+          // 检查是否是可用选项
+          if (availableSet.has(nodeKey)) {
+            exploreNode(node);
+            return;
+          }
         }
       }
     });
@@ -602,6 +697,19 @@
     // 探索节点
     // ===========================
     function exploreNode(node) {
+      // 【关键修复】三选一锁定逻辑：只锁定UI实际显示的3个选项中的未选择选项
+      // 必须获取当前显示的选项（而不是所有可用邻居）
+      const availableNodes = getAvailableNodes(); // 当前UI显示的选项（最多3个）
+      const newLockedChoices = new Set(lockedChoices);
+      
+      // 只锁定UI显示的其他选项
+      for (const availableNode of availableNodes) {
+        if (availableNode.row !== node.row || availableNode.col !== node.col) {
+          newLockedChoices.add(`${availableNode.row}-${availableNode.col}`);
+        }
+      }
+      
+      lockedChoices = newLockedChoices;
       exploredNodes.add(`${node.row}-${node.col}`);
       currentNode = node;
       updateStats();
@@ -689,6 +797,7 @@
     window.resetExploration = () => {
       if (!currentMapData) return;
       exploredNodes = new Set();
+      lockedChoices = new Set(); // 清空锁定选项
       currentNode = currentMapData.startNode;
       exploredNodes.add(`${currentNode.row}-${currentNode.col}`);
       updateStats();

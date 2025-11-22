@@ -285,6 +285,19 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
   removeIsolatedNodes(grid, gridRows, startNode, bossNode, allNodes);
   
   // ===========================
+  // Step 6.5: 检测死胡同节点（模拟"不可回溯"规则）
+  // ===========================
+  const deadEnds = detectDeadEnds(grid, gridRows, startNode, bossNode, allNodes);
+  if (deadEnds.length > 0) {
+    console.warn(`⚠️ 检测到 ${deadEnds.length} 个死胡同节点，第 ${attempt + 1} 次尝试失败`);
+    if (attempt < 4) {
+      return generateGridMap(act, usedEnemies, attempt + 1);
+    }
+    console.warn('⚠️ 多次生成失败，使用fallback生成线性地图');
+    return generateFallbackMap(act, usedEnemies);
+  }
+  
+  // ===========================
   // Step 7: BFS验证BOSS可达性
   // ===========================
   const reachable = isBossReachable(grid, startNode, bossNode);
@@ -545,6 +558,206 @@ const removeIsolatedNodes = (grid, gridRows, startNode, bossNode, allNodes) => {
   if (isolated.length > 0) {
     console.log(`[清理飞地] 移除了 ${isolated.length} 个孤立节点`);
   }
+};
+
+// ===========================
+// 检测死胡同节点 - 模拟"不可回溯"规则和"三选一"机制
+// ===========================
+// 死胡同定义：
+// 1. 从起点到该节点的最短路径上的所有节点都视为"已探索"
+// 2. 从该节点出发，考虑"三选一"机制（最多3个选项）
+// 3. 如果所有可能的选项都无法到达BOSS，则该节点是死胡同
+const detectDeadEnds = (grid, gridRows, startNode, bossNode, allNodes) => {
+  const deadEnds = [];
+  
+  // 预先计算从起点到所有节点的最短路径（用于模拟"已探索"节点）
+  const pathToNode = computePathsFromStart(grid, gridRows, startNode, allNodes);
+  
+  // 对每个节点进行模拟探索（排除起点和BOSS）
+  for (const node of allNodes) {
+    // 跳过起点和BOSS
+    if ((node.row === startNode.row && node.col === startNode.col) ||
+        (node.row === bossNode.row && node.col === bossNode.col)) {
+      continue;
+    }
+    
+    // 获取从起点到该节点的路径（模拟已探索的节点）
+    const exploredPath = pathToNode.get(`${node.row}-${node.col}`);
+    if (!exploredPath) {
+      // 如果无法从起点到达该节点，跳过（这种情况应该被removeIsolatedNodes处理）
+      continue;
+    }
+    
+    // 模拟：从该节点出发，考虑"三选一"机制，检查是否能到达BOSS
+    const canReachBoss = canReachBossWithThreeChoices(node, grid, gridRows, bossNode, exploredPath);
+    
+    if (!canReachBoss) {
+      deadEnds.push(node);
+      console.log(`[死胡同检测] 节点 (${node.row}, ${node.col}) 是死胡同`);
+    }
+  }
+  
+  if (deadEnds.length > 0) {
+    console.log(`[死胡同检测] 发现 ${deadEnds.length} 个死胡同节点`);
+  }
+  
+  return deadEnds;
+};
+
+// 计算从起点到所有节点的最短路径
+const computePathsFromStart = (grid, gridRows, startNode, allNodes) => {
+  const paths = new Map();
+  const visited = new Set();
+  const queue = [{ node: startNode, path: [startNode] }];
+  visited.add(`${startNode.row}-${startNode.col}`);
+  paths.set(`${startNode.row}-${startNode.col}`, [startNode]);
+  
+  while (queue.length > 0) {
+    const { node, path } = queue.shift();
+    
+    const neighbors = getHexNeighbors(node.row, node.col, gridRows, GRID_COLS);
+    for (const [r, c] of neighbors) {
+      const neighbor = grid[r] && grid[r][c];
+      if (!neighbor) continue;
+      
+      const key = `${r}-${c}`;
+      if (visited.has(key)) continue;
+      
+      visited.add(key);
+      const newPath = [...path, neighbor];
+      paths.set(key, newPath);
+      queue.push({ node: neighbor, path: newPath });
+    }
+  }
+  
+  return paths;
+};
+
+// 检查从指定节点出发，考虑"三选一"机制，能否到达BOSS
+// exploredPath: 从起点到该节点的路径（模拟已探索的节点）
+const canReachBossWithThreeChoices = (startNode, grid, gridRows, bossNode, exploredPath) => {
+  // 创建已探索节点集合（从起点到当前节点的路径）
+  const exploredSet = new Set(exploredPath.map(n => `${n.row}-${n.col}`));
+  
+  // 获取当前节点的所有未探索邻居
+  const neighbors = getHexNeighbors(startNode.row, startNode.col, gridRows, GRID_COLS);
+  const availableNeighbors = [];
+  
+  for (const [r, c] of neighbors) {
+    const neighbor = grid[r] && grid[r][c];
+    if (!neighbor) continue;
+    
+    const key = `${r}-${c}`;
+    if (!exploredSet.has(key)) {
+      availableNeighbors.push(neighbor);
+    }
+  }
+  
+  // 如果没有任何选项，无法到达BOSS
+  if (availableNeighbors.length === 0) {
+    return false;
+  }
+  
+  // 三选一机制：如果可用邻居≤3个，检查所有选项
+  if (availableNeighbors.length <= 3) {
+    // 检查每个选项是否能到达BOSS（至少有一个能到达即可）
+    for (const choice of availableNeighbors) {
+      if (canReachBossFromNode(choice, grid, gridRows, bossNode, exploredSet)) {
+        return true; // 至少有一个选项能到达BOSS
+      }
+    }
+    return false; // 所有选项都无法到达BOSS
+  }
+  
+  // 如果可用邻居>3个，需要使用与UI相同的选择逻辑来确定3个选项
+  // UI中的逻辑：基于节点位置排序，使用哈希函数选择3个（与activeNode位置相关）
+  // 为了准确检测死胡同，我们需要使用相同的逻辑来选择3个选项
+  
+  // 1. 先按位置排序（与UI逻辑一致）
+  const sorted = [...availableNeighbors].sort((a, b) => {
+    const seedA = `${a.row}-${a.col}`;
+    const seedB = `${b.row}-${b.col}`;
+    return seedA.localeCompare(seedB);
+  });
+  
+  // 2. 使用与UI相同的哈希函数选择3个选项
+  // UI中的哈希：hash = (activeNode.row * 1000 + activeNode.col) % shuffled.length
+  const hash = (startNode.row * 1000 + startNode.col) % sorted.length;
+  const choices = [];
+  for (let i = 0; i < 3; i++) {
+    choices.push(sorted[(hash + i) % sorted.length]);
+  }
+  
+  // 3. 检查这3个选项是否能到达BOSS（至少有一个能到达即可）
+  for (const choice of choices) {
+    if (canReachBossFromNode(choice, grid, gridRows, bossNode, exploredSet)) {
+      return true; // 至少有一个选项能到达BOSS
+    }
+  }
+  
+  // 4. 如果这3个选项都无法到达BOSS，检查是否有任何其他选项能到达BOSS
+  // 如果有，说明UI可能会显示不同的3个选项（因为哈希值可能不同），所以不是死胡同
+  // 但实际上，由于哈希是基于节点位置的，对于同一个节点，哈希值是固定的
+  // 所以如果这3个选项都无法到达BOSS，就是死胡同
+  
+  // 但为了更安全，我们仍然检查是否有其他选项能到达BOSS
+  // 如果有，且可用选项总数>3，可能UI会显示不同的组合（虽然不太可能）
+  let hasOtherReachableOption = false;
+  for (const choice of sorted) {
+    if (!choices.includes(choice) && canReachBossFromNode(choice, grid, gridRows, bossNode, exploredSet)) {
+      hasOtherReachableOption = true;
+      break;
+    }
+  }
+  
+  // 如果只有这3个选项，且都无法到达BOSS，肯定是死胡同
+  if (sorted.length === 3) {
+    return false;
+  }
+  
+  // 如果有其他选项能到达BOSS，且可用选项总数>3，可能不是死胡同
+  // 但为了严格，我们仍然认为这是死胡同（因为UI会显示这3个选项）
+  // 实际上，我们应该确保UI显示的3个选项中至少有一个能到达BOSS
+  return false; // 这3个选项都无法到达BOSS，是死胡同
+};
+
+// 辅助函数：检查从指定节点出发能否到达BOSS（考虑已探索节点集合）
+const canReachBossFromNode = (startNode, grid, gridRows, bossNode, exploredSet) => {
+  // 使用BFS从startNode出发，尝试到达BOSS
+  const visited = new Set();
+  const queue = [startNode];
+  visited.add(`${startNode.row}-${startNode.col}`);
+  
+  while (queue.length > 0) {
+    const current = queue.shift();
+    
+    // 如果到达BOSS，返回true
+    if (current.row === bossNode.row && current.col === bossNode.col) {
+      return true;
+    }
+    
+    // 获取当前节点的邻居
+    const neighbors = getHexNeighbors(current.row, current.col, gridRows, GRID_COLS);
+    
+    for (const [r, c] of neighbors) {
+      const neighbor = grid[r] && grid[r][c];
+      if (!neighbor) continue;
+      
+      const key = `${r}-${c}`;
+      
+      // 跳过已访问的节点
+      if (visited.has(key)) continue;
+      
+      // 跳过已探索的节点（模拟"不可回溯"规则）
+      if (exploredSet.has(key)) continue;
+      
+      visited.add(key);
+      queue.push(neighbor);
+    }
+  }
+  
+  // 无法到达BOSS
+  return false;
 };
 
 // ===========================
