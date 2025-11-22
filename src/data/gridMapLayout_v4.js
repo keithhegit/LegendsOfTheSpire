@@ -285,8 +285,11 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
   removeIsolatedNodes(grid, gridRows, startNode, bossNode, allNodes);
   
   // ===========================
-  // Step 6.5: 检测死胡同节点（模拟"不可回溯"规则）
+  // Step 6.5: 检测死胡同节点（已禁用）
   // ===========================
+  // 原因：生成阶段的死胡同检测过于严格，导致大量可行地图被拒绝
+  // 解决：依靠运行时的三选一锁定逻辑来避免死胡同（App.jsx + GridMapView_v3.jsx）
+  /*
   const deadEnds = detectDeadEnds(grid, gridRows, startNode, bossNode, allNodes);
   if (deadEnds.length > 0) {
     console.warn(`⚠️ 检测到 ${deadEnds.length} 个死胡同节点，第 ${attempt + 1} 次尝试失败`);
@@ -296,6 +299,7 @@ export const generateGridMap = (act, usedEnemies = [], attempt = 0) => {
     console.warn('⚠️ 多次生成失败，使用fallback生成线性地图');
     return generateFallbackMap(act, usedEnemies);
   }
+  */
   
   // ===========================
   // Step 7: BFS验证BOSS可达性
