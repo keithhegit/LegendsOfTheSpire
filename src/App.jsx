@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Sword, Shield, Zap, Skull, Heart, RefreshCw, AlertTriangle, Flame, XCircle, Activity, Map as MapIcon, Gift, Anchor, Coins, ShoppingBag, ChevronRight, Star, Play, Pause, Volume2, VolumeX, Landmark, Lock, RotateCcw, Save, ArrowRight, BookOpen, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateGridMap } from './data/gridMapLayout_v4'; // v4生成器（带死胡同检测）
-import GridMapView from './components/GridMapView'; // 新版六边形地图视图（三选一机制�?
+import { generateGridMap } from './data/gridMapLayout_v4'; // v4鐢熸垚鍣紙甯︽鑳″悓妫€娴嬶級
+import GridMapView from './components/GridMapView'; // 鏂扮増鍏竟褰㈠湴鍥捐鍥撅紙涓夐€変竴鏈哄埗锛?
 import { getHexNeighbors } from './utils/hexagonGrid';
 import CodexView from './components/CodexView';
 import DeckView from './components/DeckView';
@@ -12,7 +12,7 @@ import ToastContainer from './components/shared/Toast';
 import { unlockAudio } from './utils/audioContext';
 
 // ==========================================
-// 1. 静态资源与全局配置
+// 1. 闈欐€佽祫婧愪笌鍏ㄥ眬閰嶇疆
 // ==========================================
 
 const CDN_VERSION = "13.1.1";
@@ -25,18 +25,18 @@ const PASSIVE_URL = `${CDN_URL}/img/passive`;
 const PROFILEICON_URL = `${CDN_URL}/img/profileicon`;
 const VOICE_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/audio/spire/vo_assets_v1";
 
-// 背景图配�?(按章�?
+// 鑳屾櫙鍥鹃厤缃?(鎸夌珷鑺?
 const ACT_BACKGROUNDS = {
-    1: "https://i.17173cdn.com/2fhnvk/YWxqaGBf/cms3/JfEzktbjDoBxmzd.jpg", // 召唤师峡�?
-    2: "https://images.17173cdn.com/2014/lol/2014/08/22/Shadow_Isles_10.jpg", // 暗影之地
-    3: "https://pic.upmedia.mg/uploads/content/20220519/EV220519112427593030.webp"  // 虚空之地
+    1: "https://i.17173cdn.com/2fhnvk/YWxqaGBf/cms3/JfEzktbjDoBxmzd.jpg", // 鍙敜甯堝场璋?
+    2: "https://images.17173cdn.com/2014/lol/2014/08/22/Shadow_Isles_10.jpg", // 鏆楀奖涔嬪湴
+    3: "https://pic.upmedia.mg/uploads/content/20220519/EV220519112427593030.webp"  // 铏氱┖涔嬪湴
 };
 
-// BGM URLs - 从constants导入
+// BGM URLs - 浠巆onstants瀵煎叆
 const BGM_MAP_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/spire/To-the-Infinity%20-Castle%20(1).mp3";
 const BGM_BATTLE_URL = "https://pub-e9a8f18bbe6141f28c8b86c4c54070e1.r2.dev/bgm/spire/guimie-battle%20(1).mp3";
 
-// 音效 - 使用新的R2存储地址
+// 闊虫晥 - 浣跨敤鏂扮殑R2瀛樺偍鍦板潃
 const SFX_BASE_URL = "https://pub-c98d5902eedf42f6a9765dfad981fd88.r2.dev/sfx";
 const SFX_NEW_URL = "https://pub-4785f27b55bc484db8005d5841a1735a.r2.dev";
 const SFX = {
@@ -44,7 +44,7 @@ const SFX = {
     BLOCK: `${SFX_BASE_URL}/block.mp3`,
     DRAW: `${SFX_BASE_URL}/draw.mp3`,
     WIN: `${SFX_BASE_URL}/win.mp3`,
-    // 增强音效 - 独立的攻击、格挡、受击音�?
+    // 澧炲己闊虫晥 - 鐙珛鐨勬敾鍑汇€佹牸鎸°€佸彈鍑婚煶鏁?
     ATTACK_SWING: `${SFX_NEW_URL}/attack_swing.mp3`,
     ATTACK_HIT: `${SFX_NEW_URL}/attack_hit.mp3`,
     BLOCK_SHIELD: `${SFX_NEW_URL}/block_shield.mp3`,
@@ -56,146 +56,146 @@ const SAVE_KEY = 'lots_save_v75';
 const UNLOCK_KEY = 'lots_unlocks_v75';
 
 // ==========================================
-// 2. 游戏数据�?
+// 2. 娓告垙鏁版嵁搴?
 // ==========================================
 
 const CHAMPION_POOL = {
-  // --- 第一梯队 ---
-  "Garen": { id: "Garen", name: "盖伦", title: "德玛西亚之力", maxHp: 80, maxMana: 3, avatar: `${CDN_URL}/img/champion/Garen.png`, img: `${LOADING_URL}/Garen_0.jpg`, passive: "坚韧: 战斗结束时恢�?6 HP", relicId: "GarenPassive", initialCards: ["GarenQ", "GarenW", "Ignite", "Defend"], description: "德玛西亚的重装战士，擅长叠甲和持续作战�? },
-  "Darius": { id: "Darius", name: "德莱厄斯", title: "诺克萨斯之手", maxHp: 90, maxMana: 3, avatar: `${CDN_URL}/img/champion/Darius.png`, img: `${LOADING_URL}/Darius_0.jpg`, passive: "出血: 每次攻击时，给予敌人 1 层虚�?, relicId: "DariusPassive", initialCards: ["DariusW", "DariusE", "Strike", "Ignite"], description: "诺克萨斯的象征，依靠力量和流血效果压制敌人�? },
-  "Lux": { id: "Lux", name: "拉克�?, title: "光辉女郎", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Lux.png`, img: `${LOADING_URL}/Lux_0.jpg`, passive: "光芒四射: 每回合开始时获得 1 点法�?, relicId: "LuxPassive", initialCards: ["LuxQ", "LuxE", "Heal", "Ignite"], description: "法师英雄，擅长利用额外法力打出高费控制牌�? },
-  "Jinx": { id: "Jinx", name: "金克�?, title: "暴走萝莉", maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Jinx.png`, img: `${LOADING_URL}/Jinx_0.jpg`, passive: "爆发: 每回合初始手牌数�?1", relicId: "JinxPassive", initialCards: ["JinxQ", "JinxW", "Strike", "Strike"], description: "高爆发射手，通过快速抽牌和连击造成伤害�? },
-  "Yasuo": { id: "Yasuo", name: "亚索", title: "疾风剑豪", maxHp: 78, maxMana: 3, avatar: `${CDN_URL}/img/champion/Yasuo.png`, img: `${LOADING_URL}/Yasuo_0.jpg`, passive: "浪客之道: 暴击几率+10%", relicId: "YasuoPassive", initialCards: ["YasuoQ", "YasuoE", "Defend", "Defend"], description: "高机动性剑客，利用连击和暴击进行爆发输出�? },
-  "Sona": { id: "Sona", name: "娑娜", title: "琴瑟仙女", maxHp: 72, maxMana: 3, avatar: `${CDN_URL}/img/champion/Sona.png`, img: `${LOADING_URL}/Sona_0.jpg`, passive: "能量�? 每回合打出第三张卡时，获�?3 点临时护�?, relicId: "SonaPassive", initialCards: ["SonaQ", "SonaW", "Defend", "Heal"], description: "辅助英雄，专注于恢复和团队增益�? },
-  "Ekko": { id: "Ekko", name: "艾克", title: "时间刺客", maxHp: 82, maxMana: 3, avatar: `${CDN_URL}/img/champion/Ekko.png`, img: `${LOADING_URL}/Ekko_0.jpg`, passive: "Z型驱�? 每次打出消耗卡时，获得 1 点力�?, relicId: "EkkoPassive", initialCards: ["EkkoQ", "EkkoE", "Defend", "Ignite"], description: "高爆发刺客，利用消耗卡牌的机制快速成长�? },
-  "Sylas": { id: "Sylas", name: "塞拉�?, title: "解脱�?, maxHp: 85, maxMana: 3, avatar: `${CDN_URL}/img/champion/Sylas.png`, img: `${LOADING_URL}/Sylas_0.jpg`, passive: "叛乱: 每次打出技能牌时，回复 3 点生命�?, relicId: "SylasPassive", initialCards: ["SylasQ", "SylasW", "Strike", "Defend"], description: "斗士英雄，通过频繁打出技能获得生存优势�? },
-  "Urgot": { id: "Urgot", name: "厄加�?, title: "无畏战车", maxHp: 100, maxMana: 3, avatar: `${CDN_URL}/img/champion/Urgot.png`, img: `${LOADING_URL}/Urgot_0.jpg`, passive: "回火: 战斗开始时获得 15 点临时护�?, relicId: "UrgotPassive", initialCards: ["UrgotQ", "UrgotW", "Defend", "Defend"], description: "坦克英雄，拥有高生命值和强力防御�? },
-  "Viktor": { id: "Viktor", name: "维克�?, title: "机械先驱", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Viktor.png`, img: `${LOADING_URL}/Viktor_0.jpg`, passive: "光荣进化: 回合开始时�?0% 几率获得一张额外基础�?, relicId: "ViktorPassive", initialCards: ["ViktorQ", "ViktorE", "Ignite", "Heal"], description: "高科技法师，擅长通过快速滤牌获得优势�? },
+  // --- 绗竴姊槦 ---
+  "Garen": { id: "Garen", name: "鐩栦鸡", title: "寰风帥瑗夸簹涔嬪姏", maxHp: 80, maxMana: 3, avatar: `${CDN_URL}/img/champion/Garen.png`, img: `${LOADING_URL}/Garen_0.jpg`, passive: "鍧氶煣: 鎴樻枟缁撴潫鏃舵仮澶?6 HP", relicId: "GarenPassive", initialCards: ["GarenQ", "GarenW", "Ignite", "Defend"], description: "寰风帥瑗夸簹鐨勯噸瑁呮垬澹紝鎿呴暱鍙犵敳鍜屾寔缁綔鎴樸€? },
+  "Darius": { id: "Darius", name: "寰疯幈鍘勬柉", title: "璇哄厠钀ㄦ柉涔嬫墜", maxHp: 90, maxMana: 3, avatar: `${CDN_URL}/img/champion/Darius.png`, img: `${LOADING_URL}/Darius_0.jpg`, passive: "鍑鸿: 姣忔鏀诲嚮鏃讹紝缁欎簣鏁屼汉 1 灞傝櫄寮?, relicId: "DariusPassive", initialCards: ["DariusW", "DariusE", "Strike", "Ignite"], description: "璇哄厠钀ㄦ柉鐨勮薄寰侊紝渚濋潬鍔涢噺鍜屾祦琛€鏁堟灉鍘嬪埗鏁屼汉銆? },
+  "Lux": { id: "Lux", name: "鎷夊厠涓?, title: "鍏夎緣濂抽儙", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Lux.png`, img: `${LOADING_URL}/Lux_0.jpg`, passive: "鍏夎姃鍥涘皠: 姣忓洖鍚堝紑濮嬫椂鑾峰緱 1 鐐规硶鍔?, relicId: "LuxPassive", initialCards: ["LuxQ", "LuxE", "Heal", "Ignite"], description: "娉曞笀鑻遍泟锛屾搮闀垮埄鐢ㄩ澶栨硶鍔涙墦鍑洪珮璐规帶鍒剁墝銆? },
+  "Jinx": { id: "Jinx", name: "閲戝厠涓?, title: "鏆磋蛋钀濊帀", maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Jinx.png`, img: `${LOADING_URL}/Jinx_0.jpg`, passive: "鐖嗗彂: 姣忓洖鍚堝垵濮嬫墜鐗屾暟閲?1", relicId: "JinxPassive", initialCards: ["JinxQ", "JinxW", "Strike", "Strike"], description: "楂樼垎鍙戝皠鎵嬶紝閫氳繃蹇€熸娊鐗屽拰杩炲嚮閫犳垚浼ゅ銆? },
+  "Yasuo": { id: "Yasuo", name: "浜氱储", title: "鐤鹃鍓戣豹", maxHp: 78, maxMana: 3, avatar: `${CDN_URL}/img/champion/Yasuo.png`, img: `${LOADING_URL}/Yasuo_0.jpg`, passive: "娴涔嬮亾: 鏆村嚮鍑犵巼+10%", relicId: "YasuoPassive", initialCards: ["YasuoQ", "YasuoE", "Defend", "Defend"], description: "楂樻満鍔ㄦ€у墤瀹紝鍒╃敤杩炲嚮鍜屾毚鍑昏繘琛岀垎鍙戣緭鍑恒€? },
+  "Sona": { id: "Sona", name: "濞戝", title: "鐞寸憻浠欏コ", maxHp: 72, maxMana: 3, avatar: `${CDN_URL}/img/champion/Sona.png`, img: `${LOADING_URL}/Sona_0.jpg`, passive: "鑳介噺寮? 姣忓洖鍚堟墦鍑虹涓夊紶鍗℃椂锛岃幏寰?3 鐐逛复鏃舵姢鐢?, relicId: "SonaPassive", initialCards: ["SonaQ", "SonaW", "Defend", "Heal"], description: "杈呭姪鑻遍泟锛屼笓娉ㄤ簬鎭㈠鍜屽洟闃熷鐩娿€? },
+  "Ekko": { id: "Ekko", name: "鑹惧厠", title: "鏃堕棿鍒哄", maxHp: 82, maxMana: 3, avatar: `${CDN_URL}/img/champion/Ekko.png`, img: `${LOADING_URL}/Ekko_0.jpg`, passive: "Z鍨嬮┍鍔? 姣忔鎵撳嚭娑堣€楀崱鏃讹紝鑾峰緱 1 鐐瑰姏閲?, relicId: "EkkoPassive", initialCards: ["EkkoQ", "EkkoE", "Defend", "Ignite"], description: "楂樼垎鍙戝埡瀹紝鍒╃敤娑堣€楀崱鐗岀殑鏈哄埗蹇€熸垚闀裤€? },
+  "Sylas": { id: "Sylas", name: "濉炴媺鏂?, title: "瑙ｈ劚鑰?, maxHp: 85, maxMana: 3, avatar: `${CDN_URL}/img/champion/Sylas.png`, img: `${LOADING_URL}/Sylas_0.jpg`, passive: "鍙涗贡: 姣忔鎵撳嚭鎶€鑳界墝鏃讹紝鍥炲 3 鐐圭敓鍛藉€?, relicId: "SylasPassive", initialCards: ["SylasQ", "SylasW", "Strike", "Defend"], description: "鏂楀＋鑻遍泟锛岄€氳繃棰戠箒鎵撳嚭鎶€鑳借幏寰楃敓瀛樹紭鍔裤€? },
+  "Urgot": { id: "Urgot", name: "鍘勫姞鐗?, title: "鏃犵晱鎴樿溅", maxHp: 100, maxMana: 3, avatar: `${CDN_URL}/img/champion/Urgot.png`, img: `${LOADING_URL}/Urgot_0.jpg`, passive: "鍥炵伀: 鎴樻枟寮€濮嬫椂鑾峰緱 15 鐐逛复鏃舵姢鐢?, relicId: "UrgotPassive", initialCards: ["UrgotQ", "UrgotW", "Defend", "Defend"], description: "鍧﹀厠鑻遍泟锛屾嫢鏈夐珮鐢熷懡鍊煎拰寮哄姏闃插尽銆? },
+  "Viktor": { id: "Viktor", name: "缁村厠鎵?, title: "鏈烘鍏堥┍", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Viktor.png`, img: `${LOADING_URL}/Viktor_0.jpg`, passive: "鍏夎崳杩涘寲: 鍥炲悎寮€濮嬫椂锛?0% 鍑犵巼鑾峰緱涓€寮犻澶栧熀纭€鍗?, relicId: "ViktorPassive", initialCards: ["ViktorQ", "ViktorE", "Ignite", "Heal"], description: "楂樼鎶€娉曞笀锛屾搮闀块€氳繃蹇€熸护鐗岃幏寰椾紭鍔裤€? },
   
-  // --- 第二梯队 (新储�? ---
-  "Riven": { id: "Riven", name: "瑞文", title: "放逐之�?, maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Riven.png`, img: `${LOADING_URL}/Riven_0.jpg`, passive: "符文之刃: 每打�?张攻击牌，获�?点能�?, relicId: "RivenPassive", initialCards: ["RivenQ", "RivenE", "Strike", "Defend"], description: "连招型战士，通过连续攻击积累能量�? },
-  "TwistedFate": { id: "TwistedFate", name: "卡牌大师", title: "崔斯�?, maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/TwistedFate.png`, img: `${LOADING_URL}/TwistedFate_0.jpg`, passive: "灌铅骰子: 战斗胜利额外获得 15 金币", relicId: "TwistedFatePassive", initialCards: ["TwistedFateW", "TwistedFateQ", "Strike", "Ignite"], description: "经济型法师，通过额外金币获得装备优势�? },
-  "LeeSin": { id: "LeeSin", name: "盲僧", title: "李青", maxHp: 80, maxMana: 3, avatar: `${CDN_URL}/img/champion/LeeSin.png`, img: `${LOADING_URL}/LeeSin_0.jpg`, passive: "疾风骤雨: 打出技能牌后，下一张攻击牌费用-1", relicId: "LeeSinPassive", initialCards: ["LeeSinQ", "LeeSinW", "Strike", "Defend"], description: "节奏型战士，通过技能和攻击的配合打出连招�? },
-  "Vayne": { id: "Vayne", name: "薇恩", title: "暗夜猎手", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Vayne.png`, img: `${LOADING_URL}/Vayne_0.jpg`, passive: "圣银弩箭: 对同一目标连续造成3次伤害时，额外造成10�?, relicId: "VaynePassive", initialCards: ["VayneQ", "VayneE", "Strike", "Strike"], description: "单体爆发射手，专注于对单一目标的持续输出�? },
-  "Teemo": { id: "Teemo", name: "提莫", title: "迅捷斥�?, maxHp: 65, maxMana: 3, avatar: `${CDN_URL}/img/champion/Teemo.png`, img: `${LOADING_URL}/Teemo_0.jpg`, passive: "游击�? 回合开始时，随机给一名敌人施�?2 层虚�?, relicId: "TeemoPassive", initialCards: ["TeemoQ", "TeemoR", "Strike", "Ignite"], description: "DoT型射手，通过虚弱和易伤削弱敌人�? },
-  "Zed": { id: "Zed", name: "�?, title: "影流之主", maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Zed.png`, img: `${LOADING_URL}/Zed_0.jpg`, passive: "影分�? 每回合第一张攻击牌会重复施放一�?50%伤害)", relicId: "ZedPassive", initialCards: ["ZedQ", "ZedE", "Strike", "Strike"], description: "爆发型刺客，通过复制攻击造成巨额伤害�? },
-  "Nasus": { id: "Nasus", name: "内瑟�?, title: "沙漠死神", maxHp: 85, maxMana: 3, avatar: `${CDN_URL}/img/champion/Nasus.png`, img: `${LOADING_URL}/Nasus_0.jpg`, passive: "汲魂痛击: 每次用攻击牌击杀敌人，获�?点力�?, relicId: "NasusPassive", initialCards: ["NasusQ", "NasusW", "Strike", "Defend"], description: "无限成长型战士，通过击杀敌人永久提升力量�? },
-  "Irelia": { id: "Irelia", name: "艾瑞莉娅", title: "刀锋舞�?, maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Irelia.png`, img: `${LOADING_URL}/Irelia_0.jpg`, passive: "热诚: 每次击杀敌人，恢�?1 点能量并�?1 张牌", relicId: "IreliaPassive", initialCards: ["IreliaQ", "IreliaE", "Strike", "Defend"], description: "收割型战士，通过击杀重置和抽牌形成连击�?, baseStr: 0 },
-  "Thresh": { id: "Thresh", name: "锤石", title: "魂锁典狱�?, maxHp: 90, maxMana: 3, avatar: `${CDN_URL}/img/champion/Thresh.png`, img: `${LOADING_URL}/Thresh_0.jpg`, passive: "地狱诅咒: 每次击杀敌人，永久增�?2 最大生命�?, relicId: "ThreshPassive", initialCards: ["ThreshQ", "ThreshW", "Strike", "Defend"], description: "成长型坦克，通过击杀敌人永久提升生命上限�?, baseStr: 0 },
-  "Katarina": { id: "Katarina", name: "卡特琳娜", title: "不祥之刃", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Katarina.png`, img: `${LOADING_URL}/Katarina_0.jpg`, passive: "贪婪: 每回合每打出 3 张攻击牌后，下一张攻击牌伤害翻�?, relicId: "KatarinaPassive", initialCards: ["KatarinaQ", "KatarinaE", "Strike", "Strike"], description: "计数器型刺客，通过连击触发高额爆发伤害�?, baseStr: 0 },
+  // --- 绗簩姊槦 (鏂板偍澶? ---
+  "Riven": { id: "Riven", name: "鐟炴枃", title: "鏀鹃€愪箣鍒?, maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Riven.png`, img: `${LOADING_URL}/Riven_0.jpg`, passive: "绗︽枃涔嬪垉: 姣忔墦鍑?寮犳敾鍑荤墝锛岃幏寰?鐐硅兘閲?, relicId: "RivenPassive", initialCards: ["RivenQ", "RivenE", "Strike", "Defend"], description: "杩炴嫑鍨嬫垬澹紝閫氳繃杩炵画鏀诲嚮绉疮鑳介噺銆? },
+  "TwistedFate": { id: "TwistedFate", name: "鍗＄墝澶у笀", title: "宕旀柉鐗?, maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/TwistedFate.png`, img: `${LOADING_URL}/TwistedFate_0.jpg`, passive: "鐏岄搮楠板瓙: 鎴樻枟鑳滃埄棰濆鑾峰緱 15 閲戝竵", relicId: "TwistedFatePassive", initialCards: ["TwistedFateW", "TwistedFateQ", "Strike", "Ignite"], description: "缁忔祹鍨嬫硶甯堬紝閫氳繃棰濆閲戝竵鑾峰緱瑁呭浼樺娍銆? },
+  "LeeSin": { id: "LeeSin", name: "鐩插儳", title: "鏉庨潚", maxHp: 80, maxMana: 3, avatar: `${CDN_URL}/img/champion/LeeSin.png`, img: `${LOADING_URL}/LeeSin_0.jpg`, passive: "鐤鹃楠ら洦: 鎵撳嚭鎶€鑳界墝鍚庯紝涓嬩竴寮犳敾鍑荤墝璐圭敤-1", relicId: "LeeSinPassive", initialCards: ["LeeSinQ", "LeeSinW", "Strike", "Defend"], description: "鑺傚鍨嬫垬澹紝閫氳繃鎶€鑳藉拰鏀诲嚮鐨勯厤鍚堟墦鍑鸿繛鎷涖€? },
+  "Vayne": { id: "Vayne", name: "钖囨仼", title: "鏆楀鐚庢墜", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Vayne.png`, img: `${LOADING_URL}/Vayne_0.jpg`, passive: "鍦ｉ摱寮╃: 瀵瑰悓涓€鐩爣杩炵画閫犳垚3娆′激瀹虫椂锛岄澶栭€犳垚10浼?, relicId: "VaynePassive", initialCards: ["VayneQ", "VayneE", "Strike", "Strike"], description: "鍗曚綋鐖嗗彂灏勬墜锛屼笓娉ㄤ簬瀵瑰崟涓€鐩爣鐨勬寔缁緭鍑恒€? },
+  "Teemo": { id: "Teemo", name: "鎻愯帿", title: "杩呮嵎鏂ュ€?, maxHp: 65, maxMana: 3, avatar: `${CDN_URL}/img/champion/Teemo.png`, img: `${LOADING_URL}/Teemo_0.jpg`, passive: "娓稿嚮鎴? 鍥炲悎寮€濮嬫椂锛岄殢鏈虹粰涓€鍚嶆晫浜烘柦鍔?2 灞傝櫄寮?, relicId: "TeemoPassive", initialCards: ["TeemoQ", "TeemoR", "Strike", "Ignite"], description: "DoT鍨嬪皠鎵嬶紝閫氳繃铏氬急鍜屾槗浼ゅ墛寮辨晫浜恒€? },
+  "Zed": { id: "Zed", name: "鍔?, title: "褰辨祦涔嬩富", maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Zed.png`, img: `${LOADING_URL}/Zed_0.jpg`, passive: "褰卞垎韬? 姣忓洖鍚堢涓€寮犳敾鍑荤墝浼氶噸澶嶆柦鏀句竴娆?50%浼ゅ)", relicId: "ZedPassive", initialCards: ["ZedQ", "ZedE", "Strike", "Strike"], description: "鐖嗗彂鍨嬪埡瀹紝閫氳繃澶嶅埗鏀诲嚮閫犳垚宸ㄩ浼ゅ銆? },
+  "Nasus": { id: "Nasus", name: "鍐呯憻鏂?, title: "娌欐紶姝荤", maxHp: 85, maxMana: 3, avatar: `${CDN_URL}/img/champion/Nasus.png`, img: `${LOADING_URL}/Nasus_0.jpg`, passive: "姹查瓊鐥涘嚮: 姣忔鐢ㄦ敾鍑荤墝鍑绘潃鏁屼汉锛岃幏寰?鐐瑰姏閲?, relicId: "NasusPassive", initialCards: ["NasusQ", "NasusW", "Strike", "Defend"], description: "鏃犻檺鎴愰暱鍨嬫垬澹紝閫氳繃鍑绘潃鏁屼汉姘镐箙鎻愬崌鍔涢噺銆? },
+  "Irelia": { id: "Irelia", name: "鑹剧憺鑾夊▍", title: "鍒€閿嬭垶鑰?, maxHp: 75, maxMana: 3, avatar: `${CDN_URL}/img/champion/Irelia.png`, img: `${LOADING_URL}/Irelia_0.jpg`, passive: "鐑瘹: 姣忔鍑绘潃鏁屼汉锛屾仮澶?1 鐐硅兘閲忓苟鎶?1 寮犵墝", relicId: "IreliaPassive", initialCards: ["IreliaQ", "IreliaE", "Strike", "Defend"], description: "鏀跺壊鍨嬫垬澹紝閫氳繃鍑绘潃閲嶇疆鍜屾娊鐗屽舰鎴愯繛鍑汇€?, baseStr: 0 },
+  "Thresh": { id: "Thresh", name: "閿ょ煶", title: "榄傞攣鍏哥嫳闀?, maxHp: 90, maxMana: 3, avatar: `${CDN_URL}/img/champion/Thresh.png`, img: `${LOADING_URL}/Thresh_0.jpg`, passive: "鍦扮嫳璇呭拻: 姣忔鍑绘潃鏁屼汉锛屾案涔呭鍔?2 鏈€澶х敓鍛藉€?, relicId: "ThreshPassive", initialCards: ["ThreshQ", "ThreshW", "Strike", "Defend"], description: "鎴愰暱鍨嬪潶鍏嬶紝閫氳繃鍑绘潃鏁屼汉姘镐箙鎻愬崌鐢熷懡涓婇檺銆?, baseStr: 0 },
+  "Katarina": { id: "Katarina", name: "鍗＄壒鐞冲", title: "涓嶇ゥ涔嬪垉", maxHp: 70, maxMana: 3, avatar: `${CDN_URL}/img/champion/Katarina.png`, img: `${LOADING_URL}/Katarina_0.jpg`, passive: "璐┆: 姣忓洖鍚堟瘡鎵撳嚭 3 寮犳敾鍑荤墝鍚庯紝涓嬩竴寮犳敾鍑荤墝浼ゅ缈诲€?, relicId: "KatarinaPassive", initialCards: ["KatarinaQ", "KatarinaE", "Strike", "Strike"], description: "璁℃暟鍣ㄥ瀷鍒哄锛岄€氳繃杩炲嚮瑙﹀彂楂橀鐖嗗彂浼ゅ銆?, baseStr: 0 },
 };
 
 const RELIC_DATABASE = {
-  // 基础被动遗物 (20�?
-  "GarenPassive": { id: "GarenPassive", name: "坚韧", description: "战斗结束时恢�?6 HP", rarity: "PASSIVE", img: `${PASSIVE_URL}/Garen_Passive.png` },
-  "DariusPassive": { id: "DariusPassive", name: "出血", description: "每次攻击时，给予敌人 1 层虚�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Garen_Passive.png` },
-  "LuxPassive": { id: "LuxPassive", name: "光芒四射", description: "每回合开始时获得 1 点额外法�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/LuxIllumination.png` },
-  "JinxPassive": { id: "JinxPassive", name: "爆发", description: "每回合初始手牌数�?1", rarity: "PASSIVE", img: `${PASSIVE_URL}/Jinx_Passive.png` },
-  "YasuoPassive": { id: "YasuoPassive", name: "浪客之道", description: "攻击牌暴击几�?10%", rarity: "PASSIVE", img: `${PASSIVE_URL}/Yasuo_Passive.png` },
-  "SonaPassive": { id: "SonaPassive", name: "能量�?, description: "每回合打出第三张卡时，获�?3 点临时护�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Sona_Passive.png` },
-  "EkkoPassive": { id: "EkkoPassive", name: "Z型驱动共�?, description: "每次打出消耗卡时，获得 1 点力�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Ekko_P.png` },
-  "SylasPassive": { id: "SylasPassive", name: "叛乱", description: "每次打出技能牌时，回复 3 点生命�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/SylasP.png` },
-  "UrgotPassive": { id: "UrgotPassive", name: "回火", description: "战斗开始时获得 15 点临时护�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Urgot_Passive.png` },
-  "ViktorPassive": { id: "ViktorPassive", name: "光荣进化", description: "回合开始时�?0% 几率获得一张额外基础�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Viktor_Passive.png` },
-  "RivenPassive": { id: "RivenPassive", name: "符文之刃", description: "每打�?张攻击牌，获�?点能�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/RivenRunicBlades.png` },
-  "TwistedFatePassive": { id: "TwistedFatePassive", name: "灌铅骰子", description: "战斗胜利额外获得 15 金币", rarity: "PASSIVE", img: `${PASSIVE_URL}/CardMaster_SealFate.png` },
-  "LeeSinPassive": { id: "LeeSinPassive", name: "疾风骤雨", description: "打出技能牌后，下一张攻击牌费用-1", rarity: "PASSIVE", img: `${PASSIVE_URL}/LeeSinPassive.png` },
-  "VaynePassive": { id: "VaynePassive", name: "圣银弩箭", description: "对同一目标连续造成3次伤害时，额外造成10�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Vayne_SilveredBolts.png` },
-  "TeemoPassive": { id: "TeemoPassive", name: "游击�?, description: "回合开始时，随机给一名敌人施�?2 层虚�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Teemo_P.png` },
-  "ZedPassive": { id: "ZedPassive", name: "影分�?, description: "每回合第一张攻击牌会重复施放一�?50%伤害)", rarity: "PASSIVE", img: `${PASSIVE_URL}/Zed_Passive.png` },
-  "NasusPassive": { id: "NasusPassive", name: "汲魂痛击", description: "每次用攻击牌击杀敌人，获�?点力�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Nasus_Passive.png` },
-  "IreliaPassive": { id: "IreliaPassive", name: "热诚", description: "每次击杀敌人，恢�?1 点能量并�?1 张牌", rarity: "PASSIVE", img: `${PASSIVE_URL}/Irelia_Passive.png` },
-  "ThreshPassive": { id: "ThreshPassive", name: "地狱诅咒", description: "敌人死亡增加 2 最大生命�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Thresh_Passive.png` },
-  "KatarinaPassive": { id: "KatarinaPassive", name: "贪婪", description: "每回合打出的每第 4 张攻击牌伤害翻�?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Katarina_Passive.png` },
+  // 鍩虹琚姩閬楃墿 (20涓?
+  "GarenPassive": { id: "GarenPassive", name: "鍧氶煣", description: "鎴樻枟缁撴潫鏃舵仮澶?6 HP", rarity: "PASSIVE", img: `${PASSIVE_URL}/Garen_Passive.png` },
+  "DariusPassive": { id: "DariusPassive", name: "鍑鸿", description: "姣忔鏀诲嚮鏃讹紝缁欎簣鏁屼汉 1 灞傝櫄寮?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Garen_Passive.png` },
+  "LuxPassive": { id: "LuxPassive", name: "鍏夎姃鍥涘皠", description: "姣忓洖鍚堝紑濮嬫椂鑾峰緱 1 鐐归澶栨硶鍔?, rarity: "PASSIVE", img: `${PASSIVE_URL}/LuxIllumination.png` },
+  "JinxPassive": { id: "JinxPassive", name: "鐖嗗彂", description: "姣忓洖鍚堝垵濮嬫墜鐗屾暟閲?1", rarity: "PASSIVE", img: `${PASSIVE_URL}/Jinx_Passive.png` },
+  "YasuoPassive": { id: "YasuoPassive", name: "娴涔嬮亾", description: "鏀诲嚮鐗屾毚鍑诲嚑鐜?10%", rarity: "PASSIVE", img: `${PASSIVE_URL}/Yasuo_Passive.png` },
+  "SonaPassive": { id: "SonaPassive", name: "鑳介噺寮?, description: "姣忓洖鍚堟墦鍑虹涓夊紶鍗℃椂锛岃幏寰?3 鐐逛复鏃舵姢鐢?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Sona_Passive.png` },
+  "EkkoPassive": { id: "EkkoPassive", name: "Z鍨嬮┍鍔ㄥ叡鎸?, description: "姣忔鎵撳嚭娑堣€楀崱鏃讹紝鑾峰緱 1 鐐瑰姏閲?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Ekko_P.png` },
+  "SylasPassive": { id: "SylasPassive", name: "鍙涗贡", description: "姣忔鎵撳嚭鎶€鑳界墝鏃讹紝鍥炲 3 鐐圭敓鍛藉€?, rarity: "PASSIVE", img: `${PASSIVE_URL}/SylasP.png` },
+  "UrgotPassive": { id: "UrgotPassive", name: "鍥炵伀", description: "鎴樻枟寮€濮嬫椂鑾峰緱 15 鐐逛复鏃舵姢鐢?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Urgot_Passive.png` },
+  "ViktorPassive": { id: "ViktorPassive", name: "鍏夎崳杩涘寲", description: "鍥炲悎寮€濮嬫椂锛?0% 鍑犵巼鑾峰緱涓€寮犻澶栧熀纭€鍗?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Viktor_Passive.png` },
+  "RivenPassive": { id: "RivenPassive", name: "绗︽枃涔嬪垉", description: "姣忔墦鍑?寮犳敾鍑荤墝锛岃幏寰?鐐硅兘閲?, rarity: "PASSIVE", img: `${PASSIVE_URL}/RivenRunicBlades.png` },
+  "TwistedFatePassive": { id: "TwistedFatePassive", name: "鐏岄搮楠板瓙", description: "鎴樻枟鑳滃埄棰濆鑾峰緱 15 閲戝竵", rarity: "PASSIVE", img: `${PASSIVE_URL}/CardMaster_SealFate.png` },
+  "LeeSinPassive": { id: "LeeSinPassive", name: "鐤鹃楠ら洦", description: "鎵撳嚭鎶€鑳界墝鍚庯紝涓嬩竴寮犳敾鍑荤墝璐圭敤-1", rarity: "PASSIVE", img: `${PASSIVE_URL}/LeeSinPassive.png` },
+  "VaynePassive": { id: "VaynePassive", name: "鍦ｉ摱寮╃", description: "瀵瑰悓涓€鐩爣杩炵画閫犳垚3娆′激瀹虫椂锛岄澶栭€犳垚10浼?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Vayne_SilveredBolts.png` },
+  "TeemoPassive": { id: "TeemoPassive", name: "娓稿嚮鎴?, description: "鍥炲悎寮€濮嬫椂锛岄殢鏈虹粰涓€鍚嶆晫浜烘柦鍔?2 灞傝櫄寮?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Teemo_P.png` },
+  "ZedPassive": { id: "ZedPassive", name: "褰卞垎韬?, description: "姣忓洖鍚堢涓€寮犳敾鍑荤墝浼氶噸澶嶆柦鏀句竴娆?50%浼ゅ)", rarity: "PASSIVE", img: `${PASSIVE_URL}/Zed_Passive.png` },
+  "NasusPassive": { id: "NasusPassive", name: "姹查瓊鐥涘嚮", description: "姣忔鐢ㄦ敾鍑荤墝鍑绘潃鏁屼汉锛岃幏寰?鐐瑰姏閲?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Nasus_Passive.png` },
+  "IreliaPassive": { id: "IreliaPassive", name: "鐑瘹", description: "姣忔鍑绘潃鏁屼汉锛屾仮澶?1 鐐硅兘閲忓苟鎶?1 寮犵墝", rarity: "PASSIVE", img: `${PASSIVE_URL}/Irelia_Passive.png` },
+  "ThreshPassive": { id: "ThreshPassive", name: "鍦扮嫳璇呭拻", description: "鏁屼汉姝讳骸澧炲姞 2 鏈€澶х敓鍛藉€?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Thresh_Passive.png` },
+  "KatarinaPassive": { id: "KatarinaPassive", name: "璐┆", description: "姣忓洖鍚堟墦鍑虹殑姣忕 4 寮犳敾鍑荤墝浼ゅ缈诲€?, rarity: "PASSIVE", img: `${PASSIVE_URL}/Katarina_Passive.png` },
 
-  // 通用遗物
-  "DoransShield": { id: "DoransShield", name: "多兰之盾", price: 100, rarity: "COMMON", description: "战斗开始时获得 6 点护甲�?, img: `${ITEM_URL}/1054.png`, onBattleStart: (state) => ({ ...state, block: state.block + 6 }) },
-  "LongSword": { id: "LongSword", name: "长剑", price: 150, rarity: "COMMON", description: "战斗开始时获得 1 点力量�?, img: `${ITEM_URL}/1036.png`, onBattleStart: (state) => ({ ...state, status: { ...state.status, strength: state.status.strength + 1 } }) },
-  "RubyCrystal": { id: "RubyCrystal", name: "红水�?, price: 120, rarity: "COMMON", description: "最大生命�?+15�?, img: `${ITEM_URL}/1028.png`, onPickup: (gameState) => ({ ...gameState, maxHp: gameState.maxHp + 15, currentHp: gameState.currentHp + 15 }) },
-  "VampiricScepter": { id: "VampiricScepter", name: "吸血鬼节�?, price: 280, rarity: "UNCOMMON", description: "每次打出攻击牌恢�?1 点生命�?, img: `${ITEM_URL}/1053.png` },
-  "Sheen": { id: "Sheen", name: "耀�?, price: 350, rarity: "UNCOMMON", description: "每回合打出的第一张攻击牌，伤害翻倍�?, img: `${ITEM_URL}/3057.png` },
-  "ZhonyasHourglass": { id: "ZhonyasHourglass", name: "中娅沙漏", price: 500, rarity: "RARE", description: "每场战斗限一次：免疫下一回合的敌人伤害�?, img: `${ITEM_URL}/3157.png`, charges: 1 },
-  "InfinityEdge": { id: "InfinityEdge", name: "无尽之刃", price: 700, rarity: "RARE", description: "所有攻击牌伤害+50%�?, img: `${ITEM_URL}/3031.png` },
-  "Redemption": { id: "Redemption", name: "救赎", price: 650, rarity: "RARE", description: "每回合开始时，治疗你和敌�?5 点生命�?, img: `${ITEM_URL}/3107.png`, onTurnStart: (pState, eState) => ({ pState: { ...pState, hp: Math.min(pState.maxHp, pState.hp + 5) }, eState: { ...eState, hp: eState.hp + 5 } }) },
-  "BrambleVest": { id: "BrambleVest", name: "荆棘背心", price: 200, rarity: "UNCOMMON", description: "每次被攻击时，对攻击者造成 3 点伤害�?, img: `${ITEM_URL}/3076.png` },
-  "GuardianAngel": { id: "GuardianAngel", name: "守护天使", price: 750, rarity: "RARE", description: "死亡时，恢复 40 点生命值。每场战斗限一次�?, img: `${ITEM_URL}/3026.png`, charges: 1 },
+  // 閫氱敤閬楃墿
+  "DoransShield": { id: "DoransShield", name: "澶氬叞涔嬬浘", price: 100, rarity: "COMMON", description: "鎴樻枟寮€濮嬫椂鑾峰緱 6 鐐规姢鐢层€?, img: `${ITEM_URL}/1054.png`, onBattleStart: (state) => ({ ...state, block: state.block + 6 }) },
+  "LongSword": { id: "LongSword", name: "闀垮墤", price: 150, rarity: "COMMON", description: "鎴樻枟寮€濮嬫椂鑾峰緱 1 鐐瑰姏閲忋€?, img: `${ITEM_URL}/1036.png`, onBattleStart: (state) => ({ ...state, status: { ...state.status, strength: state.status.strength + 1 } }) },
+  "RubyCrystal": { id: "RubyCrystal", name: "绾㈡按鏅?, price: 120, rarity: "COMMON", description: "鏈€澶х敓鍛藉€?+15銆?, img: `${ITEM_URL}/1028.png`, onPickup: (gameState) => ({ ...gameState, maxHp: gameState.maxHp + 15, currentHp: gameState.currentHp + 15 }) },
+  "VampiricScepter": { id: "VampiricScepter", name: "鍚歌楝艰妭鏉?, price: 280, rarity: "UNCOMMON", description: "姣忔鎵撳嚭鏀诲嚮鐗屾仮澶?1 鐐圭敓鍛姐€?, img: `${ITEM_URL}/1053.png` },
+  "Sheen": { id: "Sheen", name: "鑰€鍏?, price: 350, rarity: "UNCOMMON", description: "姣忓洖鍚堟墦鍑虹殑绗竴寮犳敾鍑荤墝锛屼激瀹崇炕鍊嶃€?, img: `${ITEM_URL}/3057.png` },
+  "ZhonyasHourglass": { id: "ZhonyasHourglass", name: "涓▍娌欐紡", price: 500, rarity: "RARE", description: "姣忓満鎴樻枟闄愪竴娆★細鍏嶇柅涓嬩竴鍥炲悎鐨勬晫浜轰激瀹炽€?, img: `${ITEM_URL}/3157.png`, charges: 1 },
+  "InfinityEdge": { id: "InfinityEdge", name: "鏃犲敖涔嬪垉", price: 700, rarity: "RARE", description: "鎵€鏈夋敾鍑荤墝浼ゅ+50%銆?, img: `${ITEM_URL}/3031.png` },
+  "Redemption": { id: "Redemption", name: "鏁戣祹", price: 650, rarity: "RARE", description: "姣忓洖鍚堝紑濮嬫椂锛屾不鐤椾綘鍜屾晫浜?5 鐐圭敓鍛姐€?, img: `${ITEM_URL}/3107.png`, onTurnStart: (pState, eState) => ({ pState: { ...pState, hp: Math.min(pState.maxHp, pState.hp + 5) }, eState: { ...eState, hp: eState.hp + 5 } }) },
+  "BrambleVest": { id: "BrambleVest", name: "鑽嗘鑳屽績", price: 200, rarity: "UNCOMMON", description: "姣忔琚敾鍑绘椂锛屽鏀诲嚮鑰呴€犳垚 3 鐐逛激瀹炽€?, img: `${ITEM_URL}/3076.png` },
+  "GuardianAngel": { id: "GuardianAngel", name: "瀹堟姢澶╀娇", price: 750, rarity: "RARE", description: "姝讳骸鏃讹紝鎭㈠ 40 鐐圭敓鍛藉€笺€傛瘡鍦烘垬鏂楅檺涓€娆°€?, img: `${ITEM_URL}/3026.png`, charges: 1 },
   
-  // 章节专属遗物 (Act Specific)
-  "Cull": { id: "Cull", name: "萃取", price: 400, rarity: "RARE", description: "Act 1 限定：击杀 10 个敌人后获得 300 金币�?, img: `${ITEM_URL}/1083.png` },
-  "DarkSeal": { id: "DarkSeal", name: "黑暗封印", price: 300, rarity: "RARE", description: "Act 1 限定：每次战斗胜�?+2 HP上限�?, img: `${ITEM_URL}/1082.png` },
-  "QSS": { id: "QSS", name: "水银饰带", price: 500, rarity: "RARE", description: "Act 2 限定：战斗开始时获得 1 层人工制�?(抵挡Debuff)�?, img: `${ITEM_URL}/3140.png` },
-  "Executioner": { id: "Executioner", name: "死刑宣告", price: 450, rarity: "RARE", description: "Act 2 限定：攻击施加重�?(敌人无法回复HP)�?, img: `${ITEM_URL}/3123.png` },
-  "Nashor": { id: "Nashor", name: "纳什之牙", price: 800, rarity: "RARE", description: "Act 3 限定：每回合打出的第 3 张攻击牌伤害翻倍�?, img: `${ITEM_URL}/3115.png` }
+  // 绔犺妭涓撳睘閬楃墿 (Act Specific)
+  "Cull": { id: "Cull", name: "钀冨彇", price: 400, rarity: "RARE", description: "Act 1 闄愬畾锛氬嚮鏉€ 10 涓晫浜哄悗鑾峰緱 300 閲戝竵銆?, img: `${ITEM_URL}/1083.png` },
+  "DarkSeal": { id: "DarkSeal", name: "榛戞殫灏佸嵃", price: 300, rarity: "RARE", description: "Act 1 闄愬畾锛氭瘡娆℃垬鏂楄儨鍒?+2 HP涓婇檺銆?, img: `${ITEM_URL}/1082.png` },
+  "QSS": { id: "QSS", name: "姘撮摱楗板甫", price: 500, rarity: "RARE", description: "Act 2 闄愬畾锛氭垬鏂楀紑濮嬫椂鑾峰緱 1 灞備汉宸ュ埗鍝?(鎶垫尅Debuff)銆?, img: `${ITEM_URL}/3140.png` },
+  "Executioner": { id: "Executioner", name: "姝诲垜瀹ｅ憡", price: 450, rarity: "RARE", description: "Act 2 闄愬畾锛氭敾鍑绘柦鍔犻噸浼?(鏁屼汉鏃犳硶鍥炲HP)銆?, img: `${ITEM_URL}/3123.png` },
+  "Nashor": { id: "Nashor", name: "绾充粈涔嬬墮", price: 800, rarity: "RARE", description: "Act 3 闄愬畾锛氭瘡鍥炲悎鎵撳嚭鐨勭 3 寮犳敾鍑荤墝浼ゅ缈诲€嶃€?, img: `${ITEM_URL}/3115.png` }
 };
 
-// 扩展敌人池：加入暗影岛和虚空生物
+// 鎵╁睍鏁屼汉姹狅細鍔犲叆鏆楀奖宀涘拰铏氱┖鐢熺墿
 const ENEMY_POOL = {
   // Act 1: Rift
-  "Katarina": { id: "Katarina", name: "卡特琳娜", title: "不祥之刃", maxHp: 35, act: 1, difficultyRank: 1, img: `${LOADING_URL}/Katarina_0.jpg`, avatar: `${CDN_URL}/img/champion/Katarina.png`, actions: [{ type: 'ATTACK', value: 5, count: 2, name: "瞬步连击" }, { type: 'DEBUFF', value: 0, name: "死亡莲华", effect: "VULNERABLE", effectValue: 1 }] },
-  "Talon": { id: "Talon", name: "泰隆", title: "刀锋之�?, maxHp: 40, act: 1, difficultyRank: 1, img: `${LOADING_URL}/Talon_0.jpg`, avatar: `${CDN_URL}/img/champion/Talon.png`, actions: [{ type: 'ATTACK', value: 9, name: "诺克萨斯外交" }, { type: 'BUFF', value: 0, name: "翻墙跑路", effect: "BLOCK", effectValue: 8 }] },
-  "Lucian": { id: "Lucian", name: "卢锡�?, title: "圣枪游侠", maxHp: 55, act: 1, difficultyRank: 2, img: `${LOADING_URL}/Lucian_0.jpg`, avatar: `${CDN_URL}/img/champion/Lucian.png`, actions: [{ type: 'ATTACK', value: 6, count: 2, name: "圣光银弹" }] },
-  "Darius_BOSS": { id: "Darius_BOSS", name: "德莱厄斯", title: "诺克萨斯之手", maxHp: 120, act: 1, difficultyRank: 99, img: `${LOADING_URL}/Darius_0.jpg`, avatar: `${CDN_URL}/img/champion/Darius.png`, actions: [{ type: 'ATTACK', value: 12, name: "大杀四方" }, { type: 'DEBUFF', value: 0, name: "致残打击", effect: "WEAK", effectValue: 2 }, { type: 'ATTACK', value: 20, name: "断头台！" }] },
+  "Katarina": { id: "Katarina", name: "鍗＄壒鐞冲", title: "涓嶇ゥ涔嬪垉", maxHp: 35, act: 1, difficultyRank: 1, img: `${LOADING_URL}/Katarina_0.jpg`, avatar: `${CDN_URL}/img/champion/Katarina.png`, actions: [{ type: 'ATTACK', value: 5, count: 2, name: "鐬杩炲嚮" }, { type: 'DEBUFF', value: 0, name: "姝讳骸鑾插崕", effect: "VULNERABLE", effectValue: 1 }] },
+  "Talon": { id: "Talon", name: "娉伴殕", title: "鍒€閿嬩箣褰?, maxHp: 40, act: 1, difficultyRank: 1, img: `${LOADING_URL}/Talon_0.jpg`, avatar: `${CDN_URL}/img/champion/Talon.png`, actions: [{ type: 'ATTACK', value: 9, name: "璇哄厠钀ㄦ柉澶栦氦" }, { type: 'BUFF', value: 0, name: "缈诲璺戣矾", effect: "BLOCK", effectValue: 8 }] },
+  "Lucian": { id: "Lucian", name: "鍗㈤敗瀹?, title: "鍦ｆ灙娓镐緺", maxHp: 55, act: 1, difficultyRank: 2, img: `${LOADING_URL}/Lucian_0.jpg`, avatar: `${CDN_URL}/img/champion/Lucian.png`, actions: [{ type: 'ATTACK', value: 6, count: 2, name: "鍦ｅ厜閾跺脊" }] },
+  "Darius_BOSS": { id: "Darius_BOSS", name: "寰疯幈鍘勬柉", title: "璇哄厠钀ㄦ柉涔嬫墜", maxHp: 120, act: 1, difficultyRank: 99, img: `${LOADING_URL}/Darius_0.jpg`, avatar: `${CDN_URL}/img/champion/Darius.png`, actions: [{ type: 'ATTACK', value: 12, name: "澶ф潃鍥涙柟" }, { type: 'DEBUFF', value: 0, name: "鑷存畫鎵撳嚮", effect: "WEAK", effectValue: 2 }, { type: 'ATTACK', value: 20, name: "鏂ご鍙帮紒" }] },
 
   // Act 2: Shadow Isles
-  "Hecarim": { id: "Hecarim", name: "赫卡里姆", title: "战争之影", maxHp: 80, act: 2, difficultyRank: 1, img: `${LOADING_URL}/Hecarim_0.jpg`, avatar: `${CDN_URL}/img/champion/Hecarim.png`, actions: [{ type: 'ATTACK', value: 12, name: "暴走" }, { type: 'BUFF', value: 0, name: "恐惧之灵", effect: "STRENGTH", effectValue: 2 }] },
-  "Thresh": { id: "Thresh", name: "锤石", title: "魂锁典狱�?, maxHp: 90, act: 2, difficultyRank: 2, img: `${LOADING_URL}/Thresh_0.jpg`, avatar: `${CDN_URL}/img/champion/Thresh.png`, actions: [{ type: 'DEBUFF', value: 0, name: "死亡判决", effect: "VULNERABLE", effectValue: 2 }, { type: 'ATTACK', value: 8, name: "厄运钟摆" }] },
-  "Karthus": { id: "Karthus", name: "卡尔萨斯", title: "死亡颂唱�?, maxHp: 70, act: 2, difficultyRank: 2, img: `${LOADING_URL}/Karthus_0.jpg`, avatar: `${CDN_URL}/img/champion/Karthus.png`, actions: [{ type: 'ATTACK', value: 4, count: 3, name: "荒芜" }, { type: 'ATTACK', value: 25, name: "安魂�? }] },
-  "Viego_BOSS": { id: "Viego_BOSS", name: "佛耶戈", title: "破败之王", maxHp: 180, act: 2, difficultyRank: 99, img: `${LOADING_URL}/Viego_0.jpg`, avatar: `${CDN_URL}/img/champion/Viego.png`, actions: [{ type: 'ATTACK', value: 15, count: 2, name: "破败王剑" }, { type: 'BUFF', value: 0, name: "茫茫焦土", effect: "BLOCK", effectValue: 20 }] },
+  "Hecarim": { id: "Hecarim", name: "璧崱閲屽", title: "鎴樹簤涔嬪奖", maxHp: 80, act: 2, difficultyRank: 1, img: `${LOADING_URL}/Hecarim_0.jpg`, avatar: `${CDN_URL}/img/champion/Hecarim.png`, actions: [{ type: 'ATTACK', value: 12, name: "鏆磋蛋" }, { type: 'BUFF', value: 0, name: "鎭愭儳涔嬬伒", effect: "STRENGTH", effectValue: 2 }] },
+  "Thresh": { id: "Thresh", name: "閿ょ煶", title: "榄傞攣鍏哥嫳闀?, maxHp: 90, act: 2, difficultyRank: 2, img: `${LOADING_URL}/Thresh_0.jpg`, avatar: `${CDN_URL}/img/champion/Thresh.png`, actions: [{ type: 'DEBUFF', value: 0, name: "姝讳骸鍒ゅ喅", effect: "VULNERABLE", effectValue: 2 }, { type: 'ATTACK', value: 8, name: "鍘勮繍閽熸憜" }] },
+  "Karthus": { id: "Karthus", name: "鍗″皵钀ㄦ柉", title: "姝讳骸棰傚敱鑰?, maxHp: 70, act: 2, difficultyRank: 2, img: `${LOADING_URL}/Karthus_0.jpg`, avatar: `${CDN_URL}/img/champion/Karthus.png`, actions: [{ type: 'ATTACK', value: 4, count: 3, name: "鑽掕姕" }, { type: 'ATTACK', value: 25, name: "瀹夐瓊鏇? }] },
+  "Viego_BOSS": { id: "Viego_BOSS", name: "浣涜€舵垐", title: "鐮磋触涔嬬帇", maxHp: 180, act: 2, difficultyRank: 99, img: `${LOADING_URL}/Viego_0.jpg`, avatar: `${CDN_URL}/img/champion/Viego.png`, actions: [{ type: 'ATTACK', value: 15, count: 2, name: "鐮磋触鐜嬪墤" }, { type: 'BUFF', value: 0, name: "鑼尗鐒﹀湡", effect: "BLOCK", effectValue: 20 }] },
 
   // Act 3: The Void
-  "KhaZix": { id: "KhaZix", name: "卡兹�?, title: "虚空掠夺�?, maxHp: 100, act: 3, difficultyRank: 1, img: `${LOADING_URL}/Khazix_0.jpg`, avatar: `${CDN_URL}/img/champion/Khazix.png`, actions: [{ type: 'ATTACK', value: 25, name: "品尝恐惧" }] },
-  "VelKoz": { id: "VelKoz", name: "维克�?, title: "虚空之眼", maxHp: 110, act: 3, difficultyRank: 2, img: `${LOADING_URL}/Velkoz_0.jpg`, avatar: `${CDN_URL}/img/champion/Velkoz.png`, actions: [{ type: 'ATTACK', value: 5, count: 4, name: "生命形态瓦�? }] },
-  "BelVeth_BOSS": { id: "BelVeth_BOSS", name: "卑尔维斯", title: "虚空女皇", maxHp: 300, act: 3, difficultyRank: 99, img: `${LOADING_URL}/Belveth_0.jpg`, avatar: `${CDN_URL}/img/champion/Belveth.png`, actions: [{ type: 'ATTACK', value: 8, count: 4, name: "万载豪筵" }, { type: 'DEBUFF', value: 0, name: "虚空面容", effect: "WEAK", effectValue: 99 }] }
+  "KhaZix": { id: "KhaZix", name: "鍗″吂鍏?, title: "铏氱┖鎺犲ず鑰?, maxHp: 100, act: 3, difficultyRank: 1, img: `${LOADING_URL}/Khazix_0.jpg`, avatar: `${CDN_URL}/img/champion/Khazix.png`, actions: [{ type: 'ATTACK', value: 25, name: "鍝佸皾鎭愭儳" }] },
+  "VelKoz": { id: "VelKoz", name: "缁村厠鍏?, title: "铏氱┖涔嬬溂", maxHp: 110, act: 3, difficultyRank: 2, img: `${LOADING_URL}/Velkoz_0.jpg`, avatar: `${CDN_URL}/img/champion/Velkoz.png`, actions: [{ type: 'ATTACK', value: 5, count: 4, name: "鐢熷懡褰㈡€佺摝瑙? }] },
+  "BelVeth_BOSS": { id: "BelVeth_BOSS", name: "鍗戝皵缁存柉", title: "铏氱┖濂崇殗", maxHp: 300, act: 3, difficultyRank: 99, img: `${LOADING_URL}/Belveth_0.jpg`, avatar: `${CDN_URL}/img/champion/Belveth.png`, actions: [{ type: 'ATTACK', value: 8, count: 4, name: "涓囪浇璞" }, { type: 'DEBUFF', value: 0, name: "铏氱┖闈㈠", effect: "WEAK", effectValue: 99 }] }
 };
 
 const CARD_DATABASE = {
-  "Strike": { id: "Strike", hero: "Neutral", name: "打击", price: 0, type: "ATTACK", cost: 1, value: 6, description: "造成 6 点伤害�?, img: `${SPELL_URL}/SummonerFlash.png`, rarity: "BASIC" },
-  "Defend": { id: "Defend", hero: "Neutral", name: "防御", price: 0, type: "SKILL", cost: 1, block: 5, description: "获得 5 点护甲�?, img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "BASIC" },
-  "Ignite": { id: "Ignite", hero: "Neutral", name: "点燃", price: 80, type: "SKILL", cost: 0, value: 0, effect: "STRENGTH", effectValue: 2, exhaust: true, description: "获得 2 点力量。消耗�?, img: `${SPELL_URL}/SummonerDot.png`, rarity: "UNCOMMON" },
-  "Heal": { id: "Heal", hero: "Neutral", name: "治疗�?, price: 80, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 10, exhaust: true, description: "恢复 10 点生命。消耗�?, img: `${SPELL_URL}/SummonerHeal.png`, rarity: "UNCOMMON" },
+  "Strike": { id: "Strike", hero: "Neutral", name: "鎵撳嚮", price: 0, type: "ATTACK", cost: 1, value: 6, description: "閫犳垚 6 鐐逛激瀹炽€?, img: `${SPELL_URL}/SummonerFlash.png`, rarity: "BASIC" },
+  "Defend": { id: "Defend", hero: "Neutral", name: "闃插尽", price: 0, type: "SKILL", cost: 1, block: 5, description: "鑾峰緱 5 鐐规姢鐢层€?, img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "BASIC" },
+  "Ignite": { id: "Ignite", hero: "Neutral", name: "鐐圭噧", price: 80, type: "SKILL", cost: 0, value: 0, effect: "STRENGTH", effectValue: 2, exhaust: true, description: "鑾峰緱 2 鐐瑰姏閲忋€傛秷鑰椼€?, img: `${SPELL_URL}/SummonerDot.png`, rarity: "UNCOMMON" },
+  "Heal": { id: "Heal", hero: "Neutral", name: "娌荤枟鏈?, price: 80, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 10, exhaust: true, description: "鎭㈠ 10 鐐圭敓鍛姐€傛秷鑰椼€?, img: `${SPELL_URL}/SummonerHeal.png`, rarity: "UNCOMMON" },
   
-  "GarenQ": { id: "GarenQ", hero: "Garen", name: "致命打击", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "VULNERABLE", effectValue: 2, description: "造成 8 点伤害。给�?2 层易伤�?, img: `${SPELL_URL}/GarenQ.png`, rarity: "COMMON" },
-  "GarenW": { id: "GarenW", hero: "Garen", name: "勇气", price: 50, type: "SKILL", cost: 1, block: 12, effect: "CLEANSE", description: "获得 12 点护甲。净化�?, img: `${SPELL_URL}/GarenW.png`, rarity: "UNCOMMON" },
-  "DariusW": { id: "DariusW", hero: "Darius", name: "致残打击", price: 60, type: "ATTACK", cost: 1, value: 10, effect: "WEAK", effectValue: 1, description: "造成 10 点伤害。给�?1 层虚弱�?, img: `${SPELL_URL}/DariusNoxianTacticsONH.png`, rarity: "COMMON" },
-  "DariusE": { id: "DariusE", hero: "Darius", name: "无情铁手", price: 80, type: "SKILL", cost: 2, effect: "DRAW", effectValue: 1, description: "抓取 1 张牌。给�?3 层易伤�?, img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "UNCOMMON" },
-  "LuxQ": { id: "LuxQ", hero: "Lux", name: "光之束缚", price: 70, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 3, description: "给予 3 层易伤�?, img: `${SPELL_URL}/LuxLightBinding.png`, rarity: "COMMON" },
-  "LuxE": { id: "LuxE", hero: "Lux", name: "透光奇点", price: 120, type: "ATTACK", cost: 2, value: 15, exhaust: true, description: "造成 15 点伤害。消耗�?, img: `${SPELL_URL}/LuxLightStrikeKage.png`, rarity: "UNCOMMON" },
-  "JinxQ": { id: "JinxQ", hero: "Jinx", name: "切自动挡", price: 40, type: "ATTACK", cost: 0, value: 4, isMultiHit: true, hits: 2, description: "造成 2 �?4 点伤害�?, img: `${SPELL_URL}/JinxQ.png`, rarity: "COMMON" },
-  "JinxW": { id: "JinxW", hero: "Jinx", name: "震荡电磁�?, price: 90, type: "ATTACK", cost: 2, value: 20, effect: "WEAK", effectValue: 2, description: "造成 20 点伤害。给�?2 层虚弱�?, img: `${SPELL_URL}/JinxW.png`, rarity: "UNCOMMON" },
-  "YasuoQ": { id: "YasuoQ", hero: "Yasuo", name: "斩钢�?, price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害�?, img: `${SPELL_URL}/YasuoQ1Wrapper.png`, rarity: "COMMON" },
-  "YasuoE": { id: "YasuoE", hero: "Yasuo", name: "踏前�?, price: 70, type: "ATTACK", cost: 1, value: 8, effect: "STRENGTH", effectValue: 1, description: "造成 8 点伤害。获�?1 点力量�?, img: `${SPELL_URL}/YasuoDashWrapper.png`, rarity: "UNCOMMON" },
-  "SonaQ": { id: "SonaQ", hero: "Sona", name: "英勇赞美�?, price: 50, type: "ATTACK", cost: 1, value: 7, effect: "HEAL", effectValue: 3, description: "造成 7 点伤害，回复 3 点生命�?, img: `${SPELL_URL}/SonaHymnofValor.png`, rarity: "COMMON" },
-  "SonaW": { id: "SonaW", hero: "Sona", name: "坚毅咏叹�?, price: 80, type: "SKILL", cost: 1, block: 8, effect: "HEAL", effectValue: 5, description: "获得 8 点护甲，回复 5 点生命�?, img: `${SPELL_URL}/SonaAriaofPerseverance.png`, rarity: "UNCOMMON" },
-  "EkkoQ": { id: "EkkoQ", hero: "Ekko", name: "时间卷曲�?, price: 50, type: "ATTACK", cost: 1, value: 12, exhaust: true, description: "造成 12 点伤害。消耗�?, img: `${SPELL_URL}/EkkoQ.png`, rarity: "COMMON" },
-  "EkkoE": { id: "EkkoE", hero: "Ekko", name: "相位俯冲", price: 90, type: "SKILL", cost: 0, block: 5, exhaust: true, description: "获得 5 点护甲�?, img: `${SPELL_URL}/EkkoE.png`, rarity: "UNCOMMON" },
-  "SylasQ": { id: "SylasQ", hero: "Sylas", name: "锁链鞭击", price: 50, type: "ATTACK", cost: 1, value: 7, isMultiHit: true, hits: 2, description: "造成 2 �?7 点伤害�?, img: `${SPELL_URL}/SylasQ.png`, rarity: "COMMON" },
-  "SylasW": { id: "SylasW", hero: "Sylas", name: "弑君突刺", price: 90, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 15, description: "回复 15 点生命�?, img: `${SPELL_URL}/SylasW.png`, rarity: "UNCOMMON" },
-  "UrgotQ": { id: "UrgotQ", hero: "Urgot", name: "腐蚀电荷", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "WEAK", effectValue: 1, description: "造成 8 点伤害，给予 1 层虚弱�?, img: `${SPELL_URL}/UrgotQ.png`, rarity: "COMMON" },
-  "UrgotW": { id: "UrgotW", hero: "Urgot", name: "净�?, price: 90, type: "SKILL", cost: 1, block: 8, effect: "VULNERABLE", effectValue: 1, description: "获得 8 点护甲，给予 1 层易伤�?, img: `${SPELL_URL}/UrgotW.png`, rarity: "UNCOMMON" },
-  "ViktorQ": { id: "ViktorQ", hero: "Viktor", name: "能量转移", price: 40, type: "ATTACK", cost: 0, value: 3, block: 3, description: "造成 3 点伤害，获得 3 点护甲�?, img: `${SPELL_URL}/ViktorPowerTransfer.png`, rarity: "COMMON" },
-  "ViktorE": { id: "ViktorE", hero: "Viktor", name: "死亡射线", price: 100, type: "ATTACK", cost: 2, value: 18, description: "造成 18 点伤害�?, img: `${SPELL_URL}/ViktorDeathRay.png`, rarity: "UNCOMMON" },
+  "GarenQ": { id: "GarenQ", hero: "Garen", name: "鑷村懡鎵撳嚮", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "VULNERABLE", effectValue: 2, description: "閫犳垚 8 鐐逛激瀹炽€傜粰浜?2 灞傛槗浼ゃ€?, img: `${SPELL_URL}/GarenQ.png`, rarity: "COMMON" },
+  "GarenW": { id: "GarenW", hero: "Garen", name: "鍕囨皵", price: 50, type: "SKILL", cost: 1, block: 12, effect: "CLEANSE", description: "鑾峰緱 12 鐐规姢鐢层€傚噣鍖栥€?, img: `${SPELL_URL}/GarenW.png`, rarity: "UNCOMMON" },
+  "DariusW": { id: "DariusW", hero: "Darius", name: "鑷存畫鎵撳嚮", price: 60, type: "ATTACK", cost: 1, value: 10, effect: "WEAK", effectValue: 1, description: "閫犳垚 10 鐐逛激瀹炽€傜粰浜?1 灞傝櫄寮便€?, img: `${SPELL_URL}/DariusNoxianTacticsONH.png`, rarity: "COMMON" },
+  "DariusE": { id: "DariusE", hero: "Darius", name: "鏃犳儏閾佹墜", price: 80, type: "SKILL", cost: 2, effect: "DRAW", effectValue: 1, description: "鎶撳彇 1 寮犵墝銆傜粰浜?3 灞傛槗浼ゃ€?, img: `${SPELL_URL}/SummonerBarrier.png`, rarity: "UNCOMMON" },
+  "LuxQ": { id: "LuxQ", hero: "Lux", name: "鍏変箣鏉熺細", price: 70, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 3, description: "缁欎簣 3 灞傛槗浼ゃ€?, img: `${SPELL_URL}/LuxLightBinding.png`, rarity: "COMMON" },
+  "LuxE": { id: "LuxE", hero: "Lux", name: "閫忓厜濂囩偣", price: 120, type: "ATTACK", cost: 2, value: 15, exhaust: true, description: "閫犳垚 15 鐐逛激瀹炽€傛秷鑰椼€?, img: `${SPELL_URL}/LuxLightStrikeKage.png`, rarity: "UNCOMMON" },
+  "JinxQ": { id: "JinxQ", hero: "Jinx", name: "鍒囪嚜鍔ㄦ尅", price: 40, type: "ATTACK", cost: 0, value: 4, isMultiHit: true, hits: 2, description: "閫犳垚 2 娆?4 鐐逛激瀹炽€?, img: `${SPELL_URL}/JinxQ.png`, rarity: "COMMON" },
+  "JinxW": { id: "JinxW", hero: "Jinx", name: "闇囪崱鐢电娉?, price: 90, type: "ATTACK", cost: 2, value: 20, effect: "WEAK", effectValue: 2, description: "閫犳垚 20 鐐逛激瀹炽€傜粰浜?2 灞傝櫄寮便€?, img: `${SPELL_URL}/JinxW.png`, rarity: "UNCOMMON" },
+  "YasuoQ": { id: "YasuoQ", hero: "Yasuo", name: "鏂╅挗闂?, price: 40, type: "ATTACK", cost: 0, value: 4, description: "閫犳垚 4 鐐逛激瀹炽€?, img: `${SPELL_URL}/YasuoQ1Wrapper.png`, rarity: "COMMON" },
+  "YasuoE": { id: "YasuoE", hero: "Yasuo", name: "韪忓墠鏂?, price: 70, type: "ATTACK", cost: 1, value: 8, effect: "STRENGTH", effectValue: 1, description: "閫犳垚 8 鐐逛激瀹炽€傝幏寰?1 鐐瑰姏閲忋€?, img: `${SPELL_URL}/YasuoDashWrapper.png`, rarity: "UNCOMMON" },
+  "SonaQ": { id: "SonaQ", hero: "Sona", name: "鑻卞媷璧炵編璇?, price: 50, type: "ATTACK", cost: 1, value: 7, effect: "HEAL", effectValue: 3, description: "閫犳垚 7 鐐逛激瀹筹紝鍥炲 3 鐐圭敓鍛姐€?, img: `${SPELL_URL}/SonaHymnofValor.png`, rarity: "COMMON" },
+  "SonaW": { id: "SonaW", hero: "Sona", name: "鍧氭瘏鍜忓徆璋?, price: 80, type: "SKILL", cost: 1, block: 8, effect: "HEAL", effectValue: 5, description: "鑾峰緱 8 鐐规姢鐢诧紝鍥炲 5 鐐圭敓鍛姐€?, img: `${SPELL_URL}/SonaAriaofPerseverance.png`, rarity: "UNCOMMON" },
+  "EkkoQ": { id: "EkkoQ", hero: "Ekko", name: "鏃堕棿鍗锋洸鍣?, price: 50, type: "ATTACK", cost: 1, value: 12, exhaust: true, description: "閫犳垚 12 鐐逛激瀹炽€傛秷鑰椼€?, img: `${SPELL_URL}/EkkoQ.png`, rarity: "COMMON" },
+  "EkkoE": { id: "EkkoE", hero: "Ekko", name: "鐩镐綅淇啿", price: 90, type: "SKILL", cost: 0, block: 5, exhaust: true, description: "鑾峰緱 5 鐐规姢鐢层€?, img: `${SPELL_URL}/EkkoE.png`, rarity: "UNCOMMON" },
+  "SylasQ": { id: "SylasQ", hero: "Sylas", name: "閿侀摼闉嚮", price: 50, type: "ATTACK", cost: 1, value: 7, isMultiHit: true, hits: 2, description: "閫犳垚 2 娆?7 鐐逛激瀹炽€?, img: `${SPELL_URL}/SylasQ.png`, rarity: "COMMON" },
+  "SylasW": { id: "SylasW", hero: "Sylas", name: "寮戝悰绐佸埡", price: 90, type: "SKILL", cost: 1, effect: "HEAL", effectValue: 15, description: "鍥炲 15 鐐圭敓鍛姐€?, img: `${SPELL_URL}/SylasW.png`, rarity: "UNCOMMON" },
+  "UrgotQ": { id: "UrgotQ", hero: "Urgot", name: "鑵愯殌鐢佃嵎", price: 50, type: "ATTACK", cost: 1, value: 8, effect: "WEAK", effectValue: 1, description: "閫犳垚 8 鐐逛激瀹筹紝缁欎簣 1 灞傝櫄寮便€?, img: `${SPELL_URL}/UrgotQ.png`, rarity: "COMMON" },
+  "UrgotW": { id: "UrgotW", hero: "Urgot", name: "鍑€闄?, price: 90, type: "SKILL", cost: 1, block: 8, effect: "VULNERABLE", effectValue: 1, description: "鑾峰緱 8 鐐规姢鐢诧紝缁欎簣 1 灞傛槗浼ゃ€?, img: `${SPELL_URL}/UrgotW.png`, rarity: "UNCOMMON" },
+  "ViktorQ": { id: "ViktorQ", hero: "Viktor", name: "鑳介噺杞Щ", price: 40, type: "ATTACK", cost: 0, value: 3, block: 3, description: "閫犳垚 3 鐐逛激瀹筹紝鑾峰緱 3 鐐规姢鐢层€?, img: `${SPELL_URL}/ViktorPowerTransfer.png`, rarity: "COMMON" },
+  "ViktorE": { id: "ViktorE", hero: "Viktor", name: "姝讳骸灏勭嚎", price: 100, type: "ATTACK", cost: 2, value: 18, description: "閫犳垚 18 鐐逛激瀹炽€?, img: `${SPELL_URL}/ViktorDeathRay.png`, rarity: "UNCOMMON" },
 
-  // 新储备英雄技�?(Placeholder icons until updated)
-  "RivenQ": { id: "RivenQ", hero: "Riven", name: "折翼之舞", price: 50, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害�?, img: `${SPELL_URL}/RivenTriCleave.png`, rarity: "COMMON" },
-  "RivenE": { id: "RivenE", hero: "Riven", name: "勇往直前", price: 80, type: "SKILL", cost: 1, block: 5, effect: "DRAW", effectValue: 1, description: "获得 5 点护甲。抓�?1 张牌�?, img: `${SPELL_URL}/RivenFeint.png`, rarity: "UNCOMMON" },
-  "TwistedFateW": { id: "TwistedFateW", hero: "TwistedFate", name: "选牌", price: 60, type: "SKILL", cost: 1, description: "获得随机一张红/�?蓝牌 (简�? �?�?", effect: "DRAW", effectValue: 2, img: `${SPELL_URL}/PickACard.png`, rarity: "COMMON" },
-  "TwistedFateQ": { id: "TwistedFateQ", hero: "TwistedFate", name: "万能�?, price: 90, type: "ATTACK", cost: 2, value: 8, description: "造成 8 点伤�?(群攻简化为单体)�?, img: `${SPELL_URL}/WildCards.png`, rarity: "COMMON" },
-  "LeeSinQ": { id: "LeeSinQ", hero: "LeeSin", name: "天音�?, price: 50, type: "ATTACK", cost: 1, value: 6, effect: "VULNERABLE", effectValue: 1, description: "造成 6 点伤害。给�?1 层易伤�?, img: `${SPELL_URL}/BlindMonkQOne.png`, rarity: "COMMON" },
-  "LeeSinW": { id: "LeeSinW", hero: "LeeSin", name: "金钟�?, price: 80, type: "SKILL", cost: 1, block: 8, description: "获得 8 点护甲�?, img: `${SPELL_URL}/BlindMonkWOne.png`, rarity: "UNCOMMON" },
-  "VayneQ": { id: "VayneQ", hero: "Vayne", name: "闪避突袭", price: 40, type: "ATTACK", cost: 0, value: 4, description: "造成 4 点伤害�?, img: `${SPELL_URL}/VayneTumble.png`, rarity: "COMMON" },
-  "VayneE": { id: "VayneE", hero: "Vayne", name: "恶魔审判", price: 90, type: "ATTACK", cost: 2, value: 12, effect: "WEAK", effectValue: 2, description: "造成 12 点伤害。给�?2 层虚弱�?, img: `${SPELL_URL}/VayneCondemn.png`, rarity: "UNCOMMON" },
-  "TeemoQ": { id: "TeemoQ", hero: "Teemo", name: "致盲吹箭", price: 50, type: "ATTACK", cost: 1, value: 5, effect: "WEAK", effectValue: 2, description: "造成 5 点伤害。给�?2 层虚弱�?, img: `${SPELL_URL}/BlindingDart.png`, rarity: "COMMON" },
-  "TeemoR": { id: "TeemoR", hero: "Teemo", name: "种蘑�?, price: 80, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 4, exhaust: true, description: "给予 4 层易伤。消耗�?, img: `${SPELL_URL}/TeemoRCast.png`, rarity: "UNCOMMON" },
-  "ZedQ": { id: "ZedQ", hero: "Zed", name: "影奥义！诸刃", price: 50, type: "ATTACK", cost: 1, value: 8, description: "造成 8 点伤害�?, img: `${SPELL_URL}/ZedQ.png`, rarity: "COMMON" },
-  "ZedE": { id: "ZedE", hero: "Zed", name: "影奥义！鬼斩", price: 80, type: "ATTACK", cost: 1, value: 4, effect: "DRAW", effectValue: 1, description: "造成 4 点伤害。抓�?1 张牌�?, img: `${SPELL_URL}/ZedE.png`, rarity: "UNCOMMON" },
-  "NasusQ": { id: "NasusQ", hero: "Nasus", name: "汲魂痛击", price: 50, type: "ATTACK", cost: 1, value: 6, description: "造成 6 点伤害�?, img: `${SPELL_URL}/NasusQ.png`, rarity: "COMMON" },
-  "NasusW": { id: "NasusW", hero: "Nasus", name: "枯萎", price: 80, type: "SKILL", cost: 1, effect: "WEAK", effectValue: 3, description: "给予 3 层虚弱�?, img: `${SPELL_URL}/NasusW.png`, rarity: "UNCOMMON" },
-  "IreliaQ": { id: "IreliaQ", hero: "Irelia", name: "利刃冲击", price: 50, type: "ATTACK", cost: 1, value: 8, description: "造成 8 点伤害�?, img: `${SPELL_URL}/IreliaQ.png`, rarity: "COMMON" },
-  "IreliaE": { id: "IreliaE", hero: "Irelia", name: "比翼双刃", price: 80, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 2, description: "给予 2 层易伤�?, img: `${SPELL_URL}/IreliaE.png`, rarity: "UNCOMMON" },
-  "ThreshQ": { id: "ThreshQ", hero: "Thresh_Hero", name: "死亡判决", price: 80, type: "ATTACK", cost: 2, value: 10, effect: "VULNERABLE", effectValue: 1, description: "造成 10 点伤害。给�?1 层易伤�?, img: `${SPELL_URL}/ThreshQ.png`, rarity: "COMMON" },
-  "ThreshW": { id: "ThreshW", hero: "Thresh_Hero", name: "魂引之灯", price: 70, type: "SKILL", cost: 1, block: 10, effect: "DRAW", effectValue: 1, description: "获得 10 点护甲。抓�?1 张牌�?, img: `${SPELL_URL}/ThreshW.png`, rarity: "UNCOMMON" },
-  "KatarinaQ": { id: "KatarinaQ", hero: "Katarina_Hero", name: "弹射之刃", price: 50, type: "ATTACK", cost: 1, value: 4, isMultiHit: true, hits: 3, description: "造成 3 �?4 点伤害�?, img: `${SPELL_URL}/KatarinaQ.png`, rarity: "COMMON" },
-  "KatarinaE": { id: "KatarinaE", hero: "Katarina_Hero", name: "瞬步", price: 40, type: "ATTACK", cost: 0, value: 3, effect: "DRAW", effectValue: 1, description: "造成 3 点伤害。抓�?1 张牌�?, img: `${SPELL_URL}/KatarinaE.png`, rarity: "UNCOMMON" },
+  // 鏂板偍澶囪嫳闆勬妧鑳?(Placeholder icons until updated)
+  "RivenQ": { id: "RivenQ", hero: "Riven", name: "鎶樼考涔嬭垶", price: 50, type: "ATTACK", cost: 0, value: 4, description: "閫犳垚 4 鐐逛激瀹炽€?, img: `${SPELL_URL}/RivenTriCleave.png`, rarity: "COMMON" },
+  "RivenE": { id: "RivenE", hero: "Riven", name: "鍕囧線鐩村墠", price: 80, type: "SKILL", cost: 1, block: 5, effect: "DRAW", effectValue: 1, description: "鑾峰緱 5 鐐规姢鐢层€傛姄鍙?1 寮犵墝銆?, img: `${SPELL_URL}/RivenFeint.png`, rarity: "UNCOMMON" },
+  "TwistedFateW": { id: "TwistedFateW", hero: "TwistedFate", name: "閫夌墝", price: 60, type: "SKILL", cost: 1, description: "鑾峰緱闅忔満涓€寮犵孩/榛?钃濈墝 (绠€鍖? 鎶?寮?", effect: "DRAW", effectValue: 2, img: `${SPELL_URL}/PickACard.png`, rarity: "COMMON" },
+  "TwistedFateQ": { id: "TwistedFateQ", hero: "TwistedFate", name: "涓囪兘鐗?, price: 90, type: "ATTACK", cost: 2, value: 8, description: "閫犳垚 8 鐐逛激瀹?(缇ゆ敾绠€鍖栦负鍗曚綋)銆?, img: `${SPELL_URL}/WildCards.png`, rarity: "COMMON" },
+  "LeeSinQ": { id: "LeeSinQ", hero: "LeeSin", name: "澶╅煶娉?, price: 50, type: "ATTACK", cost: 1, value: 6, effect: "VULNERABLE", effectValue: 1, description: "閫犳垚 6 鐐逛激瀹炽€傜粰浜?1 灞傛槗浼ゃ€?, img: `${SPELL_URL}/BlindMonkQOne.png`, rarity: "COMMON" },
+  "LeeSinW": { id: "LeeSinW", hero: "LeeSin", name: "閲戦挓缃?, price: 80, type: "SKILL", cost: 1, block: 8, description: "鑾峰緱 8 鐐规姢鐢层€?, img: `${SPELL_URL}/BlindMonkWOne.png`, rarity: "UNCOMMON" },
+  "VayneQ": { id: "VayneQ", hero: "Vayne", name: "闂伩绐佽", price: 40, type: "ATTACK", cost: 0, value: 4, description: "閫犳垚 4 鐐逛激瀹炽€?, img: `${SPELL_URL}/VayneTumble.png`, rarity: "COMMON" },
+  "VayneE": { id: "VayneE", hero: "Vayne", name: "鎭堕瓟瀹″垽", price: 90, type: "ATTACK", cost: 2, value: 12, effect: "WEAK", effectValue: 2, description: "閫犳垚 12 鐐逛激瀹炽€傜粰浜?2 灞傝櫄寮便€?, img: `${SPELL_URL}/VayneCondemn.png`, rarity: "UNCOMMON" },
+  "TeemoQ": { id: "TeemoQ", hero: "Teemo", name: "鑷寸洸鍚圭", price: 50, type: "ATTACK", cost: 1, value: 5, effect: "WEAK", effectValue: 2, description: "閫犳垚 5 鐐逛激瀹炽€傜粰浜?2 灞傝櫄寮便€?, img: `${SPELL_URL}/BlindingDart.png`, rarity: "COMMON" },
+  "TeemoR": { id: "TeemoR", hero: "Teemo", name: "绉嶈槕鑿?, price: 80, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 4, exhaust: true, description: "缁欎簣 4 灞傛槗浼ゃ€傛秷鑰椼€?, img: `${SPELL_URL}/TeemoRCast.png`, rarity: "UNCOMMON" },
+  "ZedQ": { id: "ZedQ", hero: "Zed", name: "褰卞ゥ涔夛紒璇稿垉", price: 50, type: "ATTACK", cost: 1, value: 8, description: "閫犳垚 8 鐐逛激瀹炽€?, img: `${SPELL_URL}/ZedQ.png`, rarity: "COMMON" },
+  "ZedE": { id: "ZedE", hero: "Zed", name: "褰卞ゥ涔夛紒楝兼柀", price: 80, type: "ATTACK", cost: 1, value: 4, effect: "DRAW", effectValue: 1, description: "閫犳垚 4 鐐逛激瀹炽€傛姄鍙?1 寮犵墝銆?, img: `${SPELL_URL}/ZedE.png`, rarity: "UNCOMMON" },
+  "NasusQ": { id: "NasusQ", hero: "Nasus", name: "姹查瓊鐥涘嚮", price: 50, type: "ATTACK", cost: 1, value: 6, description: "閫犳垚 6 鐐逛激瀹炽€?, img: `${SPELL_URL}/NasusQ.png`, rarity: "COMMON" },
+  "NasusW": { id: "NasusW", hero: "Nasus", name: "鏋悗", price: 80, type: "SKILL", cost: 1, effect: "WEAK", effectValue: 3, description: "缁欎簣 3 灞傝櫄寮便€?, img: `${SPELL_URL}/NasusW.png`, rarity: "UNCOMMON" },
+  "IreliaQ": { id: "IreliaQ", hero: "Irelia", name: "鍒╁垉鍐插嚮", price: 50, type: "ATTACK", cost: 1, value: 8, description: "閫犳垚 8 鐐逛激瀹炽€?, img: `${SPELL_URL}/IreliaQ.png`, rarity: "COMMON" },
+  "IreliaE": { id: "IreliaE", hero: "Irelia", name: "姣旂考鍙屽垉", price: 80, type: "SKILL", cost: 1, effect: "VULNERABLE", effectValue: 2, description: "缁欎簣 2 灞傛槗浼ゃ€?, img: `${SPELL_URL}/IreliaE.png`, rarity: "UNCOMMON" },
+  "ThreshQ": { id: "ThreshQ", hero: "Thresh_Hero", name: "姝讳骸鍒ゅ喅", price: 80, type: "ATTACK", cost: 2, value: 10, effect: "VULNERABLE", effectValue: 1, description: "閫犳垚 10 鐐逛激瀹炽€傜粰浜?1 灞傛槗浼ゃ€?, img: `${SPELL_URL}/ThreshQ.png`, rarity: "COMMON" },
+  "ThreshW": { id: "ThreshW", hero: "Thresh_Hero", name: "榄傚紩涔嬬伅", price: 70, type: "SKILL", cost: 1, block: 10, effect: "DRAW", effectValue: 1, description: "鑾峰緱 10 鐐规姢鐢层€傛姄鍙?1 寮犵墝銆?, img: `${SPELL_URL}/ThreshW.png`, rarity: "UNCOMMON" },
+  "KatarinaQ": { id: "KatarinaQ", hero: "Katarina_Hero", name: "寮瑰皠涔嬪垉", price: 50, type: "ATTACK", cost: 1, value: 4, isMultiHit: true, hits: 3, description: "閫犳垚 3 娆?4 鐐逛激瀹炽€?, img: `${SPELL_URL}/KatarinaQ.png`, rarity: "COMMON" },
+  "KatarinaE": { id: "KatarinaE", hero: "Katarina_Hero", name: "鐬", price: 40, type: "ATTACK", cost: 0, value: 3, effect: "DRAW", effectValue: 1, description: "閫犳垚 3 鐐逛激瀹炽€傛姄鍙?1 寮犵墝銆?, img: `${SPELL_URL}/KatarinaE.png`, rarity: "UNCOMMON" },
 };
 
 // --- Utils ---
@@ -216,7 +216,7 @@ const scaleEnemyStats = (baseStats, floorIndex, act) => {
     const isAttack = scaledAction.type === 'ATTACK' || scaledAction.actionType === 'Attack';
     if (isAttack) {
       const baseDmg = scaledAction.type === 'ATTACK' ? scaledAction.value : scaledAction.dmgValue;
-      // 降低攻击�?0%：原�?floorIndex * 2，现在改�?floorIndex * 1，并且整体降�?0%
+      // 闄嶄綆鏀诲嚮鍔?0%锛氬師鏉?floorIndex * 2锛岀幇鍦ㄦ敼涓?floorIndex * 1锛屽苟涓旀暣浣撻檷浣?0%
       const scaledDmg = Math.floor((baseDmg + floorIndex * 1 + (act - 1) * 3) * 0.5);
       if (scaledAction.type === 'ATTACK') scaledAction.value = scaledDmg;
       if (scaledAction.actionType === 'Attack') scaledAction.dmgValue = scaledDmg;
@@ -246,7 +246,7 @@ const generateMap = (usedEnemyIds, act) => {
 
   map.push([{ ...createNode('1-0', 'BATTLE'), status: 'AVAILABLE', next: ['2-0', '2-1'] }]);
   for (let i = 2; i <= 8; i++) {
-    // Rest只在�?层（Boss前）出现，且只有10%概率
+    // Rest鍙湪绗?灞傦紙Boss鍓嶏級鍑虹幇锛屼笖鍙湁10%姒傜巼
     const restOptions = i === 8 ? (Math.random() < 0.1 ? ['REST'] : []) : [];
     const nodeType1Pool = i === 8 
       ? [...restOptions, 'BATTLE', 'SHOP', 'EVENT', 'CHEST'].filter(Boolean)
@@ -268,7 +268,7 @@ const generateMap = (usedEnemyIds, act) => {
     }
     map.push(nodes);
   }
-  // �?层固定为REST（Boss前）
+  // 绗?灞傚浐瀹氫负REST锛圔oss鍓嶏級
   map.push([{ ...createNode('9-0', 'REST'), next: ['10-0'] }]);
   
   let bossId = "Darius_BOSS";
@@ -290,7 +290,7 @@ const RelicTooltip = ({ relic, children }) => {
             <div className="absolute top-full left-0 mt-2 w-56 bg-black/95 border border-[#C8AA6E] p-3 z-[110] hidden group-hover:block text-left pointer-events-none rounded-lg shadow-xl">
                 <div className="font-bold text-[#F0E6D2] mb-1">{relic.name}</div>
                 <div className="text-xs text-[#A09B8C] leading-relaxed whitespace-normal">{relic.description}</div>
-                {relic.charges !== undefined && <div className="text-xs text-red-400 mt-1">剩余次数: {relic.charges}</div>}
+                {relic.charges !== undefined && <div className="text-xs text-red-400 mt-1">鍓╀綑娆℃暟: {relic.charges}</div>}
             </div>
         </div>
     );
@@ -303,7 +303,7 @@ const AudioPlayer = ({ src }) => {
     useEffect(() => {
         if(audioRef.current && src) { 
             audioRef.current.volume = volume;
-            audioRef.current.load(); // 重新加载音频
+            audioRef.current.load(); // 閲嶆柊鍔犺浇闊抽
             const p = audioRef.current.play(); 
             if(p !== undefined) {
                 p.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false)); 
@@ -395,7 +395,7 @@ const MapView = ({ mapData, onNodeSelect, act }) => {
     <div className="flex flex-col items-center h-full w-full relative overflow-hidden bg-[#0c0c12]">
       <div className="absolute inset-0 z-0"><div className="absolute inset-0 bg-black/60 z-10" /><div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50" style={{ backgroundImage: `url('${ACT_BACKGROUNDS[act] || ACT_BACKGROUNDS[1]}')` }}></div></div>
       <div className="relative z-20 w-full h-full flex flex-col-reverse items-center overflow-y-auto py-20 gap-16 hide-scrollbar">
-        <div className="text-[#C8AA6E] font-serif text-2xl mb-8">�?{act} �?/div>
+        <div className="text-[#C8AA6E] font-serif text-2xl mb-8">绗?{act} 绔?/div>
         {mapData.map((floor, floorIndex) => (
           <div key={floorIndex} className="flex justify-center gap-24 relative group">
             {floor.map((node, nodeIndex) => {
@@ -419,7 +419,7 @@ const MapView = ({ mapData, onNodeSelect, act }) => {
                     )}
                     <button onClick={() => isAvailable && onNodeSelect(node)} disabled={!isAvailable} className={`w-24 h-24 rounded-full border-2 flex items-center justify-center transition-all duration-300 relative overflow-hidden bg-black ${isAvailable ? `border-[#C8AA6E] scale-110 shadow-[0_0_30px_#C8AA6E] cursor-pointer hover:scale-125 ring-2 ring-[#C8AA6E]/50` : 'border-slate-600'} ${isCompleted ? 'opacity-40 grayscale border-slate-500' : ''} ${isLocked ? 'opacity-20 blur-[1px]' : ''}`}>
                       {iconUrl && <img src={iconUrl} className="w-full h-full object-cover" alt={node.type} />}
-                      {isCompleted && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-[#C8AA6E] text-4xl font-bold">�?/span></div>}
+                      {isCompleted && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-[#C8AA6E] text-4xl font-bold">鉁?/span></div>}
                     </button>
                     <div className={`absolute -bottom-8 px-3 py-1 rounded-full border bg-black/90 backdrop-blur-md whitespace-nowrap font-bold text-xs tracking-widest uppercase transition-all ${getTypeStyle(node.type)} ${isAvailable ? 'scale-110 shadow-lg z-30' : 'opacity-70 scale-90'}`}>{labelText}</div>
                  </div>
@@ -444,13 +444,13 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, champion
                 <div className="flex justify-between items-center mb-8 border-b border-[#C8AA6E] pb-4">
                     <div className="flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full border-2 border-[#C8AA6E] overflow-hidden bg-black"><img src={`${ITEM_URL}/3400.png`} className="w-full h-full object-cover" /></div>
-                        <div><h2 className="text-3xl font-bold text-[#C8AA6E]">黑市商人</h2><p className="text-[#A09B8C] italic">"只要给钱，什么都卖�?</p></div>
+                        <div><h2 className="text-3xl font-bold text-[#C8AA6E]">榛戝競鍟嗕汉</h2><p className="text-[#A09B8C] italic">"鍙缁欓挶锛屼粈涔堥兘鍗栥€?</p></div>
                         </div>
                     <div className="flex items-center gap-2 text-4xl font-bold text-yellow-400 bg-black/50 px-6 py-2 rounded-lg border border-yellow-600"><Coins size={32} /> {gold}</div>
                         </div>
                 <div className="grid grid-cols-2 gap-12 flex-1 overflow-y-auto">
                     <div>
-                        <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-blue-500 pl-3">技能卷�?/h3>
+                        <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-blue-500 pl-3">鎶€鑳藉嵎杞?/h3>
                         <div className="flex flex-wrap gap-4">
                             {cardStock.map(card => {
                                 const isBought = purchasedItems.includes(card.id);
@@ -465,7 +465,7 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, champion
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-purple-500 pl-3">海克斯装�?/h3>
+                        <h3 className="text-xl text-[#F0E6D2] mb-4 uppercase tracking-widest border-l-4 border-purple-500 pl-3">娴峰厠鏂澶?/h3>
                         <div className="flex flex-wrap gap-6">
                             {relicStock.map(relic => {
                                 const isBought = purchasedItems.includes(relic.id);
@@ -480,21 +480,21 @@ const ShopView = ({ onLeave, onBuyCard, onBuyRelic, gold, deck, relics, champion
                         </div>
                     </div>
                 </div>
-                <div className="mt-auto flex justify-end pt-6 border-t border-[#C8AA6E]/30"><button onClick={onLeave} className="px-8 py-3 bg-[#C8AA6E] hover:bg-[#F0E6D2] text-black font-bold uppercase tracking-widest rounded transition-colors flex items-center gap-2">离开 <ChevronRight /></button></div>
+                <div className="mt-auto flex justify-end pt-6 border-t border-[#C8AA6E]/30"><button onClick={onLeave} className="px-8 py-3 bg-[#C8AA6E] hover:bg-[#F0E6D2] text-black font-bold uppercase tracking-widest rounded transition-colors flex items-center gap-2">绂诲紑 <ChevronRight /></button></div>
             </div>
         </div>
     )
 }
 
 const ChestView = ({ onLeave, onRelicReward, relics, act }) => {
-    // 根据当前章节过滤遗物：ACT1只能获得通用遗物，ACT2可以获得ACT1+ACT2，ACT3可以获得所�?
+    // 鏍规嵁褰撳墠绔犺妭杩囨护閬楃墿锛欰CT1鍙兘鑾峰緱閫氱敤閬楃墿锛孉CT2鍙互鑾峰緱ACT1+ACT2锛孉CT3鍙互鑾峰緱鎵€鏈?
     const availableRelics = Object.values(RELIC_DATABASE).filter(r => {
         if (r.rarity === 'PASSIVE' || r.rarity === 'BASIC' || relics.includes(r.id)) return false;
-        // 章节专属遗物检�?
-        if (r.id === 'Cull' || r.id === 'DarkSeal') return act === 1; // ACT1专属
-        if (r.id === 'QSS' || r.id === 'Executioner') return act >= 2; // ACT2专属
-        if (r.id === 'Nashor') return act >= 3; // ACT3专属
-        return true; // 通用遗物所有章节都可以获得
+        // 绔犺妭涓撳睘閬楃墿妫€鏌?
+        if (r.id === 'Cull' || r.id === 'DarkSeal') return act === 1; // ACT1涓撳睘
+        if (r.id === 'QSS' || r.id === 'Executioner') return act >= 2; // ACT2涓撳睘
+        if (r.id === 'Nashor') return act >= 3; // ACT3涓撳睘
+        return true; // 閫氱敤閬楃墿鎵€鏈夌珷鑺傞兘鍙互鑾峰緱
     });
     const rewards = useMemo(() => shuffle(availableRelics).slice(0, 3), [relics, act]);
     const [rewardChosen, setRewardChosen] = useState(false);
@@ -503,19 +503,19 @@ const ChestView = ({ onLeave, onRelicReward, relics, act }) => {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90">
             <div className="relative z-10 max-w-4xl bg-[#091428]/90 border-2 border-[#C8AA6E] p-10 text-center rounded-xl shadow-[0_0_50px_#C8AA6E]">
                 <div className="w-24 h-24 mx-auto mb-6 rounded-full border-4 border-[#C8AA6E] overflow-hidden bg-black flex items-center justify-center"><img src={`${ITEM_URL}/3400.png`} className="w-full h-full object-cover" /></div>
-                <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">海克斯宝�?/h2>
-                <p className="text-[#F0E6D2] text-lg mb-8">打开宝箱，选择一件强大的装备来武装自己�?/p>
+                <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">娴峰厠鏂疂绠?/h2>
+                <p className="text-[#F0E6D2] text-lg mb-8">鎵撳紑瀹濈锛岄€夋嫨涓€浠跺己澶х殑瑁呭鏉ユ瑁呰嚜宸便€?/p>
                 <div className="flex justify-center gap-8">
                     {rewards.map((relic) => (
                         <div key={relic.id} onClick={() => handleChoose(relic)} className={`w-36 relative group transition-all p-4 rounded-lg border-2 ${rewardChosen ? 'opacity-40 pointer-events-none' : 'hover:scale-110 cursor-pointer border-[#C8AA6E] shadow-xl hover:shadow-[0_0_20px_#C8AA6E]'}`}>
                             <img src={relic.img} className="w-full h-auto object-cover rounded-lg" />
                             <div className="font-bold text-[#F0E6D2] mt-3">{relic.name}</div>
                             <div className="text-xs text-[#A09B8C] mt-1">{relic.description}</div>
-                            {rewardChosen && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-3xl font-bold text-green-400">已�?/div>}
+                            {rewardChosen && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-3xl font-bold text-green-400">宸查€?/div>}
                         </div>
                     ))}
                 </div>
-                <button onClick={onLeave} className="mt-8 px-8 py-3 border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest" disabled={!rewardChosen}>关闭宝箱</button>
+                <button onClick={onLeave} className="mt-8 px-8 py-3 border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest" disabled={!rewardChosen}>鍏抽棴瀹濈</button>
             </div>
         </div>
     );
@@ -526,11 +526,11 @@ const EventView = ({ onLeave, onReward }) => (
         <div className="absolute inset-0 bg-[url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ryze_0.jpg')] bg-cover bg-center opacity-40"></div>
         <div className="relative z-10 max-w-2xl bg-[#091428]/90 border-2 border-[#C8AA6E] p-10 text-center rounded-xl shadow-[0_0_50px_#0AC8B9]">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full border-4 border-[#C8AA6E] overflow-hidden"><img src={`${ITEM_URL}/3340.png`} className="w-full h-full object-cover" /></div>
-            <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">神秘信号</h2>
-            <p className="text-[#F0E6D2] text-lg mb-8 leading-relaxed">你在草丛中发现了一个遗落的守卫眼，旁边似乎还散落着一些物�?..</p>
+            <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">绁炵淇″彿</h2>
+            <p className="text-[#F0E6D2] text-lg mb-8 leading-relaxed">浣犲湪鑽変笡涓彂鐜颁簡涓€涓仐钀界殑瀹堝崼鐪硷紝鏃佽竟浼间箮杩樻暎钀界潃涓€浜涚墿璧?..</p>
             <div className="grid grid-cols-1 gap-4">
-                <button onClick={() => { onReward({ type: 'BUFF', stat: 'strength', value: 2 }); }} className="p-4 bg-slate-800 hover:bg-red-900/50 border border-slate-600 hover:border-red-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-red-500"><Sword className="text-red-500" /></div><div><div className="font-bold text-[#F0E6D2]">训练</div><div className="text-sm text-slate-400">永久获得 <span className="text-red-400">+2 力量</span></div></div></button>
-                <button onClick={() => { onReward({ type: 'RELIC_RANDOM' }); }} className="p-4 bg-slate-800 hover:bg-purple-900/50 border border-slate-600 hover:border-purple-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-purple-500"><Gift className="text-purple-500" /></div><div><div className="font-bold text-[#F0E6D2]">搜寻</div><div className="text-sm text-slate-400">获得一�?<span className="text-purple-400">随机装备</span></div></div></button>
+                <button onClick={() => { onReward({ type: 'BUFF', stat: 'strength', value: 2 }); }} className="p-4 bg-slate-800 hover:bg-red-900/50 border border-slate-600 hover:border-red-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-red-500"><Sword className="text-red-500" /></div><div><div className="font-bold text-[#F0E6D2]">璁粌</div><div className="text-sm text-slate-400">姘镐箙鑾峰緱 <span className="text-red-400">+2 鍔涢噺</span></div></div></button>
+                <button onClick={() => { onReward({ type: 'RELIC_RANDOM' }); }} className="p-4 bg-slate-800 hover:bg-purple-900/50 border border-slate-600 hover:border-purple-500 rounded transition-all flex items-center gap-4 group text-left"><div className="p-3 bg-black rounded border border-slate-700 group-hover:border-purple-500"><Gift className="text-purple-500" /></div><div><div className="font-bold text-[#F0E6D2]">鎼滃</div><div className="text-sm text-slate-400">鑾峰緱涓€浠?<span className="text-purple-400">闅忔満瑁呭</span></div></div></button>
             </div>
         </div>
     </div>
@@ -541,10 +541,10 @@ const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
   return (
     <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center">
       <div className="max-w-4xl bg-[#091428]/90 border-2 border-[#C8AA6E] p-10 text-center rounded-xl shadow-[0_0_50px_#C8AA6E]">
-        <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">奖励</h2>
+        <h2 className="text-4xl font-bold text-[#C8AA6E] mb-6">濂栧姳</h2>
         <div className="text-2xl text-yellow-400 mb-8 flex items-center justify-center gap-2">
           <Coins size={28} className="text-yellow-400" />
-          <span>金币 +{goldReward}</span>
+          <span>閲戝竵 +{goldReward}</span>
         </div>
         <div className="flex justify-center gap-6 my-8">
           {rewards.map(c => (
@@ -565,7 +565,7 @@ const RewardView = ({ onSkip, onCardSelect, goldReward, championName }) => {
              </div>
           ))}
        </div>
-        <button onClick={onSkip} className="mt-6 px-8 py-3 border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest transition-all">跳过</button>
+        <button onClick={onSkip} className="mt-6 px-8 py-3 border border-slate-600 text-slate-400 hover:text-white hover:border-white rounded uppercase tracking-widest transition-all">璺宠繃</button>
       </div>
     </div>
   );
@@ -576,17 +576,17 @@ const RestView = ({ onRest }) => (
         <div className="absolute inset-0 bg-black/70"></div>
         <div className="relative z-10 flex flex-col gap-8 text-center items-center">
             <div className="w-24 h-24 rounded-full border-4 border-[#0AC8B9] overflow-hidden bg-black shadow-[0_0_50px_#0AC8B9]"><img src={`${ITEM_URL}/2003.png`} className="w-full h-full object-cover" /></div>
-            <h2 className="text-5xl font-serif text-[#0AC8B9] drop-shadow-[0_0_10px_#0AC8B9]">泉水憩息</h2>
+            <h2 className="text-5xl font-serif text-[#0AC8B9] drop-shadow-[0_0_10px_#0AC8B9]">娉夋按鎲╂伅</h2>
             <button onClick={onRest} className="group w-64 h-80 bg-slate-900/80 border-2 border-[#0AC8B9] rounded-xl flex flex-col items-center justify-center hover:bg-[#0AC8B9]/20 transition-all cursor-pointer">
                 <Heart size={64} className="text-red-500 mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-2xl font-bold text-white mb-2">回复</h3>
-                <p className="text-[#0AC8B9]">回复 30% 生命�?/p>
+                <h3 className="text-2xl font-bold text-white mb-2">鍥炲</h3>
+                <p className="text-[#0AC8B9]">鍥炲 30% 鐢熷懡鍊?/p>
             </button>
         </div>
     </div>
 );
 
-// --- 主组�?---
+// --- 涓荤粍浠?---
 
 export default function LegendsOfTheSpire() {
   const [view, setView] = useState('MENU'); 
@@ -605,7 +605,7 @@ export default function LegendsOfTheSpire() {
   const [showCodex, setShowCodex] = useState(false); 
   const [showDeck, setShowDeck] = useState(false);
   const [toasts, setToasts] = useState([]);
-  const [lockedChoices, setLockedChoices] = useState(new Set()); // 三选一：已锁定的选项
+  const [lockedChoices, setLockedChoices] = useState(new Set()); // 涓夐€変竴锛氬凡閿佸畾鐨勯€夐」
   
   const [unlockedChamps, setUnlockedChamps] = useState(() => { 
       try { 
@@ -613,7 +613,7 @@ export default function LegendsOfTheSpire() {
           if (!d) return Object.keys(CHAMPION_POOL);
           
           let saved = JSON.parse(d);
-          // 修复旧版本的ID (Thresh_Hero -> Thresh, Katarina_Hero -> Katarina)
+          // 淇鏃х増鏈殑ID (Thresh_Hero -> Thresh, Katarina_Hero -> Katarina)
           saved = saved.map(id => {
               if (id === 'Thresh_Hero') return 'Thresh';
               if (id === 'Katarina_Hero') return 'Katarina';
@@ -635,7 +635,7 @@ export default function LegendsOfTheSpire() {
 
   useEffect(() => {
       if (view !== 'MENU' && view !== 'CHAMPION_SELECT' && view !== 'GAMEOVER' && view !== 'VICTORY_ALL') {
-          // 序列�?mapData，将 Map 转换为普通对象以�?JSON.stringify
+          // 搴忓垪鍖?mapData锛屽皢 Map 杞崲涓烘櫘閫氬璞′互渚?JSON.stringify
           const serializableMapData = {
               ...mapData,
               nodeMap: mapData.nodeMap instanceof Map 
@@ -647,34 +647,34 @@ export default function LegendsOfTheSpire() {
   }, [view, currentHp, gold, currentFloor, currentAct]);
 
   const handleContinue = async () => {
-      await unlockAudio(); // 解锁音频
+      await unlockAudio(); // 瑙ｉ攣闊抽
       const s = localStorage.getItem(SAVE_KEY);
       if (s) {
           const data = JSON.parse(s);
-          // 恢复 nodeMap：如果它是普通对象，转换�?Map
+          // 鎭㈠ nodeMap锛氬鏋滃畠鏄櫘閫氬璞★紝杞崲涓?Map
           const restoredMapData = { ...data.mapData };
           if (restoredMapData.nodeMap && !(restoredMapData.nodeMap instanceof Map)) {
-              // 如果 nodeMap 是普通对象，转换�?Map
+              // 濡傛灉 nodeMap 鏄櫘閫氬璞★紝杞崲涓?Map
               restoredMapData.nodeMap = new Map(Object.entries(restoredMapData.nodeMap));
           } else if (!restoredMapData.nodeMap) {
-              // 如果 nodeMap 不存在，创建新的 Map
+              // 濡傛灉 nodeMap 涓嶅瓨鍦紝鍒涘缓鏂扮殑 Map
               restoredMapData.nodeMap = new Map();
           }
-          setBgmStarted(true); // 立即启动BGM
+          setBgmStarted(true); // 绔嬪嵆鍚姩BGM
           setMapData(restoredMapData); setCurrentFloor(data.currentFloor); setCurrentAct(data.currentAct || 1); setMasterDeck(data.masterDeck); setChampion(data.champion); setCurrentHp(data.currentHp); setMaxHp(data.maxHp); setGold(data.gold); setRelics(data.relics); setBaseStr(data.baseStr); setActiveNode(data.activeNode); setUsedEnemies(data.usedEnemies); setView(data.view);
       }
   };
 
   const handleNewGame = async () => { 
-      await unlockAudio(); // 解锁音频
+      await unlockAudio(); // 瑙ｉ攣闊抽
       localStorage.removeItem(SAVE_KEY); 
       setHasSave(false); 
-      setBgmStarted(true); // 立即启动BGM
+      setBgmStarted(true); // 绔嬪嵆鍚姩BGM
       setView('CHAMPION_SELECT'); 
   };
 
   const handleChampionSelect = (selectedChamp) => {
-    // 播放英雄语音
+    // 鎾斁鑻遍泟璇煶
     playChampionVoice(selectedChamp.id);
     setChampion(selectedChamp); 
     setMaxHp(selectedChamp.maxHp); 
@@ -684,11 +684,11 @@ export default function LegendsOfTheSpire() {
     setBaseStr(0);
     setGold(0);
     
-    // 使用v4地图生成器（带死胡同检测和三选一机制�?
+    // 浣跨敤v4鍦板浘鐢熸垚鍣紙甯︽鑳″悓妫€娴嬪拰涓夐€変竴鏈哄埗锛?
     const newMapData = generateGridMap(1, []); // act=1, usedEnemies=[]
     setMapData(newMapData);
     
-    // 设置初始activeNode为startNode
+    // 璁剧疆鍒濆activeNode涓簊tartNode
     if (newMapData.startNode) {
       setActiveNode(newMapData.startNode);
     }
@@ -696,23 +696,23 @@ export default function LegendsOfTheSpire() {
     setCurrentFloor(0); 
     setCurrentAct(1); 
     setUsedEnemies([]);
-    setLockedChoices(new Set()); // 清空锁定选项
+    setLockedChoices(new Set()); // 娓呯┖閿佸畾閫夐」
     setView('MAP');
   };
 
   const completeNode = () => {
       if (!activeNode || !mapData || !mapData.nodes) return;
       
-      // v4自由探索系统：标记当前节点为已探�?
+      // v4鑷敱鎺㈢储绯荤粺锛氭爣璁板綋鍓嶈妭鐐逛负宸叉帰绱?
       const newNodes = [...mapData.nodes];
       const idx = newNodes.findIndex(n => n.row === activeNode.row && n.col === activeNode.col);
       if (idx === -1) return;
       
-      // 标记为已探索（不再使用status，使用explored属性）
+      // 鏍囪涓哄凡鎺㈢储锛堜笉鍐嶄娇鐢╯tatus锛屼娇鐢╡xplored灞炴€э級
       newNodes[idx].explored = true;
       newNodes[idx].status = 'COMPLETED';
       
-      // 更新mapData（保持grid和nodes同步�?
+      // 鏇存柊mapData锛堜繚鎸乬rid鍜宯odes鍚屾锛?
       const newGrid = mapData.grid ? mapData.grid.map(row => [...row]) : [];
       newNodes.forEach(node => {
         if (newGrid[node.row] && newGrid[node.row][node.col]) {
@@ -722,29 +722,29 @@ export default function LegendsOfTheSpire() {
       
       setMapData({ ...mapData, grid: newGrid, nodes: newNodes });
       
-      // 注意：不清空锁定选项，锁定的选项应该永久锁定
-      // 只有在移动到新节点时，才会重新计算可用选项（但已锁定的选项仍然锁定�?
+      // 娉ㄦ剰锛氫笉娓呯┖閿佸畾閫夐」锛岄攣瀹氱殑閫夐」搴旇姘镐箙閿佸畾
+      // 鍙湁鍦ㄧЩ鍔ㄥ埌鏂拌妭鐐规椂锛屾墠浼氶噸鏂拌绠楀彲鐢ㄩ€夐」锛堜絾宸查攣瀹氱殑閫夐」浠嶇劧閿佸畾锛?
       
-      // 检查是否到达BOSS
+      // 妫€鏌ユ槸鍚﹀埌杈綛OSS
       if (activeNode.type === 'BOSS') {
-          // 章节通关逻辑
+          // 绔犺妭閫氬叧閫昏緫
           if (currentAct < 3) {
               const nextAct = currentAct + 1;
               setCurrentAct(nextAct);
               setCurrentFloor(0);
-              const nextMapData = generateGridMap(nextAct, []); // v4生成�?
+              const nextMapData = generateGridMap(nextAct, []); // v4鐢熸垚鍣?
               setMapData(nextMapData);
               if (nextMapData.startNode) {
                 setActiveNode(nextMapData.startNode);
               }
-              // 清空锁定选项
+              // 娓呯┖閿佸畾閫夐」
               setLockedChoices(new Set());
-              // 章节奖励：回�?50% 生命
+              // 绔犺妭濂栧姳锛氬洖澶?50% 鐢熷懡
               setCurrentHp(Math.min(maxHp, currentHp + Math.floor(maxHp * 0.5)));
-              alert(`�?${currentAct} 章通关！进入下一�?..`);
+              alert(`绗?${currentAct} 绔犻€氬叧锛佽繘鍏ヤ笅涓€绔?..`);
               setView('MAP');
           } else {
-              // 游戏通关
+              // 娓告垙閫氬叧
               const allIds = Object.keys(CHAMPION_POOL);
               const locked = allIds.filter(id => !unlockedChamps.includes(id));
               if (locked.length > 0) {
@@ -752,54 +752,54 @@ export default function LegendsOfTheSpire() {
                   const updated = [...unlockedChamps, newUnlock];
                   setUnlockedChamps(updated);
                   localStorage.setItem(UNLOCK_KEY, JSON.stringify(updated));
-                  alert(`恭喜通关！新英雄解锁: ${CHAMPION_POOL[newUnlock].name}`);
+                  alert(`鎭枩閫氬叧锛佹柊鑻遍泟瑙ｉ攣: ${CHAMPION_POOL[newUnlock].name}`);
               }
               localStorage.removeItem(SAVE_KEY);
               setView('VICTORY_ALL'); 
           }
       } else {
-          // 继续探索，返回地图视�?
+          // 缁х画鎺㈢储锛岃繑鍥炲湴鍥捐鍥?
           setView('MAP');
       }
   };
   
   const handleNodeSelect = (node) => {
-      // v4自由探索系统：基于六边形邻接规则，不依赖DAG
-      // 三选一机制：当玩家选择一个节点后，锁定其他选项
+      // v4鑷敱鎺㈢储绯荤粺锛氬熀浜庡叚杈瑰舰閭绘帴瑙勫垯锛屼笉渚濊禆DAG
+      // 涓夐€変竴鏈哄埗锛氬綋鐜╁閫夋嫨涓€涓妭鐐瑰悗锛岄攣瀹氬叾浠栭€夐」
       
       if (!activeNode) {
-          // 起点：只能选择起点本身
+          // 璧风偣锛氬彧鑳介€夋嫨璧风偣鏈韩
           if (node.row !== mapData.startNode?.row || node.col !== mapData.startNode?.col) return;
       } else {
-          // 检查节点是否在已锁定的选项�?
+          // 妫€鏌ヨ妭鐐规槸鍚﹀湪宸查攣瀹氱殑閫夐」涓?
           const nodeKey = `${node.row}-${node.col}`;
           if (lockedChoices.has(nodeKey)) {
-              return; // 已锁定的选项不能选择
+              return; // 宸查攣瀹氱殑閫夐」涓嶈兘閫夋嫨
           }
           
-          // 获取当前节点的所有未探索邻居（排除已锁定的选项�?
+          // 鑾峰彇褰撳墠鑺傜偣鐨勬墍鏈夋湭鎺㈢储閭诲眳锛堟帓闄ゅ凡閿佸畾鐨勯€夐」锛?
           const neighbors = getHexNeighbors(activeNode.row, activeNode.col, mapData.totalFloors || 10, mapData.grid?.[0]?.length || 11);
           const availableNeighbors = neighbors
               .map(([r, c]) => mapData.grid?.[r]?.[c])
               .filter(n => {
                   if (!n || n.explored) return false;
-                  // 排除已锁定的选项
+                  // 鎺掗櫎宸查攣瀹氱殑閫夐」
                   const nKey = `${n.row}-${n.col}`;
                   if (lockedChoices.has(nKey)) return false;
                   return true;
               });
           
-          // 检查选择的节点是否是可用邻居
+          // 妫€鏌ラ€夋嫨鐨勮妭鐐规槸鍚︽槸鍙敤閭诲眳
           const isNeighbor = availableNeighbors.some(n => n.row === node.row && n.col === node.col);
           if (!isNeighbor) {
-              return; // 不是可用邻居，不能选择
+              return; // 涓嶆槸鍙敤閭诲眳锛屼笉鑳介€夋嫨
           }
           
-          // 【关键修复】三选一锁定逻辑：只锁定UI实际显示�?个选项中的未选择选项
-          // 必须与GridMapView_v3.jsx的getAvailableNodes()逻辑完全一�?
+          // 銆愬叧閿慨澶嶃€戜笁閫変竴閿佸畾閫昏緫锛氬彧閿佸畾UI瀹為檯鏄剧ず鐨?涓€夐」涓殑鏈€夋嫨閫夐」
+          // 蹇呴』涓嶨ridMapView_v3.jsx鐨刧etAvailableNodes()閫昏緫瀹屽叏涓€鑷?
           let displayedChoices = availableNeighbors;
           if (availableNeighbors.length > 3) {
-              // 使用与UI相同的排序和哈希逻辑
+              // 浣跨敤涓嶶I鐩稿悓鐨勬帓搴忓拰鍝堝笇閫昏緫
               const sorted = [...availableNeighbors].sort((a, b) => {
                   const seedA = `${a.row}-${a.col}`;
                   const seedB = `${b.row}-${b.col}`;
@@ -812,7 +812,7 @@ export default function LegendsOfTheSpire() {
               }
           }
           
-          // 只锁定UI显示�?个选项中的未选择选项
+          // 鍙攣瀹歎I鏄剧ず鐨?涓€夐」涓殑鏈€夋嫨閫夐」
           const newLockedChoices = new Set(lockedChoices);
           displayedChoices.forEach(n => {
               if (n.row !== node.row || n.col !== node.col) {
@@ -835,7 +835,7 @@ export default function LegendsOfTheSpire() {
       }
   };
 
-  // Toast通知系统
+  // Toast閫氱煡绯荤粺
   const showToast = (message, type = 'default') => {
       const id = Date.now();
       setToasts(prev => [...prev, { id, message, type }]);
@@ -845,37 +845,37 @@ export default function LegendsOfTheSpire() {
   };
 
   const handleBattleWin = (battleResult) => { 
-      // 处理战斗结果（可能是旧格式的remainingHp数字，也可能是新格式的对象）
+      // 澶勭悊鎴樻枟缁撴灉锛堝彲鑳芥槸鏃ф牸寮忕殑remainingHp鏁板瓧锛屼篃鍙兘鏄柊鏍煎紡鐨勫璞★級
       const result = typeof battleResult === 'number' 
           ? { finalHp: battleResult, gainedStr: 0, gainedMaxHp: 0 }
           : battleResult;
       
-      console.log('[战斗胜利] battleResult:', result); // 调试日志
-      console.log('[当前属性] baseStr:', baseStr, 'maxHp:', maxHp); // 调试日志
+      console.log('[鎴樻枟鑳滃埄] battleResult:', result); // 璋冭瘯鏃ュ織
+      console.log('[褰撳墠灞炴€ baseStr:', baseStr, 'maxHp:', maxHp); // 璋冭瘯鏃ュ織
       
-      // 盖伦被动：战斗结束恢复HP
+      // 鐩栦鸡琚姩锛氭垬鏂楃粨鏉熸仮澶岺P
       let passiveHeal = champion.relicId === "GarenPassive" ? 6 : 0; 
       
-      // 内瑟斯被动：将战斗中获得的力量永久化
+      // 鍐呯憻鏂鍔細灏嗘垬鏂椾腑鑾峰緱鐨勫姏閲忔案涔呭寲
       if (result.gainedStr > 0) {
-          console.log('[内瑟斯] 永久力量增长:', result.gainedStr, '�?, baseStr + result.gainedStr); // 调试日志
+          console.log('[鍐呯憻鏂痌 姘镐箙鍔涢噺澧為暱:', result.gainedStr, '鈫?, baseStr + result.gainedStr); // 璋冭瘯鏃ュ織
           setBaseStr(prev => prev + result.gainedStr);
-          showToast(`永久力量 +${result.gainedStr}`, 'strength');
+          showToast(`姘镐箙鍔涢噺 +${result.gainedStr}`, 'strength');
       }
       
-      // 锤石被动：永久增加最大生命�?
+      // 閿ょ煶琚姩锛氭案涔呭鍔犳渶澶х敓鍛藉€?
       if (result.gainedMaxHp > 0) {
-          console.log('[锤石] 最大HP增长:', result.gainedMaxHp, '�?, maxHp + result.gainedMaxHp); // 调试日志
+          console.log('[閿ょ煶] 鏈€澶P澧為暱:', result.gainedMaxHp, '鈫?, maxHp + result.gainedMaxHp); // 璋冭瘯鏃ュ織
           setMaxHp(prev => prev + result.gainedMaxHp);
-          passiveHeal += result.gainedMaxHp; // 最大HP增长也算作恢�?
-          showToast(`最大生命�?+${result.gainedMaxHp}`, 'maxHp');
+          passiveHeal += result.gainedMaxHp; // 鏈€澶P澧為暱涔熺畻浣滄仮澶?
+          showToast(`鏈€澶х敓鍛藉€?+${result.gainedMaxHp}`, 'maxHp');
       }
       
-      // 卡牌大师被动：战斗胜利额外金�?
+      // 鍗＄墝澶у笀琚姩锛氭垬鏂楄儨鍒╅澶栭噾甯?
       if (champion && champion.relicId === "TwistedFatePassive") {
-          console.log('[卡牌大师] 获得额外金币: +15'); // 调试日志
+          console.log('[鍗＄墝澶у笀] 鑾峰緱棰濆閲戝竵: +15'); // 璋冭瘯鏃ュ織
           setGold(prev => prev + 15);
-          showToast('灌铅骰子: +15 金币', 'gold');
+          showToast('鐏岄搮楠板瓙: +15 閲戝竵', 'gold');
       }
       
       setCurrentHp(Math.min(maxHp + (result.gainedMaxHp || 0), result.finalHp + passiveHeal)); 
@@ -888,7 +888,7 @@ export default function LegendsOfTheSpire() {
       if (reward.type === 'BUFF' && reward.stat === 'strength') setBaseStr(prev => prev + reward.value);
       if (reward.type === 'RELIC_RANDOM') { const pool = Object.values(RELIC_DATABASE).filter(r => r.rarity !== 'PASSIVE' && !relics.includes(r.id)); if (pool.length > 0) handleRelicReward(shuffle(pool)[0]); } 
       if (reward.type === 'UPGRADE_RANDOM') {
-          // 随机升级一张卡
+          // 闅忔満鍗囩骇涓€寮犲崱
           const upgradableIndices = masterDeck.map((id, idx) => !id.endsWith('+') ? idx : -1).filter(i => i !== -1);
           if (upgradableIndices.length > 0) {
               const randomIdx = upgradableIndices[Math.floor(Math.random() * upgradableIndices.length)];
@@ -902,7 +902,7 @@ export default function LegendsOfTheSpire() {
   const handleCardReward = (cardId) => { setMasterDeck([...masterDeck, cardId]); setGold(gold + 50); completeNode(); };
   
   const handleUpgradeCard = (cardId) => {
-      // 升级指定卡牌（找到第一个匹配的未升级版本）
+      // 鍗囩骇鎸囧畾鍗＄墝锛堟壘鍒扮涓€涓尮閰嶇殑鏈崌绾х増鏈級
       const idx = masterDeck.findIndex(id => id === cardId);
       if (idx !== -1) {
           const newDeck = [...masterDeck];
@@ -913,10 +913,10 @@ export default function LegendsOfTheSpire() {
   };
   
   const handleBuyMana = () => {
-      // 增加最大法力�?(这里需�?GameState 支持，或者由 Relic 实现，简化起见，我们添加一个特殊的被动遗物)
-      // 由于没有直接�?maxMana 状态（写死�?BattleScene），我们需要通过遗物来修�?
-      // 或者在 App 中添�?maxMana 状态传�?BattleScene
-      // 这里简单实现：添加一个隐藏遗�?"ManaGem"
+      // 澧炲姞鏈€澶ф硶鍔涘€?(杩欓噷闇€瑕?GameState 鏀寔锛屾垨鑰呯敱 Relic 瀹炵幇锛岀畝鍖栬捣瑙侊紝鎴戜滑娣诲姞涓€涓壒娈婄殑琚姩閬楃墿)
+      // 鐢变簬娌℃湁鐩存帴鐨?maxMana 鐘舵€侊紙鍐欐鍦?BattleScene锛夛紝鎴戜滑闇€瑕侀€氳繃閬楃墿鏉ヤ慨鏀?
+      // 鎴栬€呭湪 App 涓坊鍔?maxMana 鐘舵€佷紶缁?BattleScene
+      // 杩欓噷绠€鍗曞疄鐜帮細娣诲姞涓€涓殣钘忛仐鐗?"ManaGem"
       setRelics(prev => [...prev, "ManaGem"]); 
       setGold(prev => prev - 200);
   };
@@ -930,7 +930,7 @@ export default function LegendsOfTheSpire() {
     const url = SFX[type] || SFX.ATTACK;
     if (!url) return;
     const audio = new Audio(url);
-    // 根据音效类型调整音量
+    // 鏍规嵁闊虫晥绫诲瀷璋冩暣闊抽噺
     if (type === 'ATTACK_SWING' || type === 'ATTACK_HIT') {
       audio.volume = 0.5;
     } else if (type === 'BLOCK_SHIELD') {
@@ -955,36 +955,36 @@ export default function LegendsOfTheSpire() {
           case 'MENU': return (
               <div className="h-screen w-full bg-slate-900 flex flex-col items-center justify-center text-white bg-[url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ryze_0.jpg')] bg-cover bg-center">
                   <div className="absolute inset-0 bg-black/60"></div>
-                  <div className="z-10 text-center"><h1 className="text-8xl font-black text-[#C8AA6E] mb-8 drop-shadow-lg tracking-widest">峡谷尖塔</h1><div className="flex flex-col gap-4 w-64 mx-auto">{hasSave && (<button onClick={handleContinue} className="px-8 py-4 bg-[#0AC8B9] hover:bg-white hover:text-[#0AC8B9] text-black font-bold rounded flex items-center justify-center gap-2 transition-all"><Play fill="currentColor" /> 继续征程</button>)}<button onClick={handleNewGame} className="px-8 py-4 border-2 border-[#C8AA6E] hover:bg-[#C8AA6E] hover:text-black text-[#C8AA6E] font-bold rounded flex items-center justify-center gap-2 transition-all"><RotateCcw /> 新游�?/button></div><p className="mt-8 text-slate-400 text-sm">v0.8.0 Beta</p></div>
+                  <div className="z-10 text-center"><h1 className="text-8xl font-black text-[#C8AA6E] mb-8 drop-shadow-lg tracking-widest">宄¤胺灏栧</h1><div className="flex flex-col gap-4 w-64 mx-auto">{hasSave && (<button onClick={handleContinue} className="px-8 py-4 bg-[#0AC8B9] hover:bg-white hover:text-[#0AC8B9] text-black font-bold rounded flex items-center justify-center gap-2 transition-all"><Play fill="currentColor" /> 缁х画寰佺▼</button>)}<button onClick={handleNewGame} className="px-8 py-4 border-2 border-[#C8AA6E] hover:bg-[#C8AA6E] hover:text-black text-[#C8AA6E] font-bold rounded flex items-center justify-center gap-2 transition-all"><RotateCcw /> 鏂版父鎴?/button></div><p className="mt-8 text-slate-400 text-sm">v0.8.0 Beta</p></div>
                   {showUpdateLog && (
                       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90">
                           <div className="max-w-2xl bg-[#091428]/95 border-2 border-[#C8AA6E] p-8 rounded-xl shadow-[0_0_50px_#C8AA6E]">
-                              <h2 className="text-3xl font-bold text-[#C8AA6E] mb-6 text-center">v0.8.0 (当前版本) 更新日志</h2>
+                              <h2 className="text-3xl font-bold text-[#C8AA6E] mb-6 text-center">v0.8.0 (褰撳墠鐗堟湰) 鏇存柊鏃ュ織</h2>
                               <div className="space-y-4 text-left max-h-96 overflow-y-auto">
                                   <div className="border-l-4 border-green-500 pl-4">
-                                      <div className="font-bold text-green-400 mb-1">[Feature] 全英雄实�?/div>
-                                      <div className="text-sm text-[#A09B8C]">英雄池扩充至 20 位，包含瑞文、卡牌、盲僧等新英雄，且每位英雄拥有独特的初始卡组和被动遗物�?/div>
+                                      <div className="font-bold text-green-400 mb-1">[Feature] 鍏ㄨ嫳闆勫疄瑁?/div>
+                                      <div className="text-sm text-[#A09B8C]">鑻遍泟姹犳墿鍏呰嚦 20 浣嶏紝鍖呭惈鐟炴枃銆佸崱鐗屻€佺洸鍍х瓑鏂拌嫳闆勶紝涓旀瘡浣嶈嫳闆勬嫢鏈夌嫭鐗圭殑鍒濆鍗＄粍鍜岃鍔ㄩ仐鐗┿€?/div>
                                   </div>
                                   <div className="border-l-4 border-green-500 pl-4">
-                                      <div className="font-bold text-green-400 mb-1">[Feature] 三章节系�?/div>
-                                      <div className="text-sm text-[#A09B8C]">正式实装 Act 1 (峡谷), Act 2 (暗影�?, Act 3 (虚空) 的完整流程，包含专属敌人�?Boss�?/div>
+                                      <div className="font-bold text-green-400 mb-1">[Feature] 涓夌珷鑺傜郴缁?/div>
+                                      <div className="text-sm text-[#A09B8C]">姝ｅ紡瀹炶 Act 1 (宄¤胺), Act 2 (鏆楀奖宀?, Act 3 (铏氱┖) 鐨勫畬鏁存祦绋嬶紝鍖呭惈涓撳睘鏁屼汉鍜?Boss銆?/div>
                                   </div>
                                   <div className="border-l-4 border-green-500 pl-4">
-                                      <div className="font-bold text-green-400 mb-1">[Feature] 资巧专属遗物</div>
-                                      <div className="text-sm text-[#A09B8C]">新增了只能在特定章节获取的强力遗物（�?Act 3 的纳什之牙）�?/div>
+                                      <div className="font-bold text-green-400 mb-1">[Feature] 璧勫阀涓撳睘閬楃墿</div>
+                                      <div className="text-sm text-[#A09B8C]">鏂板浜嗗彧鑳藉湪鐗瑰畾绔犺妭鑾峰彇鐨勫己鍔涢仐鐗╋紙濡?Act 3 鐨勭撼浠€涔嬬墮锛夈€?/div>
                                   </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
-                                      <div className="font-bold text-blue-400 mb-1">[Fix] 牌库打空 Bug</div>
+                                      <div className="font-bold text-blue-400 mb-1">[Fix] 鐗屽簱鎵撶┖ Bug</div>
                                   </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
-                                      <div className="font-bold text-blue-400 mb-1">[Fix] 厄加特回血 Bug</div>
+                                      <div className="font-bold text-blue-400 mb-1">[Fix] 鍘勫姞鐗瑰洖琛€ Bug</div>
                                   </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
-                                      <div className="font-bold text-blue-400 mb-1">[Fix] 地图路径逻辑</div>
+                                      <div className="font-bold text-blue-400 mb-1">[Fix] 鍦板浘璺緞閫昏緫</div>
                                   </div>
                                   <div className="border-l-4 border-blue-500 pl-4">
-                                      <div className="font-bold text-blue-400 mb-1">[Fix] 资源链接</div>
-                                      <div className="text-sm text-[#A09B8C]">全面校对�?20 位英雄的技能图标、头像和 Loading 图，修复了所�?broken image�?/div>
+                                      <div className="font-bold text-blue-400 mb-1">[Fix] 璧勬簮閾炬帴</div>
+                                      <div className="text-sm text-[#A09B8C]">鍏ㄩ潰鏍″浜?20 浣嶈嫳闆勭殑鎶€鑳藉浘鏍囥€佸ご鍍忓拰 Loading 鍥撅紝淇浜嗘墍鏈?broken image銆?/div>
                                   </div>
                               </div>
                               <button 
@@ -995,7 +995,7 @@ export default function LegendsOfTheSpire() {
                                   }} 
                                   className="mt-6 w-full px-8 py-3 bg-[#C8AA6E] hover:bg-[#F0E6D2] text-black font-bold rounded transition-all"
                               >
-                                  关闭
+                                  鍏抽棴
                               </button>
                           </div>
                       </div>
@@ -1010,8 +1010,8 @@ export default function LegendsOfTheSpire() {
           case 'COMBAT': return champion ? <BattleScene heroData={{...champion, maxHp, currentHp, relics, baseStr}} enemyId={activeNode?.enemyId} initialDeck={masterDeck} onWin={handleBattleWin} onLose={() => { localStorage.removeItem(SAVE_KEY); setView('GAMEOVER'); }} floorIndex={currentFloor} act={currentAct} /> : <div>Loading...</div>;
           case 'REWARD': return <RewardView goldReward={50} onCardSelect={handleCardReward} onSkip={handleSkipReward} championName={champion.name} />;
           case 'REST': return <RestView onRest={handleRest} />;
-          case 'VICTORY_ALL': return <div className="h-screen w-full bg-[#0AC8B9]/20 flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-[#0AC8B9]">传奇永不熄灭�?/h1><button onClick={() => setView('MENU')} className="mt-8 px-8 py-3 bg-[#0AC8B9] text-black font-bold rounded">回到菜单</button></div>;
-          case 'GAMEOVER': return <div className="h-screen w-full bg-black flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-red-600">战败</h1><button onClick={() => setView('MENU')} className="mt-8 px-8 py-3 bg-red-800 rounded font-bold">回到菜单</button></div>;
+          case 'VICTORY_ALL': return <div className="h-screen w-full bg-[#0AC8B9]/20 flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-[#0AC8B9]">浼犲姘镐笉鐔勭伃锛?/h1><button onClick={() => setView('MENU')} className="mt-8 px-8 py-3 bg-[#0AC8B9] text-black font-bold rounded">鍥炲埌鑿滃崟</button></div>;
+          case 'GAMEOVER': return <div className="h-screen w-full bg-black flex flex-col items-center justify-center text-white"><h1 className="text-6xl font-bold text-red-600">鎴樿触</h1><button onClick={() => setView('MENU')} className="mt-8 px-8 py-3 bg-red-800 rounded font-bold">鍥炲埌鑿滃崟</button></div>;
           default: return <div>Loading...</div>;
       }
   };
@@ -1038,7 +1038,7 @@ export default function LegendsOfTheSpire() {
                           </span>
                               <div className="flex items-center gap-4 text-sm font-bold"><span className="text-red-400 flex items-center gap-1"><Heart size={14} fill="currentColor"/> {currentHp}/{maxHp}</span><span className="text-yellow-400 flex items-center gap-1"><Coins size={14} fill="currentColor"/> {gold}</span></div>
                           </div>
-                          {/* 遗物�?- 紧邻被动技能右�?*/}
+                          {/* 閬楃墿鏍?- 绱ч偦琚姩鎶€鑳藉彸渚?*/}
                           <div className="flex gap-2 flex-wrap max-w-md">
                       {relics.filter(rid => rid !== champion.relicId).map((rid, i) => {
                           const relic = RELIC_DATABASE[rid];
